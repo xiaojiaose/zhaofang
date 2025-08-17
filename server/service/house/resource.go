@@ -1,9 +1,11 @@
 package house
 
 import (
+	"context"
 	"github.com/flipped-aurora/gin-vue-admin/server/global"
 	"github.com/flipped-aurora/gin-vue-admin/server/model/common/request"
 	"github.com/flipped-aurora/gin-vue-admin/server/model/house"
+	"github.com/flipped-aurora/gin-vue-admin/server/model/search"
 )
 
 type ResourceService struct{}
@@ -17,11 +19,32 @@ func (service *ResourceService) FilterOptions() (list map[string]map[string]stri
 	return
 }
 
+var priceRanges = map[string][]int{
+	"1": {0, 500},
+	"2": {500, 1000},
+	"3": {1000, 1500},
+	"4": {1500, 2000},
+	"5": {2000, 2500},
+	"6": {2500, 3000},
+	"7": {3000, 100000},
+}
+
+func (service *ResourceService) GetPriceByOption(key string) []int {
+	return priceRanges[key]
+}
+
 func (service *ResourceService) CreateOrUpdate(resource *house.Resource) (err error) {
 	err = global.GVA_DB.Where("id = ?", resource.ID).First(&house.Resource{}).Updates(&resource).Error
 	if err != nil && err.Error() == "record not found" {
-		return global.GVA_DB.Create(resource).Error
+		err = global.GVA_DB.Create(resource).Error
 	}
+	if err == nil {
+		err = global.Gva_ResourceSearch.Add(context.Background(), *search.FromDeviceDB(resource))
+		if err != nil {
+			return err
+		}
+	}
+
 	return
 }
 
@@ -31,24 +54,18 @@ func (service *ResourceService) GetInfo(id uint) (resource *house.Resource, err 
 	return
 }
 
-func (service *ResourceService) GetSuitePage(api *house.Resource, info request.PageInfo, order string, desc bool) (list interface{}, total int64, err error) {
+func (service *ResourceService) GetPage(xiaoquId uint, info request.PageInfo, order string, desc bool) (list interface{}, total int64, err error) {
 
 	limit := info.PageSize
 	offset := info.PageSize * (info.Page - 1)
 	db := global.GVA_DB.Model(&house.Resource{})
 	var apiList []house.Resource
 
-	if api.City != "" {
-		db = db.Where("city = ?", api.City)
+	if xiaoquId != 0 {
+		db = db.Where("xiaoqu_id = ?", xiaoquId)
 	}
-
-	if api.XiaoquId != 0 {
-		db = db.Where("xiaoqu_id = ?", api.XiaoquId)
-	}
-
-	//if api.AliseName != "" {
-	//	db = db.Where("alise_name = ?", api.AliseName)
-	//}
+	
+	db = db.Where("status = 待出租")
 
 	err = db.Count(&total).Error
 

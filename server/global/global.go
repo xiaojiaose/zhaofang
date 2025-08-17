@@ -2,6 +2,8 @@ package global
 
 import (
 	"fmt"
+	"github.com/flipped-aurora/gin-vue-admin/server/search"
+	"github.com/linxdeep/linxdeep-framework/pkg/searchx"
 	"github.com/mark3labs/mcp-go/server"
 	"sync"
 
@@ -41,6 +43,7 @@ var (
 	SmsCache                local_cache.Cache
 	lock                    sync.RWMutex
 	GVA_Lock                sync.RWMutex
+	Gva_ResourceSearch      *search.ResourceSearch
 )
 
 // GetGlobalDBByDBName 通过名称获取db list中的db
@@ -59,6 +62,11 @@ func MustGetGlobalDBByDBName(dbname string) *gorm.DB {
 		panic("db no init")
 	}
 	return db
+}
+
+func InitZincSearch(url, username, password string) *search.ResourceSearch {
+	Gva_ResourceSearch = search.NewResource(searchx.New(url, username, password))
+	return Gva_ResourceSearch
 }
 
 func GetRedis(name string) redis.UniversalClient {

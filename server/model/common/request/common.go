@@ -57,5 +57,19 @@ type SearchXiaoqu struct {
 	PageInfo
 	CityId    string `json:"cityId"`    // 城市id
 	AreaId    string `json:"areaId"`    // 区id
-	Districts []int  `json:"districts"` // 商圈ids
+	Districts []int  `json:"districts"` //
+}
+type SearchResource struct {
+	PageInfo
+	XiaoquId uint   `json:"xiaoquId"` // 小区id
+	OrderKey string `json:"orderKey"` // 排序
+	Desc     bool   `json:"desc"`     // 排序方式:升序false(默认)|降序true
+}
+
+type ResourceSearch struct {
+	XiaoquId  []int  `json:"xiaoquIds"` // 商圈ids
+	HouseType string `json:"houseType"`
+	RentType  string `json:"rentType"`
+	Price     int    `json:"price"`
+	Feature   string `json:"feature"`
 }

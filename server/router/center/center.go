@@ -33,6 +33,9 @@ func (s *CenterRouter) InitCenterAuthRouter(Router *gin.RouterGroup) {
 		houseRouter.GET("options", resourceApi.FilterOptions)
 		houseRouter.POST("house/create", resourceApi.Create)
 		houseRouter.GET("house/view", resourceApi.View)
+		houseRouter.POST("house/xiaoquAgg", resourceApi.ListByXiaoquAgg)
+		houseRouter.POST("house/listByXiaoqu", resourceApi.ListByXiaoquId)
+
 		houseRouter.POST("house/edit", resourceApi.Edit)
 		houseRouter.POST("upload", fileUploadApi.UploadFile1)
 

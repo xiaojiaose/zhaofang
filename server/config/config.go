@@ -37,6 +37,8 @@ type Server struct {
 
 	// MCP配置
 	MCP MCP `mapstructure:"mcp" json:"mcp" yaml:"mcp"`
+
+	ZincSearch ZincSearch `mapstructure:"zinc-search" json:"zinc-search" yaml:"zinc-search"`
 }
 
 const (

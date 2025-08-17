@@ -1,12 +1,18 @@
 package center
 
 import (
+	"context"
+	"fmt"
 	"github.com/flipped-aurora/gin-vue-admin/server/global"
 	"github.com/flipped-aurora/gin-vue-admin/server/model/common/request"
 	"github.com/flipped-aurora/gin-vue-admin/server/model/common/response"
 	"github.com/flipped-aurora/gin-vue-admin/server/model/house"
 	"github.com/flipped-aurora/gin-vue-admin/server/utils"
 	"github.com/gin-gonic/gin"
+	"github.com/linxdeep/linxdeep-framework/pkg/searchx"
+	"go.uber.org/zap"
+	"strconv"
+	"strings"
 )
 
 type HouseResourceApi struct {
@@ -34,6 +40,101 @@ func (h *HouseResourceApi) View(c *gin.Context) {
 	}
 
 	response.OkWithDetailed(info, "获取成功", c)
+}
+
+func (h *HouseResourceApi) ListByXiaoquAgg(c *gin.Context) {
+	var req request.ResourceSearch
+	err := c.ShouldBindJSON(&req)
+	if err != nil {
+		response.FailWithMessage(err.Error(), c)
+		return
+	}
+
+	condition := searchx.Condition{
+		Terms: []searchx.Term{
+			{Field: "status", Value: "待出租"},
+		},
+		Ors: []searchx.Condition{
+			{
+				Terms: []searchx.Term{},
+			},
+		},
+		Aggs: []searchx.Agg{
+			{Field: "xiaoqu_id"},
+		},
+	}
+
+	if len(req.Feature) > 0 {
+		for _, f := range strings.Split(req.Feature, ",") {
+			condition.Terms = append(condition.Terms, searchx.Term{Field: "feature", Value: "*" + f + "*"})
+		}
+	}
+	if len(req.HouseType) > 0 {
+		condition.Terms = append(condition.Terms, searchx.Term{Field: "house_type", Value: req.HouseType + "*"})
+	}
+
+	if len(req.RentType) > 0 {
+		condition.Terms = append(condition.Terms, searchx.Term{Field: "rent_type", Value: req.RentType + "*"})
+	}
+	if req.Price > 0 {
+		priceOption := ResourceService.GetPriceByOption(strconv.Itoa(req.Price))
+		g := priceOption[0]
+		l := priceOption[1]
+		condition.Ranges = append(condition.Ranges, searchx.Range{Field: "price", GreatEqual: fmt.Sprintf("%d", g), LessEqual: fmt.Sprintf("%d", l)})
+	}
+
+	for _, i := range req.XiaoquId {
+		condition.Ors[0].Terms = append(condition.Ors[0].Terms, searchx.Term{Field: "xiaoqu_id", Value: strconv.Itoa(i)})
+	}
+	_, _, agg, err := global.Gva_ResourceSearch.SearchAgg(context.Background(), condition, searchx.QueryParams{
+		Fields: []string{"id", "xiaoqu", "xiaoqu_id"},
+		Size:   0,
+	})
+	if err != nil {
+		response.FailWithMessage(err.Error(), c)
+		return
+	}
+	response.OkWithDetailed(response.Response{
+		Data: agg,
+	}, "获取成功", c)
+}
+
+// @Tags      Suite
+// @Summary   指定小区 分页获取房源列表
+// @accept    application/json
+// @Produce   application/json
+// @Param     data  body      request.SearchXiaoqu   true  "分页获取API列表"
+// @Success   200   {object}  response.Response{data=response.PageResult,msg=string}  "分页获取API列表,返回包括列表,总数,页码,每页数量"
+// @Router    center/house/listByXiaoqu [post]
+func (h *HouseResourceApi) ListByXiaoquId(c *gin.Context) {
+	var pageInfo request.SearchResource
+	err := c.ShouldBindJSON(&pageInfo)
+	if err != nil {
+		response.FailWithMessage(err.Error(), c)
+		return
+	}
+
+	if pageInfo.PageInfo.Page == 0 {
+		pageInfo.PageInfo.Page = 1
+	}
+
+	if pageInfo.PageInfo.PageSize == 0 {
+		pageInfo.PageInfo.PageSize = 50
+	}
+
+	list, total, err := ResourceService.GetPage(pageInfo.XiaoquId, pageInfo.PageInfo, pageInfo.OrderKey, pageInfo.Desc)
+	if err != nil {
+		global.GVA_LOG.Error("获取失败!", zap.Error(err))
+		response.FailWithMessage("获取失败", c)
+		return
+	}
+	response.OkWithDetailed(response.PageResult{
+		List:     list,
+		Total:    total,
+		Page:     pageInfo.Page,
+		PageSize: pageInfo.PageSize,
+	}, "获取成功", c)
+	return
 }
 
 // Create
@@ -70,7 +171,7 @@ func (h *HouseResourceApi) Create(c *gin.Context) {
 	req.DistrictIds = xiaoqu.DistrictIds
 	req.City = xiaoqu.City
 	req.Area = xiaoqu.Area
-
+	req.Status = "待出租"
 	err = ResourceService.CreateOrUpdate(&req)
 	if err != nil {
 		response.FailWithMessage(err.Error(), c)

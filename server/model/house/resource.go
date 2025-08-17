@@ -1,12 +1,16 @@
 package house
 
 import (
-	"github.com/flipped-aurora/gin-vue-admin/server/global"
 	"github.com/flipped-aurora/gin-vue-admin/server/model/common"
+	"gorm.io/gorm"
+	"time"
 )
 
 type Resource struct {
-	global.GVA_MODEL
+	ID          uint                 `gorm:"primarykey" json:"ID"` // 主键ID
+	CreatedAt   time.Time            // 创建时间
+	UpdatedAt   time.Time            // 更新时间
+	DeletedAt   gorm.DeletedAt       `gorm:"index" json:"-"`               // 删除时间
 	City        string               `json:"city" `                        // 所属城市
 	Districts   string               `json:"districts" `                   // 所属商圈s
 	DistrictIds string               `json:"district_ids" `                // 所属商圈s
@@ -23,6 +27,7 @@ type Resource struct {
 	Remarks     string               `json:"remarks"`                      // 备注信息
 	Attachments common.AttachmentMap `json:"attachments" gorm:"TYPE:json"` // 公寓照片
 	Owner       uint                 `json:"owner"`                        // 业主
+	Status      string               `json:"status"`                       // 状态 已出租，已下架，待出租
 	//Saler        string `json:"saler"`        // 销售
 	//Designer     string `json:"designer"`     // 设计师
 	//LeaseEndDate string `json:"leaseEndDate"` // 截止日期
