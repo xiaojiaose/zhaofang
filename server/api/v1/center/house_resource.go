@@ -336,3 +336,14 @@ func (h *HouseResourceApi) FilterOptions(c *gin.Context) {
 	response.OkWithDetailed(options, "获取成功", c)
 
 }
+
+func (h *HouseResourceApi) FavoriteAdd(c *gin.Context) {
+
+}
+func (h *HouseResourceApi) FavoriteDel(c *gin.Context) {
+
+}
+
+func (h *HouseResourceApi) FavoriteList(c *gin.Context) {
+
+}
