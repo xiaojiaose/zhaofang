@@ -5,6 +5,9 @@ go 1.23.0
 toolchain go1.24.3
 
 require (
+	github.com/alibabacloud-go/darabonba-openapi v0.2.1
+	github.com/alibabacloud-go/dysmsapi-20170525/v2 v2.0.18
+	github.com/alibabacloud-go/tea v1.3.10
 	github.com/aliyun/aliyun-oss-go-sdk v3.0.2+incompatible
 	github.com/aws/aws-sdk-go v1.55.6
 	github.com/casbin/casbin/v2 v2.103.0
@@ -19,6 +22,7 @@ require (
 	github.com/gookit/color v1.5.4
 	github.com/huaweicloud/huaweicloud-sdk-go-obs v3.24.9+incompatible
 	github.com/jordan-wright/email v4.0.1-0.20210109023952-943e75fe5223+incompatible
+	github.com/linxdeep/linxdeep-framework/pkg/searchx v0.0.0-20250805033435-69175df844ca
 	github.com/mark3labs/mcp-go v0.31.0
 	github.com/mholt/archives v0.1.1
 	github.com/minio/minio-go/v7 v7.0.84
@@ -60,6 +64,13 @@ require (
 	github.com/KyleBanks/depth v1.2.1 // indirect
 	github.com/STARRY-S/zip v0.2.1 // indirect
 	github.com/alex-ant/gomath v0.0.0-20160516115720-89013a210a82 // indirect
+	github.com/alibabacloud-go/alibabacloud-gateway-spi v0.0.4 // indirect
+	github.com/alibabacloud-go/debug v1.0.0 // indirect
+	github.com/alibabacloud-go/endpoint-util v1.1.0 // indirect
+	github.com/alibabacloud-go/openapi-util v0.0.11 // indirect
+	github.com/alibabacloud-go/tea-utils v1.4.5 // indirect
+	github.com/alibabacloud-go/tea-xml v1.1.2 // indirect
+	github.com/aliyun/credentials-go v1.1.2 // indirect
 	github.com/andybalholm/brotli v1.1.1 // indirect
 	github.com/bmatcuk/doublestar/v4 v4.8.0 // indirect
 	github.com/bodgit/plumbing v1.3.0 // indirect
@@ -71,6 +82,7 @@ require (
 	github.com/casbin/govaluate v1.3.0 // indirect
 	github.com/cespare/xxhash/v2 v2.3.0 // indirect
 	github.com/clbanning/mxj v1.8.4 // indirect
+	github.com/clbanning/mxj/v2 v2.7.0 // indirect
 	github.com/cloudwego/base64x v0.1.5 // indirect
 	github.com/davecgh/go-spew v1.1.2-0.20180830191138-d8f796af33cc // indirect
 	github.com/dgryski/go-rendezvous v0.0.0-20200823014737-9f7001d12a5f // indirect
@@ -114,7 +126,6 @@ require (
 	github.com/klauspost/cpuid/v2 v2.2.9 // indirect
 	github.com/klauspost/pgzip v1.2.6 // indirect
 	github.com/leodido/go-urn v1.4.0 // indirect
-	github.com/linxdeep/linxdeep-framework/pkg/searchx v0.0.0-20250805033435-69175df844ca // indirect
 	github.com/lufia/plan9stats v0.0.0-20240909124753-873cd0166683 // indirect
 	github.com/magiconair/properties v1.8.9 // indirect
 	github.com/mailru/easyjson v0.9.0 // indirect
@@ -153,6 +164,7 @@ require (
 	github.com/tidwall/gjson v1.14.1 // indirect
 	github.com/tidwall/match v1.1.1 // indirect
 	github.com/tidwall/pretty v1.2.0 // indirect
+	github.com/tjfoc/gmsm v1.3.2 // indirect
 	github.com/tklauser/go-sysconf v0.3.14 // indirect
 	github.com/tklauser/numcpus v0.9.0 // indirect
 	github.com/twitchyliquid64/golang-asm v0.15.1 // indirect

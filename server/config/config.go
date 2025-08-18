@@ -1,5 +1,7 @@
 package config
 
+import "github.com/flipped-aurora/gin-vue-admin/server/plugin/sms/config"
+
 type Server struct {
 	JWT       JWT     `mapstructure:"jwt" json:"jwt" yaml:"jwt"`
 	Zap       Zap     `mapstructure:"zap" json:"zap" yaml:"zap"`
@@ -19,14 +21,15 @@ type Server struct {
 	Sqlite Sqlite          `mapstructure:"sqlite" json:"sqlite" yaml:"sqlite"`
 	DBList []SpecializedDB `mapstructure:"db-list" json:"db-list" yaml:"db-list"`
 	// oss
-	Local        Local        `mapstructure:"local" json:"local" yaml:"local"`
-	Qiniu        Qiniu        `mapstructure:"qiniu" json:"qiniu" yaml:"qiniu"`
-	AliyunOSS    AliyunOSS    `mapstructure:"aliyun-oss" json:"aliyun-oss" yaml:"aliyun-oss"`
-	HuaWeiObs    HuaWeiObs    `mapstructure:"hua-wei-obs" json:"hua-wei-obs" yaml:"hua-wei-obs"`
-	TencentCOS   TencentCOS   `mapstructure:"tencent-cos" json:"tencent-cos" yaml:"tencent-cos"`
-	AwsS3        AwsS3        `mapstructure:"aws-s3" json:"aws-s3" yaml:"aws-s3"`
-	CloudflareR2 CloudflareR2 `mapstructure:"cloudflare-r2" json:"cloudflare-r2" yaml:"cloudflare-r2"`
-	Minio        Minio        `mapstructure:"minio" json:"minio" yaml:"minio"`
+	Local        Local         `mapstructure:"local" json:"local" yaml:"local"`
+	Qiniu        Qiniu         `mapstructure:"qiniu" json:"qiniu" yaml:"qiniu"`
+	AliyunOSS    AliyunOSS     `mapstructure:"aliyun-oss" json:"aliyun-oss" yaml:"aliyun-oss"`
+	AliyunSms    config.AliSms `mapstructure:"aliyunSms" json:"aliyunSms" yaml:"aliyunSms"`
+	HuaWeiObs    HuaWeiObs     `mapstructure:"hua-wei-obs" json:"hua-wei-obs" yaml:"hua-wei-obs"`
+	TencentCOS   TencentCOS    `mapstructure:"tencent-cos" json:"tencent-cos" yaml:"tencent-cos"`
+	AwsS3        AwsS3         `mapstructure:"aws-s3" json:"aws-s3" yaml:"aws-s3"`
+	CloudflareR2 CloudflareR2  `mapstructure:"cloudflare-r2" json:"cloudflare-r2" yaml:"cloudflare-r2"`
+	Minio        Minio         `mapstructure:"minio" json:"minio" yaml:"minio"`
 
 	Excel Excel `mapstructure:"excel" json:"excel" yaml:"excel"`
 

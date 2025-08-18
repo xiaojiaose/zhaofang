@@ -1,5 +1,7 @@
 package system
 
+import "github.com/flipped-aurora/gin-vue-admin/server/plugin/sms/service"
+
 type ServiceGroup struct {
 	JwtService
 	ApiService
@@ -23,4 +25,5 @@ type ServiceGroup struct {
 	AutoCodePackage  autoCodePackage
 	AutoCodeHistory  autoCodeHistory
 	AutoCodeTemplate autoCodeTemplate
+	service.AliSmsService
 }

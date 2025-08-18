@@ -54,7 +54,12 @@ func (service *ResourceService) GetInfo(id uint) (resource *house.Resource, err 
 	return
 }
 
-func (service *ResourceService) GetPage(xiaoquId uint, info request.PageInfo, order string, desc bool) (list interface{}, total int64, err error) {
+func (service *ResourceService) GetListByIds(ids []uint) (resources []*house.Resource, err error) {
+	err = global.GVA_DB.Model(&house.Resource{}).Where("id in ? ", ids).Find(&resources).Error
+	return
+}
+
+func (service *ResourceService) GetPage(xiaoquId, userId uint, info request.PageInfo, order string, desc bool) (list interface{}, total int64, err error) {
 
 	limit := info.PageSize
 	offset := info.PageSize * (info.Page - 1)
@@ -64,8 +69,12 @@ func (service *ResourceService) GetPage(xiaoquId uint, info request.PageInfo, or
 	if xiaoquId != 0 {
 		db = db.Where("xiaoqu_id = ?", xiaoquId)
 	}
-	
-	db = db.Where("status = 待出租")
+
+	if userId != 0 {
+		db = db.Where("user_id = ?", userId)
+	}
+
+	db = db.Where("status = '待出租'")
 
 	err = db.Count(&total).Error
 

@@ -15,6 +15,18 @@ definitions:
   common.JSONMap:
     additionalProperties: true
     type: object
+  config.AliSms:
+    properties:
+      accessKeyId:
+        description: 短信的AccessKey ID
+        type: string
+      accessSecret:
+        description: 短信的AccessKey Secret
+        type: string
+      signName:
+        description: 短信的 SignName
+        type: string
+    type: object
   config.AliyunOSS:
     properties:
       access-key-id:
@@ -474,6 +486,8 @@ definitions:
     properties:
       aliyun-oss:
         $ref: '#/definitions/config.AliyunOSS'
+      aliyunSms:
+        $ref: '#/definitions/config.AliSms'
       autocode:
         allOf:
         - $ref: '#/definitions/config.Autocode'
@@ -542,6 +556,8 @@ definitions:
         $ref: '#/definitions/config.TencentCOS'
       zap:
         $ref: '#/definitions/config.Zap'
+      zinc-search:
+        $ref: '#/definitions/config.ZincSearch'
     type: object
   config.SpecializedDB:
     properties:
@@ -708,6 +724,16 @@ definitions:
         type: boolean
       stacktrace-key:
         description: 栈名
+        type: string
+    type: object
+  config.ZincSearch:
+    properties:
+      Password:
+        description: URL前缀
+        type: string
+      url:
+        type: string
+      username:
         type: string
     type: object
   example.ExaAttachmentCategory:
@@ -907,6 +933,9 @@ definitions:
       room_number:
         description: 房间数量
         type: integer
+      status:
+        description: 状态 已出租，已下架，待出租
+        type: string
       updatedAt:
         description: 更新时间
         type: string
@@ -916,6 +945,14 @@ definitions:
       xiaoqu_id:
         description: 所属小区id
         type: integer
+    type: object
+  model.Ali:
+    properties:
+      phones:
+        description: 手机号 多个
+        items:
+          type: string
+        type: array
     type: object
   model.Info:
     properties:
@@ -1238,6 +1275,24 @@ definitions:
     - versionCode
     - versionName
     type: object
+  request.FavoriteSearch:
+    properties:
+      desc:
+        description: 排序方式:升序false(默认)|降序true
+        type: boolean
+      keyword:
+        description: 关键字
+        type: string
+      orderKey:
+        description: 排序
+        type: string
+      page:
+        description: 页码
+        type: integer
+      pageSize:
+        description: 每页大小
+        type: integer
+    type: object
   request.GetAuthorityId:
     properties:
       authorityId:
@@ -1385,6 +1440,22 @@ definitions:
         example: 用户名
         type: string
     type: object
+  request.ResourceSearch:
+    properties:
+      feature:
+        type: string
+      houseType:
+        type: string
+      price:
+        type: integer
+      rentType:
+        type: string
+      xiaoquIds:
+        description: 商圈ids
+        items:
+          type: integer
+        type: array
+    type: object
   request.SearchApiParams:
     properties:
       ID:
@@ -1424,6 +1495,27 @@ definitions:
         description: 更新时间
         type: string
     type: object
+  request.SearchResource:
+    properties:
+      desc:
+        description: 排序方式:升序false(默认)|降序true
+        type: boolean
+      keyword:
+        description: 关键字
+        type: string
+      orderKey:
+        description: 排序
+        type: string
+      page:
+        description: 页码
+        type: integer
+      pageSize:
+        description: 每页大小
+        type: integer
+      xiaoquId:
+        description: 小区id
+        type: integer
+    type: object
   request.SearchXiaoqu:
     properties:
       areaId:
@@ -1433,7 +1525,6 @@ definitions:
         description: 城市id
         type: string
       districts:
-        description: 商圈ids
         items:
           type: integer
         type: array
@@ -1603,6 +1694,7 @@ definitions:
       pageSize:
         type: integer
       total:
+        description: 总数
         type: integer
     type: object
   response.PolicyPathResponse:
@@ -2276,6 +2368,27 @@ info:
   title: Gin-Vue-Admin Swagger API接口文档
   version: v2.8.4
 paths:
+  /aliSms/sendAliSms:
+    post:
+      parameters:
+      - description: 页码, 每页大小
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/model.Ali'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: '{"success":true,"data":{},"msg":"发送成功"}'
+          schema:
+            type: string
+      security:
+      - ApiKeyAuth: []
+      summary: 发送（阿里）短信
+      tags:
+      - System
   /api/common/cities:
     get:
       produces:
@@ -3621,6 +3734,36 @@ paths:
       summary: 用户登录
       tags:
       - Base
+  /base/sendSms:
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: 手机号
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/request.WxLogin'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 生成验证码
+          schema:
+            allOf:
+            - $ref: '#/definitions/response.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/response.SysCaptchaResponse'
+                msg:
+                  type: string
+              type: object
+      security:
+      - ApiKeyAuth: []
+      summary: 获取验证码
+      tags:
+      - Center
   /casbin/UpdateCasbin:
     post:
       consumes:
@@ -3737,6 +3880,91 @@ paths:
       summary: 根据坐标获取一公里小区列表
       tags:
       - Center
+  /center/favorite/List:
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: 分页获取API列表
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/request.FavoriteSearch'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 分页获取API列表,返回包括列表,总数,页码,每页数量
+          schema:
+            allOf:
+            - $ref: '#/definitions/response.Response'
+            - properties:
+                data:
+                  allOf:
+                  - $ref: '#/definitions/response.PageResult'
+                  - properties:
+                      list:
+                        items:
+                          $ref: '#/definitions/house.Resource'
+                        type: array
+                    type: object
+                msg:
+                  type: string
+              type: object
+      summary: favorite 列表
+      tags:
+      - Center
+  /center/favorite/add:
+    get:
+      consumes:
+      - application/json
+      parameters:
+      - description: 房源id
+        in: query
+        name: data
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/response.Response'
+            - properties:
+                msg:
+                  type: string
+              type: object
+      summary: favorite 添加房源
+      tags:
+      - Center
+  /center/favorite/del:
+    get:
+      consumes:
+      - application/json
+      parameters:
+      - description: 房源id
+        in: query
+        name: data
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/response.Response'
+            - properties:
+                msg:
+                  type: string
+              type: object
+      summary: favorite 取消房源
+      tags:
+      - Center
   /center/house/create:
     post:
       parameters:
@@ -3783,6 +4011,76 @@ paths:
                   type: string
               type: object
       summary: 创建|编辑 房源
+      tags:
+      - Center
+  /center/house/listByXiaoqu:
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: 分页获取API列表
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/request.SearchResource'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 分页获取API列表,返回包括列表,总数,页码,每页数量
+          schema:
+            allOf:
+            - $ref: '#/definitions/response.Response'
+            - properties:
+                data:
+                  allOf:
+                  - $ref: '#/definitions/response.PageResult'
+                  - properties:
+                      list:
+                        items:
+                          $ref: '#/definitions/house.Resource'
+                        type: array
+                    type: object
+                msg:
+                  type: string
+              type: object
+      summary: 指定小区id 分页获取房源列表
+      tags:
+      - Center
+  /center/house/my:
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: 分页获取API列表
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/request.FavoriteSearch'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 分页获取API列表,返回包括列表,总数,页码,每页数量
+          schema:
+            allOf:
+            - $ref: '#/definitions/response.Response'
+            - properties:
+                data:
+                  allOf:
+                  - $ref: '#/definitions/response.PageResult'
+                  - properties:
+                      list:
+                        items:
+                          $ref: '#/definitions/house.Resource'
+                        type: array
+                    type: object
+                msg:
+                  type: string
+              type: object
+      summary: 指定小区id 分页获取房源列表
       tags:
       - Center
   /center/house/view:
@@ -6754,7 +7052,7 @@ paths:
               type: object
       summary: 用户登录
       tags:
-      - 微信公众号
+      - Center
 securityDefinitions:
   ApiKeyAuth:
     in: header

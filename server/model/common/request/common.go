@@ -66,6 +66,12 @@ type SearchResource struct {
 	Desc     bool   `json:"desc"`     // 排序方式:升序false(默认)|降序true
 }
 
+type FavoriteSearch struct {
+	PageInfo
+	OrderKey string `json:"orderKey"` // 排序
+	Desc     bool   `json:"desc"`     // 排序方式:升序false(默认)|降序true
+}
+
 type ResourceSearch struct {
 	XiaoquId  []int  `json:"xiaoquIds"` // 商圈ids
 	HouseType string `json:"houseType"`

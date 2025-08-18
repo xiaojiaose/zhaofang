@@ -15,6 +15,41 @@ const docTemplate = `{
     "host": "{{.Host}}",
     "basePath": "{{.BasePath}}",
     "paths": {
+        "/aliSms/sendAliSms": {
+            "post": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "System"
+                ],
+                "summary": "发送（阿里）短信",
+                "parameters": [
+                    {
+                        "description": "页码, 每页大小",
+                        "name": "data",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/model.Ali"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "{\"success\":true,\"data\":{},\"msg\":\"发送成功\"}",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
         "/api/common/cities": {
             "get": {
                 "produces": [
@@ -2399,6 +2434,59 @@ const docTemplate = `{
                 }
             }
         },
+        "/base/sendSms": {
+            "post": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Center"
+                ],
+                "summary": "获取验证码",
+                "parameters": [
+                    {
+                        "description": "手机号",
+                        "name": "data",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/request.WxLogin"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "生成验证码",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/response.Response"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/response.SysCaptchaResponse"
+                                        },
+                                        "msg": {
+                                            "type": "string"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                }
+            }
+        },
         "/casbin/UpdateCasbin": {
             "post": {
                 "security": [
@@ -2600,6 +2688,155 @@ const docTemplate = `{
                 }
             }
         },
+        "/center/favorite/List": {
+            "post": {
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Center"
+                ],
+                "summary": "favorite 列表",
+                "parameters": [
+                    {
+                        "description": "分页获取API列表",
+                        "name": "data",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/request.FavoriteSearch"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "分页获取API列表,返回包括列表,总数,页码,每页数量",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/response.Response"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "allOf": [
+                                                {
+                                                    "$ref": "#/definitions/response.PageResult"
+                                                },
+                                                {
+                                                    "type": "object",
+                                                    "properties": {
+                                                        "list": {
+                                                            "type": "array",
+                                                            "items": {
+                                                                "$ref": "#/definitions/house.Resource"
+                                                            }
+                                                        }
+                                                    }
+                                                }
+                                            ]
+                                        },
+                                        "msg": {
+                                            "type": "string"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                }
+            }
+        },
+        "/center/favorite/add": {
+            "get": {
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Center"
+                ],
+                "summary": "favorite 添加房源",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "房源id",
+                        "name": "data",
+                        "in": "query",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/response.Response"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "msg": {
+                                            "type": "string"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                }
+            }
+        },
+        "/center/favorite/del": {
+            "get": {
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Center"
+                ],
+                "summary": "favorite 取消房源",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "房源id",
+                        "name": "data",
+                        "in": "query",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/response.Response"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "msg": {
+                                            "type": "string"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                }
+            }
+        },
         "/center/house/create": {
             "post": {
                 "produces": [
@@ -2674,6 +2911,132 @@ const docTemplate = `{
                                     "type": "object",
                                     "properties": {
                                         "data": {
+                                            "type": "string"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                }
+            }
+        },
+        "/center/house/listByXiaoqu": {
+            "post": {
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Center"
+                ],
+                "summary": "指定小区id 分页获取房源列表",
+                "parameters": [
+                    {
+                        "description": "分页获取API列表",
+                        "name": "data",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/request.SearchResource"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "分页获取API列表,返回包括列表,总数,页码,每页数量",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/response.Response"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "allOf": [
+                                                {
+                                                    "$ref": "#/definitions/response.PageResult"
+                                                },
+                                                {
+                                                    "type": "object",
+                                                    "properties": {
+                                                        "list": {
+                                                            "type": "array",
+                                                            "items": {
+                                                                "$ref": "#/definitions/house.Resource"
+                                                            }
+                                                        }
+                                                    }
+                                                }
+                                            ]
+                                        },
+                                        "msg": {
+                                            "type": "string"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                }
+            }
+        },
+        "/center/house/my": {
+            "post": {
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Center"
+                ],
+                "summary": "指定小区id 分页获取房源列表",
+                "parameters": [
+                    {
+                        "description": "分页获取API列表",
+                        "name": "data",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/request.FavoriteSearch"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "分页获取API列表,返回包括列表,总数,页码,每页数量",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/response.Response"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "allOf": [
+                                                {
+                                                    "$ref": "#/definitions/response.PageResult"
+                                                },
+                                                {
+                                                    "type": "object",
+                                                    "properties": {
+                                                        "list": {
+                                                            "type": "array",
+                                                            "items": {
+                                                                "$ref": "#/definitions/house.Resource"
+                                                            }
+                                                        }
+                                                    }
+                                                }
+                                            ]
+                                        },
+                                        "msg": {
                                             "type": "string"
                                         }
                                     }
@@ -7784,7 +8147,7 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "微信公众号"
+                    "Center"
                 ],
                 "summary": "用户登录",
                 "parameters": [
@@ -7848,6 +8211,23 @@ const docTemplate = `{
         "common.JSONMap": {
             "type": "object",
             "additionalProperties": true
+        },
+        "config.AliSms": {
+            "type": "object",
+            "properties": {
+                "accessKeyId": {
+                    "description": "短信的AccessKey ID",
+                    "type": "string"
+                },
+                "accessSecret": {
+                    "description": "短信的AccessKey Secret",
+                    "type": "string"
+                },
+                "signName": {
+                    "description": "短信的 SignName",
+                    "type": "string"
+                }
+            }
         },
         "config.AliyunOSS": {
             "type": "object",
@@ -8499,6 +8879,9 @@ const docTemplate = `{
                 "aliyun-oss": {
                     "$ref": "#/definitions/config.AliyunOSS"
                 },
+                "aliyunSms": {
+                    "$ref": "#/definitions/config.AliSms"
+                },
                 "autocode": {
                     "description": "auto",
                     "allOf": [
@@ -8610,6 +8993,9 @@ const docTemplate = `{
                 },
                 "zap": {
                     "$ref": "#/definitions/config.Zap"
+                },
+                "zinc-search": {
+                    "$ref": "#/definitions/config.ZincSearch"
                 }
             }
         },
@@ -8840,6 +9226,21 @@ const docTemplate = `{
                 },
                 "stacktrace-key": {
                     "description": "栈名",
+                    "type": "string"
+                }
+            }
+        },
+        "config.ZincSearch": {
+            "type": "object",
+            "properties": {
+                "Password": {
+                    "description": "URL前缀",
+                    "type": "string"
+                },
+                "url": {
+                    "type": "string"
+                },
+                "username": {
                     "type": "string"
                 }
             }
@@ -9123,6 +9524,10 @@ const docTemplate = `{
                     "description": "房间数量",
                     "type": "integer"
                 },
+                "status": {
+                    "description": "状态 已出租，已下架，待出租",
+                    "type": "string"
+                },
                 "updatedAt": {
                     "description": "更新时间",
                     "type": "string"
@@ -9134,6 +9539,18 @@ const docTemplate = `{
                 "xiaoqu_id": {
                     "description": "所属小区id",
                     "type": "integer"
+                }
+            }
+        },
+        "model.Ali": {
+            "type": "object",
+            "properties": {
+                "phones": {
+                    "description": "手机号 多个",
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
                 }
             }
         },
@@ -9583,6 +10000,31 @@ const docTemplate = `{
                 }
             }
         },
+        "request.FavoriteSearch": {
+            "type": "object",
+            "properties": {
+                "desc": {
+                    "description": "排序方式:升序false(默认)|降序true",
+                    "type": "boolean"
+                },
+                "keyword": {
+                    "description": "关键字",
+                    "type": "string"
+                },
+                "orderKey": {
+                    "description": "排序",
+                    "type": "string"
+                },
+                "page": {
+                    "description": "页码",
+                    "type": "integer"
+                },
+                "pageSize": {
+                    "description": "每页大小",
+                    "type": "integer"
+                }
+            }
+        },
         "request.GetAuthorityId": {
             "type": "object",
             "properties": {
@@ -9794,6 +10236,30 @@ const docTemplate = `{
                 }
             }
         },
+        "request.ResourceSearch": {
+            "type": "object",
+            "properties": {
+                "feature": {
+                    "type": "string"
+                },
+                "houseType": {
+                    "type": "string"
+                },
+                "price": {
+                    "type": "integer"
+                },
+                "rentType": {
+                    "type": "string"
+                },
+                "xiaoquIds": {
+                    "description": "商圈ids",
+                    "type": "array",
+                    "items": {
+                        "type": "integer"
+                    }
+                }
+            }
+        },
         "request.SearchApiParams": {
             "type": "object",
             "properties": {
@@ -9847,6 +10313,35 @@ const docTemplate = `{
                 }
             }
         },
+        "request.SearchResource": {
+            "type": "object",
+            "properties": {
+                "desc": {
+                    "description": "排序方式:升序false(默认)|降序true",
+                    "type": "boolean"
+                },
+                "keyword": {
+                    "description": "关键字",
+                    "type": "string"
+                },
+                "orderKey": {
+                    "description": "排序",
+                    "type": "string"
+                },
+                "page": {
+                    "description": "页码",
+                    "type": "integer"
+                },
+                "pageSize": {
+                    "description": "每页大小",
+                    "type": "integer"
+                },
+                "xiaoquId": {
+                    "description": "小区id",
+                    "type": "integer"
+                }
+            }
+        },
         "request.SearchXiaoqu": {
             "type": "object",
             "properties": {
@@ -9859,7 +10354,6 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "districts": {
-                    "description": "商圈ids",
                     "type": "array",
                     "items": {
                         "type": "integer"
@@ -10109,6 +10603,7 @@ const docTemplate = `{
                     "type": "integer"
                 },
                 "total": {
+                    "description": "总数",
                     "type": "integer"
                 }
             }

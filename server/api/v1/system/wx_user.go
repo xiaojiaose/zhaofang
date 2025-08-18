@@ -15,14 +15,16 @@ import (
 	"github.com/silenceper/wechat/v2/miniprogram/auth"
 	miniConfig "github.com/silenceper/wechat/v2/miniprogram/config"
 	"go.uber.org/zap"
+	"math/rand"
 	"net/http"
 	"strconv"
 	"strings"
+	"time"
 )
 
 type WxUserApi struct{}
 
-// GetWxMobile
+// Center
 // @Tags     微信公众号
 // @Summary  手机号快速验证 , 向用户发起手机号申请，并且必须经过用户同意
 // @Produce   application/json
@@ -54,7 +56,7 @@ func (wx *WxUserApi) GetWxMobile(c *gin.Context) {
 }
 
 // WxLogin
-// @Tags     微信公众号
+// @Tags     Center
 // @Summary  用户登录
 // @Produce   application/json
 // @Param    data  body      systemReq.WxLogin                                             true  "手机号，短信验证码, 临时登陆凭证code"
@@ -113,18 +115,18 @@ func (wx *WxUserApi) WxLogin(c *gin.Context) {
 			global.GVA_LOG.Debug("1,通过openid查找用户，没找到", zap.String("openid", authResult.OpenID))
 			h = humanService.FindUserByMobile(l.Mobile)
 			if h == nil {
-				global.GVA_LOG.Debug("2,再通过手机号查找用户，也没找到，需要创建一个", zap.String("mobile", l.Mobile), zap.String("openid", authResult.OpenID))
-				h = &human.WxUser{
-					Mobile: l.Mobile,
-					Openid: authResult.OpenID,
-				}
-				err = humanService.CreateWxUser(h)
-				if err != nil {
-					global.GVA_LOG.Debug("2,再通过手机号查找用户，也没找到，需要创建，结果创建失败..", zap.String("mobile", l.Mobile), zap.String("openid", authResult.OpenID))
-					response.FailWithMessage(err.Error(), c)
-					return
-				}
-
+				//global.GVA_LOG.Debug("2,再通过手机号查找用户，也没找到，需要创建一个", zap.String("mobile", l.Mobile), zap.String("openid", authResult.OpenID))
+				//h = &human.WxUser{
+				//	Mobile: l.Mobile,
+				//	Openid: authResult.OpenID,
+				//}
+				//err = humanService.CreateWxUser(h)
+				//if err != nil {
+				//	global.GVA_LOG.Debug("2,再通过手机号查找用户，也没找到，需要创建，结果创建失败..", zap.String("mobile", l.Mobile), zap.String("openid", authResult.OpenID))
+				//	response.FailWithMessage(err.Error(), c)
+				//	return
+				//}
+				response.FailWithMessage("该手机号没有账号，请核对", c)
 			} else {
 				global.GVA_LOG.Debug("2,再通过手机号查找用户，找到了，需要更新用户的openid", zap.String("mobile", l.Mobile), zap.String("openid", authResult.OpenID))
 				h.Openid = authResult.OpenID
@@ -240,4 +242,81 @@ func GetPhoneNumber(accessToken, code string) (string, error) {
 		return "", err
 	}
 	return result.PhoneInfo.PhoneNumber, nil
+}
+
+// SendSms
+// @Tags     Center
+// @Summary   获取验证码
+// @Security  ApiKeyAuth
+// @accept    application/json
+// @Produce   application/json
+// @Param    data  body      systemReq.WxLogin                                             true  "手机号"
+// @Success   200  {object}  response.Response{data=systemRes.SysCaptchaResponse,msg=string}  "生成验证码"
+// @Router    /base/sendSms [post]
+func (b *BaseApi) SendSms(c *gin.Context) {
+	// 判断验证码是否开启
+	openCaptcha := 100       // 是否开启防爆次数
+	openOnceCaptcha := 20    // 是否开启防爆次数
+	openCaptchaTimeOut := 24 // 缓存超时时间
+	openSmsTimeOut := 120    // 缓存超时时间
+	key := c.ClientIP() + "sms"
+
+	v, ok := global.BlackCache.Get(key)
+	if !ok {
+		global.BlackCache.Set(key, 1, time.Hour*time.Duration(openCaptchaTimeOut))
+	} else {
+		if openCaptcha < interfaceToInt(v) {
+			response.FailWithMessage("一个IP每天 最多获取 100 次", c)
+			return
+		}
+		global.BlackCache.Increment(key, 1)
+	}
+
+	var l systemReq.WxLogin
+	err := c.ShouldBindJSON(&l)
+	if err != nil {
+		response.FailWithMessage(err.Error(), c)
+		return
+	}
+	if l.Mobile == "" {
+		response.FailWithMessage(err.Error(), c)
+		return
+	}
+
+	vv, ok := global.BlackCache.Get(l.Mobile)
+	if !ok {
+		global.BlackCache.Set(l.Mobile, 1, time.Hour*time.Duration(openCaptchaTimeOut))
+	} else {
+		if openOnceCaptcha < interfaceToInt(vv) {
+			response.FailWithMessage("一个手机号每天 最多获取 20 次", c)
+			return
+		}
+		global.BlackCache.Increment(l.Mobile, 1)
+	}
+
+	// 随机码 发短信
+	rand.Seed(time.Now().UnixNano())
+	code := generateRandomNumber(1000, 9999)
+
+	// 存入缓存
+	global.SmsCache.Set(l.Mobile, code, time.Second*time.Duration(openSmsTimeOut)) // 有效期120秒
+	//if true {
+	//	response.OkWithMessage(fmt.Sprintf("%d", code), c)
+	//	return
+	//}
+
+	err = aliSmsService.SendAliSms([]string{l.Mobile}, "SMS_276406431", strconv.Itoa(code))
+	if err != nil {
+		response.FailWithMessage(err.Error(), c)
+		return
+	}
+	// 存入缓存
+	global.SmsCache.Set(l.Mobile, code, time.Second*time.Duration(openSmsTimeOut)) // 有效期120秒
+
+	response.OkWithMessage("验证码获取成功", c)
+	return
+}
+
+func generateRandomNumber(min, max int) int {
+	return rand.Intn(max-min+1) + min
 }

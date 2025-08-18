@@ -42,6 +42,13 @@ func (h *HouseResourceApi) View(c *gin.Context) {
 	response.OkWithDetailed(info, "获取成功", c)
 }
 
+// @Tags      Center
+// @Summary   指定查询条件  返回小区下面的房源数量（聚合）
+// @accept    application/json
+// @Produce   application/json
+// @Param     data  body      request.ResourceSearch   true  "查询条件"
+// @Success   200   {object}  response.Response{data=map[string]map[string]int}  "分页获取API列表,返回包括列表,总数,页码,每页数量"
+// @Router    /center/house/listByXiaoqu [post]
 func (h *HouseResourceApi) ListByXiaoquAgg(c *gin.Context) {
 	var req request.ResourceSearch
 	err := c.ShouldBindJSON(&req)
@@ -94,18 +101,16 @@ func (h *HouseResourceApi) ListByXiaoquAgg(c *gin.Context) {
 		response.FailWithMessage(err.Error(), c)
 		return
 	}
-	response.OkWithDetailed(response.Response{
-		Data: agg,
-	}, "获取成功", c)
+	response.OkWithDetailed(agg, "获取成功", c)
 }
 
-// @Tags      Suite
-// @Summary   指定小区 分页获取房源列表
+// @Tags      Center
+// @Summary   指定小区id 分页获取房源列表
 // @accept    application/json
 // @Produce   application/json
-// @Param     data  body      request.SearchXiaoqu   true  "分页获取API列表"
-// @Success   200   {object}  response.Response{data=response.PageResult,msg=string}  "分页获取API列表,返回包括列表,总数,页码,每页数量"
-// @Router    center/house/listByXiaoqu [post]
+// @Param     data  body      request.SearchResource   true  "分页获取API列表"
+// @Success   200   {object}  response.Response{data=response.PageResult{list=[]house.Resource},msg=string}  "分页获取API列表,返回包括列表,总数,页码,每页数量"
+// @Router    /center/house/listByXiaoqu [post]
 func (h *HouseResourceApi) ListByXiaoquId(c *gin.Context) {
 	var pageInfo request.SearchResource
 	err := c.ShouldBindJSON(&pageInfo)
@@ -122,7 +127,45 @@ func (h *HouseResourceApi) ListByXiaoquId(c *gin.Context) {
 		pageInfo.PageInfo.PageSize = 50
 	}
 
-	list, total, err := ResourceService.GetPage(pageInfo.XiaoquId, pageInfo.PageInfo, pageInfo.OrderKey, pageInfo.Desc)
+	list, total, err := ResourceService.GetPage(pageInfo.XiaoquId, 0, pageInfo.PageInfo, pageInfo.OrderKey, pageInfo.Desc)
+	if err != nil {
+		global.GVA_LOG.Error("获取失败!", zap.Error(err))
+		response.FailWithMessage("获取失败", c)
+		return
+	}
+	response.OkWithDetailed(response.PageResult{
+		List:     list,
+		Total:    total,
+		Page:     pageInfo.Page,
+		PageSize: pageInfo.PageSize,
+	}, "获取成功", c)
+	return
+}
+
+// @Tags      Center
+// @Summary   指定小区id 分页获取房源列表
+// @accept    application/json
+// @Produce   application/json
+// @Param     data  body      request.FavoriteSearch   true  "分页获取API列表"
+// @Success   200   {object}  response.Response{data=response.PageResult{list=[]house.Resource},msg=string}  "分页获取API列表,返回包括列表,总数,页码,每页数量"
+// @Router    /center/house/my [post]
+func (h *HouseResourceApi) ListByUserId(c *gin.Context) {
+	var pageInfo request.FavoriteSearch
+	err := c.ShouldBindJSON(&pageInfo)
+	if err != nil {
+		response.FailWithMessage(err.Error(), c)
+		return
+	}
+
+	if pageInfo.PageInfo.Page == 0 {
+		pageInfo.PageInfo.Page = 1
+	}
+
+	if pageInfo.PageInfo.PageSize == 0 {
+		pageInfo.PageInfo.PageSize = 50
+	}
+	userId := utils.GetUserID(c) // 获取登陆用户
+	list, total, err := ResourceService.GetPage(0, userId, pageInfo.PageInfo, pageInfo.OrderKey, pageInfo.Desc)
 	if err != nil {
 		global.GVA_LOG.Error("获取失败!", zap.Error(err))
 		response.FailWithMessage("获取失败", c)
@@ -152,9 +195,7 @@ func (h *HouseResourceApi) Create(c *gin.Context) {
 		return
 	}
 
-	claims := utils.GetUserInfo(c) // 获取登陆用户
-	req.Owner = claims.BaseClaims.ID
-
+	req.Owner = utils.GetUserID(c) // 获取登陆用户
 	if req.XiaoquId == 0 {
 		response.FailWithMessage("小区id不能为空", c)
 		return
@@ -337,13 +378,102 @@ func (h *HouseResourceApi) FilterOptions(c *gin.Context) {
 
 }
 
+// @Tags      Center
+// @Summary   favorite 添加房源
+// @accept    application/json
+// @Produce   application/json
+// @Param     data  query      int  true  "房源id"
+// @Success   200   {object}  response.Response{msg=string}
+// @Router    /center/favorite/add [get]
 func (h *HouseResourceApi) FavoriteAdd(c *gin.Context) {
+	var req request.GetById
+	err := c.ShouldBindQuery(&req)
+	if err != nil {
+		response.FailWithMessage(err.Error(), c)
+		return
+	}
+	origin, err := ResourceService.GetInfo(uint(req.ID))
+	if origin == nil && err != nil {
+		return
+	}
 
+	userId := utils.GetUserID(c) // 获取登陆用户
+	FavoriteService.CreateOrUpdate(&house.Favorite{ResourceId: uint(req.ID), UserId: userId})
+	response.Ok(c)
+	return
 }
+
+// @Tags      Center
+// @Summary   favorite 取消房源
+// @accept    application/json
+// @Produce   application/json
+// @Param     data  query      int  true  "房源id"
+// @Success   200   {object}  response.Response{msg=string}
+// @Router    /center/favorite/del [get]
 func (h *HouseResourceApi) FavoriteDel(c *gin.Context) {
+	var req request.GetById
+	err := c.ShouldBindQuery(&req)
+	if err != nil {
+		response.FailWithMessage(err.Error(), c)
+		return
+	}
+	origin, err := ResourceService.GetInfo(uint(req.ID))
+	if origin == nil && err != nil {
+		return
+	}
 
+	userId := utils.GetUserID(c) // 获取登陆用户
+	FavoriteService.Delete(userId, uint(req.ID))
+	response.Ok(c)
+	return
 }
 
+// @Tags      Center
+// @Summary   favorite 列表
+// @accept    application/json
+// @Produce   application/json
+// @Param     data  body      request.FavoriteSearch   true  "分页获取API列表"
+// @Success   200   {object}  response.Response{data=response.PageResult{list=[]house.Resource},msg=string}  "分页获取API列表,返回包括列表,总数,页码,每页数量"
+// @Router    /center/favorite/List [post]
 func (h *HouseResourceApi) FavoriteList(c *gin.Context) {
+	var pageInfo request.FavoriteSearch
+	err := c.ShouldBindJSON(&pageInfo)
+	if err != nil {
+		response.FailWithMessage(err.Error(), c)
+		return
+	}
 
+	if pageInfo.PageInfo.Page == 0 {
+		pageInfo.PageInfo.Page = 1
+	}
+
+	if pageInfo.PageInfo.PageSize == 0 {
+		pageInfo.PageInfo.PageSize = 50
+	}
+	userId := utils.GetUserID(c) // 获取登陆用户
+	list, total, err := FavoriteService.GetPage(userId, pageInfo.PageInfo, pageInfo.OrderKey, pageInfo.Desc)
+	if err != nil {
+		global.GVA_LOG.Error("获取失败!", zap.Error(err))
+		response.FailWithMessage("获取失败", c)
+		return
+	}
+	var houseIds []uint
+	for _, f := range list.([]house.Favorite) {
+		houseIds = append(houseIds, f.ResourceId)
+	}
+	var resources []*house.Resource
+	if len(houseIds) > 0 {
+		resources, err = ResourceService.GetListByIds(houseIds)
+		if err != nil {
+			return
+		}
+	}
+
+	response.OkWithDetailed(response.PageResult{
+		List:     resources,
+		Total:    total,
+		Page:     pageInfo.Page,
+		PageSize: pageInfo.PageSize,
+	}, "获取成功", c)
+	return
 }
