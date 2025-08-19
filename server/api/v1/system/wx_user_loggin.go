@@ -5,7 +5,7 @@ import (
 	"github.com/flipped-aurora/gin-vue-admin/server/config"
 	"github.com/flipped-aurora/gin-vue-admin/server/global"
 	"github.com/flipped-aurora/gin-vue-admin/server/model/common/response"
-	"github.com/flipped-aurora/gin-vue-admin/server/model/human"
+	"github.com/flipped-aurora/gin-vue-admin/server/model/system"
 	systemReq "github.com/flipped-aurora/gin-vue-admin/server/model/system/request"
 	systemRes "github.com/flipped-aurora/gin-vue-admin/server/model/system/response"
 	"github.com/flipped-aurora/gin-vue-admin/server/utils"
@@ -24,8 +24,8 @@ import (
 
 type WxUserApi struct{}
 
-// Center
-// @Tags     微信公众号
+// GetWxMobile
+// @Tags     Center
 // @Summary  手机号快速验证 , 向用户发起手机号申请，并且必须经过用户同意
 // @Produce   application/json
 // @Param        code  body      string  true  "微信手机号授权code"
@@ -63,33 +63,34 @@ func (wx *WxUserApi) GetWxMobile(c *gin.Context) {
 // @Success  200   {object}  response.Response{data=systemRes.LoginResponse,msg=string}  "返回包括用户信息,token,过期时间"
 // @Router   /wx/login [post]
 func (wx *WxUserApi) WxLogin(c *gin.Context) {
-	var l systemReq.WxLogin
-	err := c.ShouldBindJSON(&l)
-	key := l.Mobile
+	var req systemReq.WxLogin
+	err := c.ShouldBindJSON(&req)
+	key := req.Mobile
 
 	if err != nil {
 		response.FailWithMessage(err.Error(), c)
 		return
 	}
-	err = utils.Verify(l, utils.WxLoginVerify)
+	err = utils.Verify(req, utils.WxLoginVerify)
 	if err != nil {
 		response.FailWithMessage(err.Error(), c)
 		return
 	}
 
 	code, ok := global.SmsCache.Get(key)
-	if l.Smn != "111111" && !ok {
+	if req.Smn != "111111" && !ok {
 		response.FailWithMessage("没有获取验证码", c)
 		return
 	}
-	if l.Smn == "111111" {
+	if req.Smn == "111111" {
 		code = 22222
 	}
 	codeString := code.(int)
-	if l.Smn == "111111" || strconv.Itoa(codeString) == l.Smn {
+	if req.Smn == "111111" || strconv.Itoa(codeString) == req.Smn {
 		var authResult auth.ResCode2Session
+		var userInfo systemReq.UserInfo
 
-		if l.Code == "22222" {
+		if req.Code == "22222" {
 			authResult.OpenID = "1111111111111111"
 		} else {
 			// 1. 初始化微信小程序配置
@@ -101,38 +102,51 @@ func (wx *WxUserApi) WxLogin(c *gin.Context) {
 			mini := wc.GetMiniProgram(cfg)
 
 			// 2. 用 前端传来的code 获取 openid 和 session_key
-			authResult, err = mini.GetAuth().Code2Session(l.Code)
+			authResult, err = mini.GetAuth().Code2Session(req.Code)
 			if err != nil {
 				c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 				return
 			}
 			global.GVA_LOG.Debug("根据code获取openid", zap.String("openid", authResult.OpenID))
 
+			// 2. 解密用户资料
+			if err = utils.DecryptWXData(authResult.SessionKey, req.EncryptedData, req.Iv, &userInfo); err != nil {
+				c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+				return
+			}
+
 		}
 
-		h := humanService.FindUserByOpenid(authResult.OpenID)
+		h := userService.FindUserByOpenid(authResult.OpenID)
 		if h == nil {
 			global.GVA_LOG.Debug("1,通过openid查找用户，没找到", zap.String("openid", authResult.OpenID))
-			h = humanService.FindUserByMobile(l.Mobile)
+
+			h = userService.FindUserByMobile(req.Mobile)
 			if h == nil {
-				//global.GVA_LOG.Debug("2,再通过手机号查找用户，也没找到，需要创建一个", zap.String("mobile", l.Mobile), zap.String("openid", authResult.OpenID))
+				//global.GVA_LOG.Debug("2,再通过手机号查找用户，也没找到，需要创建一个", zap.String("mobile", req.Mobile), zap.String("openid", authResult.OpenID))
 				//h = &human.WxUser{
-				//	Mobile: l.Mobile,
+				//	Mobile: req.Mobile,
 				//	Openid: authResult.OpenID,
 				//}
 				//err = humanService.CreateWxUser(h)
 				//if err != nil {
-				//	global.GVA_LOG.Debug("2,再通过手机号查找用户，也没找到，需要创建，结果创建失败..", zap.String("mobile", l.Mobile), zap.String("openid", authResult.OpenID))
+				//	global.GVA_LOG.Debug("2,再通过手机号查找用户，也没找到，需要创建，结果创建失败..", zap.String("mobile", req.Mobile), zap.String("openid", authResult.OpenID))
 				//	response.FailWithMessage(err.Error(), c)
 				//	return
 				//}
 				response.FailWithMessage("该手机号没有账号，请核对", c)
 			} else {
-				global.GVA_LOG.Debug("2,再通过手机号查找用户，找到了，需要更新用户的openid", zap.String("mobile", l.Mobile), zap.String("openid", authResult.OpenID))
+				global.GVA_LOG.Debug("2,再通过手机号查找用户，找到了，需要更新用户的openid", zap.String("mobile", req.Mobile), zap.String("openid", authResult.OpenID))
 				h.Openid = authResult.OpenID
-				err = humanService.UpdateWxUser(h)
+				if userInfo.AvatarURL != "" {
+					h.HeaderImg = userInfo.AvatarURL
+				}
+				if userInfo.NickName != "" {
+					h.WxNickName = userInfo.NickName
+				}
+				err = userService.SetUserInfo(*h)
 				if err != nil {
-					global.GVA_LOG.Debug("2,再通过手机号查找用户，也没找到，需要更新用户的openid，结果更新失败..", zap.String("mobile", l.Mobile), zap.String("openid", authResult.OpenID))
+					global.GVA_LOG.Debug("2,再通过手机号查找用户，也没找到，需要更新用户的openid，结果更新失败..", zap.String("mobile", req.Mobile), zap.String("openid", authResult.OpenID))
 					response.FailWithMessage(err.Error(), c)
 					return
 				}
@@ -147,13 +161,13 @@ func (wx *WxUserApi) WxLogin(c *gin.Context) {
 }
 
 // TokenNext 登录以后签发jwt
-func (wx *WxUserApi) TokenNext(c *gin.Context, user *human.WxUser) {
+func (wx *WxUserApi) TokenNext(c *gin.Context, user *system.SysUser) {
 	j := &utils.JWT{SigningKey: []byte(global.GVA_CONFIG.JWT.SigningKey)} // 唯一签名
 	claims := j.CreateClaims(systemReq.BaseClaims{
 		ID:     user.ID,
 		Type:   "wx",
 		Openid: user.Openid,
-		Mobile: user.Mobile,
+		Mobile: user.Phone,
 	})
 	token, err := j.CreateToken(claims)
 	if err != nil {
@@ -162,7 +176,7 @@ func (wx *WxUserApi) TokenNext(c *gin.Context, user *human.WxUser) {
 		return
 	}
 	if !global.GVA_CONFIG.System.UseMultipoint {
-		response.OkWithDetailed(systemRes.WxLoginResponse{
+		response.OkWithDetailed(systemRes.LoginResponse{
 			User:      *user,
 			Token:     token,
 			ExpiresAt: claims.RegisteredClaims.ExpiresAt.Unix() * 1000,

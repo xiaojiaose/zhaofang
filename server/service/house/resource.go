@@ -54,12 +54,21 @@ func (service *ResourceService) GetInfo(id uint) (resource *house.Resource, err 
 	return
 }
 
+func (service *ResourceService) SetState(ids []uint, value string) (err error) {
+	err = global.GVA_DB.Model(&house.Resource{}).Where("id in ? ", ids).Update("status", value).Error
+	return
+}
+func (service *ResourceService) SetApprovalStatus(ids []uint, value string) (err error) {
+	err = global.GVA_DB.Model(&house.Resource{}).Where("id in ? ", ids).Updates(map[string]interface{}{"approval_status": value, "status": "待出租"}).Error
+	return
+}
+
 func (service *ResourceService) GetListByIds(ids []uint) (resources []*house.Resource, err error) {
 	err = global.GVA_DB.Model(&house.Resource{}).Where("id in ? ", ids).Find(&resources).Error
 	return
 }
 
-func (service *ResourceService) GetPage(xiaoquId, userId uint, info request.PageInfo, order string, desc bool) (list interface{}, total int64, err error) {
+func (service *ResourceService) GetPage(xiaoquId, userId uint, appStatus string, status string, info request.PageInfo, order string, desc bool) (list interface{}, total int64, err error) {
 
 	limit := info.PageSize
 	offset := info.PageSize * (info.Page - 1)
@@ -74,7 +83,52 @@ func (service *ResourceService) GetPage(xiaoquId, userId uint, info request.Page
 		db = db.Where("user_id = ?", userId)
 	}
 
-	db = db.Where("status = '待出租'")
+	if len(appStatus) > 0 {
+		db = db.Where("approval_status = ?", appStatus)
+	}
+
+	if len(status) > 0 {
+		db = db.Where("status = ?", status)
+	}
+
+	err = db.Count(&total).Error
+
+	if err != nil {
+		return apiList, total, err
+	} else {
+		db = db.Limit(limit).Offset(offset)
+		if order != "" {
+			OrderStr := order
+			if desc {
+				OrderStr = order + " desc"
+			}
+
+			err = db.Order(OrderStr).Find(&apiList).Error
+		} else {
+			err = db.Order("id desc").Find(&apiList).Error
+		}
+	}
+	return apiList, total, err
+}
+
+func (service *ResourceService) GetApprovalPage(xiaoquId, userId uint, appStatus string, info request.PageInfo, order string, desc bool) (list interface{}, total int64, err error) {
+
+	limit := info.PageSize
+	offset := info.PageSize * (info.Page - 1)
+	db := global.GVA_DB.Model(&house.Resource{})
+	var apiList []house.Resource
+
+	if xiaoquId != 0 {
+		db = db.Where("xiaoqu_id = ?", xiaoquId)
+	}
+
+	if userId != 0 {
+		db = db.Where("user_id = ?", userId)
+	}
+
+	if len(appStatus) > 0 {
+		db = db.Where("approval_status = ?", appStatus)
+	}
 
 	err = db.Count(&total).Error
 

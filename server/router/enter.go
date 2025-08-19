@@ -3,13 +3,15 @@ package router
 import (
 	"github.com/flipped-aurora/gin-vue-admin/server/router/center"
 	"github.com/flipped-aurora/gin-vue-admin/server/router/example"
+	"github.com/flipped-aurora/gin-vue-admin/server/router/house_resource"
 	"github.com/flipped-aurora/gin-vue-admin/server/router/system"
 )
 
 var RouterGroupApp = new(RouterGroup)
 
 type RouterGroup struct {
-	System  system.RouterGroup
-	Example example.RouterGroup
-	Center  center.CenterRouter
+	System        system.RouterGroup
+	Example       example.RouterGroup
+	Center        center.CenterRouter
+	HouseResource house_resource.ApiRouter
 }

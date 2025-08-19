@@ -24,6 +24,14 @@ type Login struct {
 	Password  string `json:"password"`  // 密码
 	Captcha   string `json:"captcha"`   // 验证码
 	CaptchaId string `json:"captchaId"` // 验证码ID
+
+	Mobile string `json:"mobile"` // 手机号
+	Sms    string `json:"sms"`    // 短信验证码
+}
+
+type MobileLogin struct {
+	Mobile string `json:"mobile"` // 手机号
+	Sms    string `json:"sms"`    // 短信验证码
 }
 
 // ChangePasswordReq Modify password structure
@@ -50,10 +58,10 @@ type SetUserAuthorities struct {
 }
 
 type ChangeUserInfo struct {
-	ID           uint                  `gorm:"primarykey"`                                                                           // 主键ID
-	NickName     string                `json:"nickName" gorm:"default:系统用户;comment:用户昵称"`                                            // 用户昵称
-	Phone        string                `json:"phone"  gorm:"comment:用户手机号"`                                                          // 用户手机号
-	AuthorityIds []uint                `json:"authorityIds" gorm:"-"`                                                                // 角色ID
+	ID           uint                  `gorm:"primarykey"`                                                                               // 主键ID
+	NickName     string                `json:"nickName" gorm:"default:系统用户;comment:用户昵称"`                                        // 用户昵称
+	Phone        string                `json:"phone"  gorm:"comment:用户手机号"`                                                         // 用户手机号
+	AuthorityIds []uint                `json:"authorityIds" gorm:"-"`                                                                    // 角色ID
 	Email        string                `json:"email"  gorm:"comment:用户邮箱"`                                                           // 用户邮箱
 	HeaderImg    string                `json:"headerImg" gorm:"default:https://qmplusimg.henrongyi.top/gva_header.jpg;comment:用户头像"` // 用户头像
 	Enable       int                   `json:"enable" gorm:"comment:冻结用户"`                                                           //冻结用户
@@ -62,14 +70,33 @@ type ChangeUserInfo struct {
 
 type GetUserList struct {
 	common.PageInfo
-	Username string `json:"username" form:"username"`
-	NickName string `json:"nickName" form:"nickName"`
-	Phone    string `json:"phone" form:"phone"`
-	Email    string `json:"email" form:"email"`
+	Username    string `json:"username" form:"username"`
+	NickName    string `json:"nickName" form:"nickName"`
+	Phone       string `json:"phone" form:"phone"` // 手机号搜索
+	Email       string `json:"email" form:"email"`
+	AuthorityId int    `json:"authorityId" form:"authorityId"`
+	Bind        int    `json:"bind" form:"bind"` // 绑定的状态 1 已绑定 2 未绑定
 }
 
 type WxLogin struct {
 	Mobile string `json:"mobile"` // 出租人手机号
-	Code   string `json:"code"`   // 小程序code
 	Smn    string `json:"smn"`    // 短息验证码
+	WxLoginRequest
+}
+
+type WxLoginRequest struct {
+	Code          string `json:"code"`
+	EncryptedData string `json:"encryptedData"`
+	Iv            string `json:"iv"`
+	RawData       string `json:"rawData"`
+	Signature     string `json:"signature"`
+}
+
+type UserInfo struct {
+	NickName  string `json:"nickName"`
+	AvatarURL string `json:"avatarUrl"`
+	Gender    int    `json:"gender"`
+	City      string `json:"city"`
+	Country   string `json:"country"`
+	Province  string `json:"province"`
 }

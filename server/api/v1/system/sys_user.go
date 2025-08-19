@@ -18,8 +18,8 @@ import (
 )
 
 // Login
-// @Tags     Base
-// @Summary  用户登录
+// @Tags     Admin
+// @Summary  用户名+密码登录
 // @Produce   application/json
 // @Param    data  body      systemReq.Login                                             true  "用户名, 密码, 验证码"
 // @Success  200   {object}  response.Response{data=systemRes.LoginResponse,msg=string}  "返回包括用户信息,token,过期时间"
@@ -71,6 +71,79 @@ func (b *BaseApi) Login(c *gin.Context) {
 		return
 	}
 	b.TokenNext(c, *user)
+}
+
+// Login
+// @Tags     Admin
+// @Summary  用户手机号+验证码登录
+// @Produce   application/json
+// @Param    data  body      systemReq.MobileLogin                                             true  "手机号, 验证码"
+// @Success  200   {object}  response.Response{data=systemRes.LoginResponse,msg=string}  "返回包括用户信息,token,过期时间"
+// @Router   /base/login [post]
+func (b *BaseApi) MobileLogin(c *gin.Context) {
+	var l systemReq.MobileLogin
+	err := c.ShouldBindJSON(&l)
+	if err != nil {
+		response.FailWithMessage(err.Error(), c)
+		return
+	}
+	err = utils.Verify(l, utils.LoginMobileVerify)
+	if err != nil {
+		response.FailWithMessage(err.Error(), c)
+		return
+	}
+
+	key := c.ClientIP()
+	//判断验证码是否开启
+	//openCaptcha := global.GVA_CONFIG.Captcha.OpenCaptcha               // 是否开启防爆次数
+	openCaptchaTimeOut := global.GVA_CONFIG.Captcha.OpenCaptchaTimeOut // 缓存超时时间
+	v, ok := global.BlackCache.Get(key)
+	if !ok {
+		global.BlackCache.Set(key, 1, time.Second*time.Duration(openCaptchaTimeOut))
+	}
+
+	if 20 < interfaceToInt(v) {
+		response.FailWithMessage("验证码错误次数过多，请稍后再试", c)
+		return
+	}
+	//
+	//var oc = openCaptcha == 0 || openCaptcha < interfaceToInt(v)
+	//if oc && !store.Verify(l.CaptchaId, l.Captcha, true) {
+	//	// 验证码次数+1
+	//	global.BlackCache.Increment(key, 1)
+	//	response.FailWithMessage("验证码错误", c)
+	//	return
+	//}
+
+	code, ok := global.SmsCache.Get(l.Mobile)
+	if !ok {
+		response.FailWithMessage("没有获取验证码", c)
+		return
+	}
+	codeString := code.(int)
+	if strconv.Itoa(codeString) == l.Sms {
+		user := userService.FindUserByMobile(l.Mobile)
+		if user == nil {
+			global.GVA_LOG.Error("登陆失败! 手机号不存在!")
+			// 验证码次数+1
+			global.BlackCache.Increment(key, 1)
+			response.FailWithMessage("登陆失败! 手机号不存在!", c)
+			return
+		}
+		if user.Enable != 1 {
+			global.GVA_LOG.Error("登陆失败! 用户被禁止登录!")
+			// 验证码次数+1
+			global.BlackCache.Increment(key, 1)
+			response.FailWithMessage("用户被禁止登录", c)
+			return
+		}
+		b.TokenNext(c, *user)
+		return
+	} else {
+		global.BlackCache.Increment(key, 1)
+	}
+
+	response.FailWithMessage("验证码不正确", c)
 }
 
 // TokenNext 登录以后签发jwt
@@ -161,6 +234,42 @@ func (b *BaseApi) Register(c *gin.Context) {
 	response.OkWithDetailed(systemRes.SysUserResponse{User: userReturn}, "注册成功", c)
 }
 
+// Register
+// @Tags     Admin
+// @Summary  经纪人用户注册
+// @Produce   application/json
+// @Param    data  body      systemReq.Register                                            true  "用户名, 昵称, 密码, 角色ID"
+// @Success  200   {object}  response.Response{data=systemRes.SysUserResponse,msg=string}  "用户注册账号,返回包括用户信息"
+// @Router   /user/saler_register [post]
+func (b *BaseApi) SalesRegister(c *gin.Context) {
+	var r systemReq.Register
+	err := c.ShouldBindJSON(&r)
+	if err != nil {
+		response.FailWithMessage(err.Error(), c)
+		return
+	}
+	r.AuthorityIds = []uint{555}
+	err = utils.Verify(r, utils.RegisterVerify)
+	if err != nil {
+		response.FailWithMessage(err.Error(), c)
+		return
+	}
+	var authorities []system.SysAuthority
+	for _, v := range r.AuthorityIds {
+		authorities = append(authorities, system.SysAuthority{
+			AuthorityId: v,
+		})
+	}
+	user := &system.SysUser{Username: r.Username, NickName: r.NickName, Password: r.Password, HeaderImg: r.HeaderImg, AuthorityId: r.AuthorityId, Authorities: authorities, Enable: r.Enable, Phone: r.Phone, Email: r.Email}
+	userReturn, err := userService.Register(*user)
+	if err != nil {
+		global.GVA_LOG.Error("注册失败!", zap.Error(err))
+		response.FailWithDetailed(systemRes.SysUserResponse{User: userReturn}, "注册失败", c)
+		return
+	}
+	response.OkWithDetailed(systemRes.SysUserResponse{User: userReturn}, "注册成功", c)
+}
+
 // ChangePassword
 // @Tags      SysUser
 // @Summary   用户修改密码
@@ -213,6 +322,42 @@ func (b *BaseApi) GetUserList(c *gin.Context) {
 		response.FailWithMessage(err.Error(), c)
 		return
 	}
+	list, total, err := userService.GetUserInfoList(pageInfo)
+	if err != nil {
+		global.GVA_LOG.Error("获取失败!", zap.Error(err))
+		response.FailWithMessage("获取失败", c)
+		return
+	}
+	response.OkWithDetailed(response.PageResult{
+		List:     list,
+		Total:    total,
+		Page:     pageInfo.Page,
+		PageSize: pageInfo.PageSize,
+	}, "获取成功", c)
+}
+
+// GetUserList
+// @Tags      Admin
+// @Summary   分页获取saler用户列表
+// @Security  ApiKeyAuth
+// @accept    application/json
+// @Produce   application/json
+// @Param     data  body      systemReq.GetUserList                                        true  "页码, 每页大小"
+// @Success   200   {object}  response.Response{data=response.PageResult{list=[]system.SysUser},msg=string}  "分页获取用户列表,返回包括列表,总数,页码,每页数量"
+// @Router    /user/getSaler [post]
+func (b *BaseApi) GetSalerUserList(c *gin.Context) {
+	var pageInfo systemReq.GetUserList
+	err := c.ShouldBindJSON(&pageInfo)
+	if err != nil {
+		response.FailWithMessage(err.Error(), c)
+		return
+	}
+	err = utils.Verify(pageInfo, utils.PageInfoVerify)
+	if err != nil {
+		response.FailWithMessage(err.Error(), c)
+		return
+	}
+	pageInfo.AuthorityId = 555
 	list, total, err := userService.GetUserInfoList(pageInfo)
 	if err != nil {
 		global.GVA_LOG.Error("获取失败!", zap.Error(err))
@@ -330,8 +475,8 @@ func (b *BaseApi) DeleteUser(c *gin.Context) {
 }
 
 // SetUserInfo
-// @Tags      SysUser
-// @Summary   设置用户信息
+// @Tags      Admin
+// @Summary   设置经纪人用户信息
 // @Security  ApiKeyAuth
 // @accept    application/json
 // @Produce   application/json
@@ -359,15 +504,18 @@ func (b *BaseApi) SetUserInfo(c *gin.Context) {
 			return
 		}
 	}
+	origin, _ := userService.FindUserById(int(user.ID))
 	err = userService.SetUserInfo(system.SysUser{
 		GVA_MODEL: global.GVA_MODEL{
 			ID: user.ID,
 		},
-		NickName:  user.NickName,
-		HeaderImg: user.HeaderImg,
-		Phone:     user.Phone,
-		Email:     user.Email,
-		Enable:    user.Enable,
+		NickName:   user.NickName,
+		HeaderImg:  user.HeaderImg,
+		Phone:      user.Phone,
+		Email:      user.Email,
+		Enable:     user.Enable,
+		WxNickName: origin.WxNickName,
+		Openid:     origin.Openid,
 	})
 	if err != nil {
 		global.GVA_LOG.Error("设置失败!", zap.Error(err))

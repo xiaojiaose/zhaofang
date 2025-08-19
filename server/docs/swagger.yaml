@@ -887,6 +887,9 @@ definitions:
       ID:
         description: 主键ID
         type: integer
+      approval_status:
+        description: 审批状态： 通过 未通过 待审批
+        type: string
       area:
         description: 房源面积
         type: string
@@ -1307,6 +1310,11 @@ definitions:
     type: object
   request.GetUserList:
     properties:
+      authorityId:
+        type: integer
+      bind:
+        description: 绑定的状态 1 已绑定 2 未绑定
+        type: integer
       email:
         type: string
       keyword:
@@ -1321,9 +1329,20 @@ definitions:
         description: 每页大小
         type: integer
       phone:
+        description: 手机号搜索
         type: string
       username:
         type: string
+    type: object
+  request.HouseStateReq:
+    properties:
+      ids:
+        items:
+          type: integer
+        type: array
+      state:
+        description: 1 上架（通过），2下架（不通过）
+        type: integer
     type: object
   request.IdsReq:
     properties:
@@ -1391,11 +1410,26 @@ definitions:
       captchaId:
         description: 验证码ID
         type: string
+      mobile:
+        description: 手机号
+        type: string
       password:
         description: 密码
         type: string
+      sms:
+        description: 短信验证码
+        type: string
       username:
         description: 用户名
+        type: string
+    type: object
+  request.MobileLogin:
+    properties:
+      mobile:
+        description: 手机号
+        type: string
+      sms:
+        description: 短信验证码
         type: string
     type: object
   request.PageInfo:
@@ -1443,12 +1477,16 @@ definitions:
   request.ResourceSearch:
     properties:
       feature:
+        description: 有无电梯
         type: string
       houseType:
+        description: 1居室、2居室
         type: string
       price:
+        description: 价格 1580
         type: integer
       rentType:
+        description: 整租、合租、分整租
         type: string
       xiaoquIds:
         description: 商圈ids
@@ -1494,6 +1532,32 @@ definitions:
       updatedAt:
         description: 更新时间
         type: string
+    type: object
+  request.SearchNameResource:
+    properties:
+      approvalStatus:
+        description: 通过 未通过 待审批
+        type: string
+      desc:
+        description: 排序方式:升序false(默认)|降序true
+        type: boolean
+      keyword:
+        description: 关键字
+        type: string
+      orderKey:
+        description: 排序
+        type: string
+      page:
+        description: 页码
+        type: integer
+      pageSize:
+        description: 每页大小
+        type: integer
+      phone:
+        type: string
+      xiaoquId:
+        description: 小区id
+        type: integer
     type: object
   request.SearchResource:
     properties:
@@ -1616,10 +1680,17 @@ definitions:
   request.WxLogin:
     properties:
       code:
-        description: 小程序code
+        type: string
+      encryptedData:
+        type: string
+      iv:
         type: string
       mobile:
         description: 出租人手机号
+        type: string
+      rawData:
+        type: string
+      signature:
         type: string
       smn:
         description: 短息验证码
@@ -2263,7 +2334,9 @@ definitions:
         description: 用户头像
         type: string
       nickName:
-        description: 用户昵称
+        type: string
+      openid:
+        description: openid
         type: string
       originSetting:
         allOf:
@@ -2280,6 +2353,9 @@ definitions:
         type: string
       uuid:
         description: 用户UUID
+        type: string
+      wxNickName:
+        description: 用户昵称
         type: string
     type: object
   system.SysVersion:
@@ -2663,6 +2739,158 @@ paths:
       summary: 分页获取API列表
       tags:
       - SysApi
+  /api/house/area:
+    get:
+      parameters:
+      - description: cityId
+        in: query
+        name: data
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 结果
+          schema:
+            allOf:
+            - $ref: '#/definitions/response.Response'
+            - properties:
+                data:
+                  additionalProperties:
+                    $ref: '#/definitions/response.Area'
+                  type: object
+              type: object
+      summary: 获取区域列表（丰台区、朝阳区）
+      tags:
+      - Admin
+  /api/house/create:
+    post:
+      parameters:
+      - description: 初始化内容
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/house.Resource'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 结果
+          schema:
+            allOf:
+            - $ref: '#/definitions/response.Response'
+            - properties:
+                data:
+                  type: string
+              type: object
+      summary: 创建|编辑 房源
+      tags:
+      - Admin
+  /api/house/edit:
+    post:
+      parameters:
+      - description: 初始化内容
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/house.Resource'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 结果
+          schema:
+            allOf:
+            - $ref: '#/definitions/response.Response'
+            - properties:
+                data:
+                  type: string
+              type: object
+      summary: 创建|编辑 房源
+      tags:
+      - Admin
+  /api/house/list:
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: 分页获取API列表
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/request.SearchNameResource'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 分页获取API列表,返回包括列表,总数,页码,每页数量
+          schema:
+            allOf:
+            - $ref: '#/definitions/response.Response'
+            - properties:
+                data:
+                  allOf:
+                  - $ref: '#/definitions/response.PageResult'
+                  - properties:
+                      list:
+                        items:
+                          $ref: '#/definitions/house.Resource'
+                        type: array
+                    type: object
+                msg:
+                  type: string
+              type: object
+      summary: 房源审核列表
+      tags:
+      - Admin
+  /api/house/options:
+    get:
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 结果
+          schema:
+            allOf:
+            - $ref: '#/definitions/response.Response'
+            - properties:
+                data:
+                  additionalProperties:
+                    additionalProperties:
+                      type: string
+                    type: object
+                  type: object
+              type: object
+      summary: 筛选用到的选择项
+      tags:
+      - Admin
+  /api/house/view:
+    get:
+      parameters:
+      - description: id
+        in: query
+        name: data
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 结果
+          schema:
+            allOf:
+            - $ref: '#/definitions/response.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/house.Resource'
+              type: object
+      summary: 创建|编辑 房源
+      tags:
+      - Admin
   /api/ignoreApi:
     post:
       consumes:
@@ -3711,12 +3939,12 @@ paths:
   /base/login:
     post:
       parameters:
-      - description: 用户名, 密码, 验证码
+      - description: 手机号, 验证码
         in: body
         name: data
         required: true
         schema:
-          $ref: '#/definitions/request.Login'
+          $ref: '#/definitions/request.MobileLogin'
       produces:
       - application/json
       responses:
@@ -3731,9 +3959,9 @@ paths:
                 msg:
                   type: string
               type: object
-      summary: 用户登录
+      summary: 用户手机号+验证码登录
       tags:
-      - Base
+      - Admin
   /base/sendSms:
     post:
       consumes:
@@ -4080,7 +4308,7 @@ paths:
                 msg:
                   type: string
               type: object
-      summary: 指定小区id 分页获取房源列表
+      summary: 我发的房源列表
       tags:
       - Center
   /center/house/view:
@@ -4647,6 +4875,44 @@ paths:
       summary: 上传文件示例
       tags:
       - ExaFileUploadAndDownload
+  /house/approvalState:
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: 分页获取API列表
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/request.HouseStateReq'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+      summary: 批量审核房源
+      tags:
+      - Admin
+  /house/state:
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: 分页获取API列表
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/request.HouseStateReq'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+      summary: 房源上下架 可批量
+      tags:
+      - Admin
   /info/createInfo:
     post:
       consumes:
@@ -6834,6 +7100,43 @@ paths:
       summary: 删除用户
       tags:
       - SysUser
+  /user/getSaler:
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: 页码, 每页大小
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/request.GetUserList'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 分页获取用户列表,返回包括列表,总数,页码,每页数量
+          schema:
+            allOf:
+            - $ref: '#/definitions/response.Response'
+            - properties:
+                data:
+                  allOf:
+                  - $ref: '#/definitions/response.PageResult'
+                  - properties:
+                      list:
+                        items:
+                          $ref: '#/definitions/system.SysUser'
+                        type: array
+                    type: object
+                msg:
+                  type: string
+              type: object
+      security:
+      - ApiKeyAuth: []
+      summary: 分页获取saler用户列表
+      tags:
+      - Admin
   /user/getUserInfo:
     get:
       consumes:
@@ -6914,6 +7217,32 @@ paths:
       summary: 重置用户密码
       tags:
       - SysUser
+  /user/saler_register:
+    post:
+      parameters:
+      - description: 用户名, 昵称, 密码, 角色ID
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/request.Register'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 用户注册账号,返回包括用户信息
+          schema:
+            allOf:
+            - $ref: '#/definitions/response.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/response.SysUserResponse'
+                msg:
+                  type: string
+              type: object
+      summary: 经纪人用户注册
+      tags:
+      - Admin
   /user/setUserAuthorities:
     post:
       consumes:
@@ -6998,9 +7327,9 @@ paths:
               type: object
       security:
       - ApiKeyAuth: []
-      summary: 设置用户信息
+      summary: 设置经纪人用户信息
       tags:
-      - SysUser
+      - Admin
   /wx/getMobile:
     post:
       parameters:
@@ -7026,7 +7355,7 @@ paths:
               type: object
       summary: 手机号快速验证 , 向用户发起手机号申请，并且必须经过用户同意
       tags:
-      - 微信公众号
+      - Center
   /wx/login:
     post:
       parameters:

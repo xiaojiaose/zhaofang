@@ -549,6 +549,273 @@ const docTemplate = `{
                 }
             }
         },
+        "/api/house/area": {
+            "get": {
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Admin"
+                ],
+                "summary": "获取区域列表（丰台区、朝阳区）",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "cityId",
+                        "name": "data",
+                        "in": "query",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "结果",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/response.Response"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "type": "object",
+                                            "additionalProperties": {
+                                                "$ref": "#/definitions/response.Area"
+                                            }
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                }
+            }
+        },
+        "/api/house/create": {
+            "post": {
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Admin"
+                ],
+                "summary": "创建|编辑 房源",
+                "parameters": [
+                    {
+                        "description": "初始化内容",
+                        "name": "data",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/house.Resource"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "结果",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/response.Response"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "type": "string"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                }
+            }
+        },
+        "/api/house/edit": {
+            "post": {
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Admin"
+                ],
+                "summary": "创建|编辑 房源",
+                "parameters": [
+                    {
+                        "description": "初始化内容",
+                        "name": "data",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/house.Resource"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "结果",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/response.Response"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "type": "string"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                }
+            }
+        },
+        "/api/house/list": {
+            "post": {
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Admin"
+                ],
+                "summary": "房源审核列表",
+                "parameters": [
+                    {
+                        "description": "分页获取API列表",
+                        "name": "data",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/request.SearchNameResource"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "分页获取API列表,返回包括列表,总数,页码,每页数量",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/response.Response"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "allOf": [
+                                                {
+                                                    "$ref": "#/definitions/response.PageResult"
+                                                },
+                                                {
+                                                    "type": "object",
+                                                    "properties": {
+                                                        "list": {
+                                                            "type": "array",
+                                                            "items": {
+                                                                "$ref": "#/definitions/house.Resource"
+                                                            }
+                                                        }
+                                                    }
+                                                }
+                                            ]
+                                        },
+                                        "msg": {
+                                            "type": "string"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                }
+            }
+        },
+        "/api/house/options": {
+            "get": {
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Admin"
+                ],
+                "summary": "筛选用到的选择项",
+                "responses": {
+                    "200": {
+                        "description": "结果",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/response.Response"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "type": "object",
+                                            "additionalProperties": {
+                                                "type": "object",
+                                                "additionalProperties": {
+                                                    "type": "string"
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                }
+            }
+        },
+        "/api/house/view": {
+            "get": {
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Admin"
+                ],
+                "summary": "创建|编辑 房源",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "id",
+                        "name": "data",
+                        "in": "query",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "结果",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/response.Response"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/house.Resource"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                }
+            }
+        },
         "/api/ignoreApi": {
             "post": {
                 "security": [
@@ -2395,17 +2662,17 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "Base"
+                    "Admin"
                 ],
-                "summary": "用户登录",
+                "summary": "用户手机号+验证码登录",
                 "parameters": [
                     {
-                        "description": "用户名, 密码, 验证码",
+                        "description": "手机号, 验证码",
                         "name": "data",
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/request.Login"
+                            "$ref": "#/definitions/request.MobileLogin"
                         }
                     }
                 ],
@@ -2995,7 +3262,7 @@ const docTemplate = `{
                 "tags": [
                     "Center"
                 ],
-                "summary": "指定小区id 分页获取房源列表",
+                "summary": "我发的房源列表",
                 "parameters": [
                     {
                         "description": "分页获取API列表",
@@ -4029,6 +4296,66 @@ const docTemplate = `{
                                 }
                             ]
                         }
+                    }
+                }
+            }
+        },
+        "/house/approvalState": {
+            "post": {
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Admin"
+                ],
+                "summary": "批量审核房源",
+                "parameters": [
+                    {
+                        "description": "分页获取API列表",
+                        "name": "data",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/request.HouseStateReq"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK"
+                    }
+                }
+            }
+        },
+        "/house/state": {
+            "post": {
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Admin"
+                ],
+                "summary": "房源上下架 可批量",
+                "parameters": [
+                    {
+                        "description": "分页获取API列表",
+                        "name": "data",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/request.HouseStateReq"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK"
                     }
                 }
             }
@@ -7799,6 +8126,74 @@ const docTemplate = `{
                 }
             }
         },
+        "/user/getSaler": {
+            "post": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Admin"
+                ],
+                "summary": "分页获取saler用户列表",
+                "parameters": [
+                    {
+                        "description": "页码, 每页大小",
+                        "name": "data",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/request.GetUserList"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "分页获取用户列表,返回包括列表,总数,页码,每页数量",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/response.Response"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "allOf": [
+                                                {
+                                                    "$ref": "#/definitions/response.PageResult"
+                                                },
+                                                {
+                                                    "type": "object",
+                                                    "properties": {
+                                                        "list": {
+                                                            "type": "array",
+                                                            "items": {
+                                                                "$ref": "#/definitions/system.SysUser"
+                                                            }
+                                                        }
+                                                    }
+                                                }
+                                            ]
+                                        },
+                                        "msg": {
+                                            "type": "string"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                }
+            }
+        },
         "/user/getUserInfo": {
             "get": {
                 "security": [
@@ -7942,6 +8337,51 @@ const docTemplate = `{
                 }
             }
         },
+        "/user/saler_register": {
+            "post": {
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Admin"
+                ],
+                "summary": "经纪人用户注册",
+                "parameters": [
+                    {
+                        "description": "用户名, 昵称, 密码, 角色ID",
+                        "name": "data",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/request.Register"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "用户注册账号,返回包括用户信息",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/response.Response"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/response.SysUserResponse"
+                                        },
+                                        "msg": {
+                                            "type": "string"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                }
+            }
+        },
         "/user/setUserAuthorities": {
             "post": {
                 "security": [
@@ -8056,9 +8496,9 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "SysUser"
+                    "Admin"
                 ],
-                "summary": "设置用户信息",
+                "summary": "设置经纪人用户信息",
                 "parameters": [
                     {
                         "description": "ID, 用户名, 昵称, 头像链接",
@@ -8102,7 +8542,7 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "微信公众号"
+                    "Center"
                 ],
                 "summary": "手机号快速验证 , 向用户发起手机号申请，并且必须经过用户同意",
                 "parameters": [
@@ -9460,6 +9900,10 @@ const docTemplate = `{
                     "description": "主键ID",
                     "type": "integer"
                 },
+                "approval_status": {
+                    "description": "审批状态： 通过 未通过 待审批",
+                    "type": "string"
+                },
                 "area": {
                     "description": "房源面积",
                     "type": "string"
@@ -10046,6 +10490,13 @@ const docTemplate = `{
         "request.GetUserList": {
             "type": "object",
             "properties": {
+                "authorityId": {
+                    "type": "integer"
+                },
+                "bind": {
+                    "description": "绑定的状态 1 已绑定 2 未绑定",
+                    "type": "integer"
+                },
                 "email": {
                     "type": "string"
                 },
@@ -10065,10 +10516,26 @@ const docTemplate = `{
                     "type": "integer"
                 },
                 "phone": {
+                    "description": "手机号搜索",
                     "type": "string"
                 },
                 "username": {
                     "type": "string"
+                }
+            }
+        },
+        "request.HouseStateReq": {
+            "type": "object",
+            "properties": {
+                "ids": {
+                    "type": "array",
+                    "items": {
+                        "type": "integer"
+                    }
+                },
+                "state": {
+                    "description": "1 上架（通过），2下架（不通过）",
+                    "type": "integer"
                 }
             }
         },
@@ -10168,12 +10635,33 @@ const docTemplate = `{
                     "description": "验证码ID",
                     "type": "string"
                 },
+                "mobile": {
+                    "description": "手机号",
+                    "type": "string"
+                },
                 "password": {
                     "description": "密码",
                     "type": "string"
                 },
+                "sms": {
+                    "description": "短信验证码",
+                    "type": "string"
+                },
                 "username": {
                     "description": "用户名",
+                    "type": "string"
+                }
+            }
+        },
+        "request.MobileLogin": {
+            "type": "object",
+            "properties": {
+                "mobile": {
+                    "description": "手机号",
+                    "type": "string"
+                },
+                "sms": {
+                    "description": "短信验证码",
                     "type": "string"
                 }
             }
@@ -10240,15 +10728,19 @@ const docTemplate = `{
             "type": "object",
             "properties": {
                 "feature": {
+                    "description": "有无电梯",
                     "type": "string"
                 },
                 "houseType": {
+                    "description": "1居室、2居室",
                     "type": "string"
                 },
                 "price": {
+                    "description": "价格 1580",
                     "type": "integer"
                 },
                 "rentType": {
+                    "description": "整租、合租、分整租",
                     "type": "string"
                 },
                 "xiaoquIds": {
@@ -10310,6 +10802,42 @@ const docTemplate = `{
                 "updatedAt": {
                     "description": "更新时间",
                     "type": "string"
+                }
+            }
+        },
+        "request.SearchNameResource": {
+            "type": "object",
+            "properties": {
+                "approvalStatus": {
+                    "description": "通过 未通过 待审批",
+                    "type": "string"
+                },
+                "desc": {
+                    "description": "排序方式:升序false(默认)|降序true",
+                    "type": "boolean"
+                },
+                "keyword": {
+                    "description": "关键字",
+                    "type": "string"
+                },
+                "orderKey": {
+                    "description": "排序",
+                    "type": "string"
+                },
+                "page": {
+                    "description": "页码",
+                    "type": "integer"
+                },
+                "pageSize": {
+                    "description": "每页大小",
+                    "type": "integer"
+                },
+                "phone": {
+                    "type": "string"
+                },
+                "xiaoquId": {
+                    "description": "小区id",
+                    "type": "integer"
                 }
             }
         },
@@ -10485,11 +11013,22 @@ const docTemplate = `{
             "type": "object",
             "properties": {
                 "code": {
-                    "description": "小程序code",
+                    "type": "string"
+                },
+                "encryptedData": {
+                    "type": "string"
+                },
+                "iv": {
                     "type": "string"
                 },
                 "mobile": {
                     "description": "出租人手机号",
+                    "type": "string"
+                },
+                "rawData": {
+                    "type": "string"
+                },
+                "signature": {
                     "type": "string"
                 },
                 "smn": {
@@ -11423,7 +11962,10 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "nickName": {
-                    "description": "用户昵称",
+                    "type": "string"
+                },
+                "openid": {
+                    "description": "openid",
                     "type": "string"
                 },
                 "originSetting": {
@@ -11448,6 +11990,10 @@ const docTemplate = `{
                 },
                 "uuid": {
                     "description": "用户UUID",
+                    "type": "string"
+                },
+                "wxNickName": {
+                    "description": "用户昵称",
                     "type": "string"
                 }
             }

@@ -37,6 +37,23 @@ func (userService *UserService) Register(u system.SysUser) (userInter system.Sys
 	return u, err
 }
 
+func (userService *UserService) FindUserByOpenid(openid string) (userInter *system.SysUser) {
+	var user system.SysUser
+	if errors.Is(global.GVA_DB.Where("openid = ?", openid).First(&user).Error, gorm.ErrRecordNotFound) {
+		return
+	}
+	return &user
+}
+
+func (userService *UserService) FindUserByMobile(mobile string) (userInter *system.SysUser) {
+
+	var user system.SysUser
+	if errors.Is(global.GVA_DB.Where("phone = ?", mobile).First(&user).Error, gorm.ErrRecordNotFound) {
+		return
+	}
+	return &user
+}
+
 //@author: [piexlmax](https://github.com/piexlmax)
 //@author: [SliverHorn](https://github.com/SliverHorn)
 //@function: Login
@@ -103,6 +120,17 @@ func (userService *UserService) GetUserInfoList(info systemReq.GetUserList) (lis
 	}
 	if info.Email != "" {
 		db = db.Where("email LIKE ?", "%"+info.Email+"%")
+	}
+
+	switch info.Bind {
+	case 1: // 已绑定
+		db = db.Where("openid != ''")
+	case 2: // 未绑定
+		db = db.Where("openid == ''")
+	}
+
+	if info.AuthorityId > 0 {
+		db = db.Where("authority_id = ?", info.AuthorityId)
 	}
 
 	err = db.Count(&total).Error
@@ -229,15 +257,17 @@ func (userService *UserService) DeleteUser(id int) (err error) {
 
 func (userService *UserService) SetUserInfo(req system.SysUser) error {
 	return global.GVA_DB.Model(&system.SysUser{}).
-		Select("updated_at", "nick_name", "header_img", "phone", "email", "enable").
+		Select("updated_at", "nick_name", "header_img", "phone", "email", "enable", "openid", "wx_nick_name").
 		Where("id=?", req.ID).
 		Updates(map[string]interface{}{
-			"updated_at": time.Now(),
-			"nick_name":  req.NickName,
-			"header_img": req.HeaderImg,
-			"phone":      req.Phone,
-			"email":      req.Email,
-			"enable":     req.Enable,
+			"updated_at":   time.Now(),
+			"nick_name":    req.NickName,
+			"header_img":   req.HeaderImg,
+			"phone":        req.Phone,
+			"email":        req.Email,
+			"enable":       req.Enable,
+			"openid":       req.Openid,
+			"wx_nick_name": req.WxNickName,
 		}).Error
 }
 

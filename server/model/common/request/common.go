@@ -66,6 +66,20 @@ type SearchResource struct {
 	Desc     bool   `json:"desc"`     // 排序方式:升序false(默认)|降序true
 }
 
+type SearchNameResource struct {
+	PageInfo
+	XiaoquId       uint   `json:"xiaoquId"` // 小区id
+	OrderKey       string `json:"orderKey"` // 排序
+	Desc           bool   `json:"desc"`     // 排序方式:升序false(默认)|降序true
+	Phone          string `json:"phone"`
+	ApprovalStatus string `json:"approvalStatus"` //  通过 未通过 待审批
+}
+
+type HouseStateReq struct {
+	Ids   []uint
+	State int // 1 上架（通过），2下架（不通过）
+}
+
 type FavoriteSearch struct {
 	PageInfo
 	OrderKey string `json:"orderKey"` // 排序
@@ -74,8 +88,8 @@ type FavoriteSearch struct {
 
 type ResourceSearch struct {
 	XiaoquId  []int  `json:"xiaoquIds"` // 商圈ids
-	HouseType string `json:"houseType"`
-	RentType  string `json:"rentType"`
-	Price     int    `json:"price"`
-	Feature   string `json:"feature"`
+	HouseType string `json:"houseType"` // 1居室、2居室
+	RentType  string `json:"rentType"`  // 整租、合租、分整租
+	Price     int    `json:"price"`     // 价格 1580
+	Feature   string `json:"feature"`   // 有无电梯
 }
