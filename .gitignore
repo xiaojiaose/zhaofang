@@ -41,3 +41,4 @@ web/pnpm-lock.yaml
 *.sqlite
 *.sqlite3
 /server/config.yaml
+server/bin
