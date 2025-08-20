@@ -41,7 +41,7 @@ func (receiver *XiaoQuApi) Show(c *gin.Context) {
 // @accept    application/json
 // @Produce   application/json
 // @Param   lat    query    int     true  "lat"
-// @Param   lng  query    int  false "lng"
+// @Param   lng  query    int  true "lng"
 // @Success   200   {object}  response.Response{data=[]system.XiaoQu,msg=string}
 // @Router    /center/distance [get]
 func (receiver *XiaoQuApi) Distance(c *gin.Context) {

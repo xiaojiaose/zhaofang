@@ -15,7 +15,7 @@ type HouseResourceApi struct {
 
 // View
 // @Tags     Admin
-// @Summary  创建|编辑 房源
+// @Summary   房源详情
 // @Produce  application/json
 // @Param    data  query    string  true  "id"
 // @Success  200   {object}  response.Response{data=house.Resource}  "结果"
@@ -144,7 +144,7 @@ func (h *HouseResourceApi) List(c *gin.Context) {
 
 // Create
 // @Tags     Admin
-// @Summary  创建|编辑 房源
+// @Summary  创建房源
 // @Produce  application/json
 // @Param    data  body      house.Resource  true  "初始化内容"
 // @Success  200   {object}  response.Response{data=string}  "结果"
@@ -195,7 +195,7 @@ func (h *HouseResourceApi) Create(c *gin.Context) {
 
 // Edit
 // @Tags     Admin
-// @Summary  创建|编辑 房源
+// @Summary  编辑 房源
 // @Produce  application/json
 // @Param    data  body      house.Resource  true  "初始化内容"
 // @Success  200   {object}  response.Response{data=string}  "结果"

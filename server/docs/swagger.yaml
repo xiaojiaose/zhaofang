@@ -1699,21 +1699,27 @@ definitions:
   response.Area:
     properties:
       districts:
+        description: 行政区下面的商圈
         items:
           $ref: '#/definitions/response.Districts'
         type: array
       id:
+        description: 行政区id
         type: integer
       name:
+        description: 行政区name
         type: string
       sort:
+        description: 排序
         type: integer
     type: object
   response.Districts:
     properties:
       id:
+        description: 商圈id
         type: integer
       name:
+        description: 商圈name
         type: string
     type: object
   response.Email:
@@ -1865,6 +1871,18 @@ definitions:
     properties:
       user:
         $ref: '#/definitions/system.SysUser'
+    type: object
+  response.XiaoquRsp:
+    properties:
+      id:
+        description: 小区id
+        type: integer
+      name:
+        description: 小区名
+        type: string
+      num:
+        description: 房源数量
+        type: integer
     type: object
   system.Condition:
     properties:
@@ -2785,7 +2803,7 @@ paths:
                 data:
                   type: string
               type: object
-      summary: 创建|编辑 房源
+      summary: 创建房源
       tags:
       - Admin
   /api/house/edit:
@@ -2809,7 +2827,7 @@ paths:
                 data:
                   type: string
               type: object
-      summary: 创建|编辑 房源
+      summary: 编辑 房源
       tags:
       - Admin
   /api/house/list:
@@ -2888,7 +2906,7 @@ paths:
                 data:
                   $ref: '#/definitions/house.Resource'
               type: object
-      summary: 创建|编辑 房源
+      summary: 房源详情
       tags:
       - Admin
   /api/ignoreApi:
@@ -4053,9 +4071,10 @@ paths:
   /center/area:
     get:
       parameters:
-      - description: cityId
+      - default: "1"
+        description: 城市id
         in: query
-        name: data
+        name: cityId
         required: true
         type: string
       produces:
@@ -4072,7 +4091,7 @@ paths:
                     $ref: '#/definitions/response.Area'
                   type: object
               type: object
-      summary: 获取区域列表（丰台区、朝阳区）
+      summary: 指定城市（默认石家庄 1 ） 获取区域列表（丰台区、朝阳区）
       tags:
       - Center
   /center/distance:
@@ -4150,9 +4169,9 @@ paths:
       parameters:
       - description: 房源id
         in: query
-        name: data
+        name: id
         required: true
-        type: integer
+        type: string
       produces:
       - application/json
       responses:
@@ -4175,9 +4194,9 @@ paths:
       parameters:
       - description: 房源id
         in: query
-        name: data
+        name: id
         required: true
-        type: integer
+        type: string
       produces:
       - application/json
       responses:

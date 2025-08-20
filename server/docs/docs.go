@@ -600,7 +600,7 @@ const docTemplate = `{
                 "tags": [
                     "Admin"
                 ],
-                "summary": "创建|编辑 房源",
+                "summary": "创建房源",
                 "parameters": [
                     {
                         "description": "初始化内容",
@@ -642,7 +642,7 @@ const docTemplate = `{
                 "tags": [
                     "Admin"
                 ],
-                "summary": "创建|编辑 房源",
+                "summary": "编辑 房源",
                 "parameters": [
                     {
                         "description": "初始化内容",
@@ -784,7 +784,7 @@ const docTemplate = `{
                 "tags": [
                     "Admin"
                 ],
-                "summary": "创建|编辑 房源",
+                "summary": "房源详情",
                 "parameters": [
                     {
                         "type": "string",
@@ -2865,12 +2865,13 @@ const docTemplate = `{
                 "tags": [
                     "Center"
                 ],
-                "summary": "获取区域列表（丰台区、朝阳区）",
+                "summary": "指定城市（默认石家庄 1 ） 获取区域列表（丰台区、朝阳区）",
                 "parameters": [
                     {
                         "type": "string",
-                        "description": "cityId",
-                        "name": "data",
+                        "default": "1",
+                        "description": "城市id",
+                        "name": "cityId",
                         "in": "query",
                         "required": true
                     }
@@ -3032,9 +3033,9 @@ const docTemplate = `{
                 "summary": "favorite 添加房源",
                 "parameters": [
                     {
-                        "type": "integer",
+                        "type": "string",
                         "description": "房源id",
-                        "name": "data",
+                        "name": "id",
                         "in": "query",
                         "required": true
                     }
@@ -3075,9 +3076,9 @@ const docTemplate = `{
                 "summary": "favorite 取消房源",
                 "parameters": [
                     {
-                        "type": "integer",
+                        "type": "string",
                         "description": "房源id",
-                        "name": "data",
+                        "name": "id",
                         "in": "query",
                         "required": true
                     }
@@ -11041,18 +11042,22 @@ const docTemplate = `{
             "type": "object",
             "properties": {
                 "districts": {
+                    "description": "行政区下面的商圈",
                     "type": "array",
                     "items": {
                         "$ref": "#/definitions/response.Districts"
                     }
                 },
                 "id": {
+                    "description": "行政区id",
                     "type": "integer"
                 },
                 "name": {
+                    "description": "行政区name",
                     "type": "string"
                 },
                 "sort": {
+                    "description": "排序",
                     "type": "integer"
                 }
             }
@@ -11061,9 +11066,11 @@ const docTemplate = `{
             "type": "object",
             "properties": {
                 "id": {
+                    "description": "商圈id",
                     "type": "integer"
                 },
                 "name": {
+                    "description": "商圈name",
                     "type": "string"
                 }
             }
@@ -11297,6 +11304,23 @@ const docTemplate = `{
             "properties": {
                 "user": {
                     "$ref": "#/definitions/system.SysUser"
+                }
+            }
+        },
+        "response.XiaoquRsp": {
+            "type": "object",
+            "properties": {
+                "id": {
+                    "description": "小区id",
+                    "type": "integer"
+                },
+                "name": {
+                    "description": "小区名",
+                    "type": "string"
+                },
+                "num": {
+                    "description": "房源数量",
+                    "type": "integer"
                 }
             }
         },

@@ -43,11 +43,11 @@ func (h *HouseResourceApi) View(c *gin.Context) {
 }
 
 // @Tags      Center
-// @Summary   指定查询条件  返回小区下面的房源数量（聚合）
+// @Summary   指定查询条件  返回小区列表 包含每个小区的房源数量（聚合）
 // @accept    application/json
 // @Produce   application/json
 // @Param     data  body      request.ResourceSearch   true  "查询条件"
-// @Success   200   {object}  response.Response{data=map[string]map[string]int}  "分页获取API列表,返回包括列表,总数,页码,每页数量"
+// @Success   200   {object}  response.Response{data=[]response.XiaoquRsp}  "返回小区列表 包含每个小区的房源数量（聚合）"
 // @Router    /center/house/listByXiaoqu [post]
 func (h *HouseResourceApi) ListByXiaoquAgg(c *gin.Context) {
 	var req request.ResourceSearch
@@ -97,6 +97,22 @@ func (h *HouseResourceApi) ListByXiaoquAgg(c *gin.Context) {
 		Fields: []string{"id", "xiaoqu", "xiaoqu_id"},
 		Size:   0,
 	})
+
+	var list []response.XiaoquRsp
+	for id, num := range agg["xiaoqu_id"] {
+		xId, _ := strconv.Atoi(id)
+		var name string
+		xiaoq, e := XiaoQuService.GetInfo(uint(xId))
+		if e == nil {
+			name = xiaoq.Name
+		}
+
+		list = append(list, response.XiaoquRsp{
+			Id:   xId,
+			Name: name,
+			Num:  num,
+		})
+	}
 	if err != nil {
 		response.FailWithMessage(err.Error(), c)
 		return
@@ -320,9 +336,9 @@ func (h *HouseResourceApi) Test(c *gin.Context) {
 
 // FilterArea
 // @Tags     Center
-// @Summary  获取区域列表（丰台区、朝阳区）
+// @Summary  指定城市（默认石家庄 1 ） 获取区域列表（丰台区、朝阳区）
 // @Produce  application/json
-// @Param    data  query    string  true  "cityId"
+// @Param cityId query string true "城市id"  default(1)
 // @Success  200   {object}  response.Response{data=map[string]response.Area}  "结果"
 // @Router   /center/area [get]
 func (h *HouseResourceApi) FilterArea(c *gin.Context) {
@@ -382,7 +398,7 @@ func (h *HouseResourceApi) FilterOptions(c *gin.Context) {
 // @Summary   favorite 添加房源
 // @accept    application/json
 // @Produce   application/json
-// @Param     data  query      int  true  "房源id"
+// @Param id query string true "房源id"
 // @Success   200   {object}  response.Response{msg=string}
 // @Router    /center/favorite/add [get]
 func (h *HouseResourceApi) FavoriteAdd(c *gin.Context) {
@@ -407,7 +423,7 @@ func (h *HouseResourceApi) FavoriteAdd(c *gin.Context) {
 // @Summary   favorite 取消房源
 // @accept    application/json
 // @Produce   application/json
-// @Param     data  query      int  true  "房源id"
+// @Param id query string true "房源id"
 // @Success   200   {object}  response.Response{msg=string}
 // @Router    /center/favorite/del [get]
 func (h *HouseResourceApi) FavoriteDel(c *gin.Context) {
