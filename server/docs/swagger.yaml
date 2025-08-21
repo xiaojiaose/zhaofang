@@ -900,6 +900,9 @@ definitions:
       city:
         description: 所属城市
         type: string
+      click:
+        description: 电话获取次数
+        type: integer
       createdAt:
         description: 创建时间
         type: string
@@ -918,6 +921,9 @@ definitions:
       floor:
         description: 楼层
         type: string
+      follow:
+        description: 关注次数
+        type: integer
       house_type:
         description: 户型
         type: string
@@ -939,9 +945,15 @@ definitions:
       status:
         description: 状态 已出租，已下架，待出租
         type: string
+      updated_last_at:
+        description: 最后编辑时间
+        type: string
       updatedAt:
         description: 更新时间
         type: string
+      view:
+        description: 浏览次数
+        type: integer
       xiaoqu:
         description: 所属小区名字
         type: string
@@ -4295,6 +4307,31 @@ paths:
       summary: 指定小区id 分页获取房源列表
       tags:
       - Center
+  /center/house/mobile:
+    get:
+      parameters:
+      - description: id
+        in: query
+        name: data
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: '结果 {''mobile'': ''13222222222''}'
+          schema:
+            allOf:
+            - $ref: '#/definitions/response.Response'
+            - properties:
+                data:
+                  additionalProperties:
+                    type: string
+                  type: object
+              type: object
+      summary: 获取 房源手机号
+      tags:
+      - Center
   /center/house/my:
     post:
       consumes:
@@ -4350,7 +4387,7 @@ paths:
                 data:
                   $ref: '#/definitions/house.Resource'
               type: object
-      summary: 创建|编辑 房源
+      summary: 查看 房源
       tags:
       - Center
   /center/index:
@@ -4414,6 +4451,35 @@ paths:
                   type: string
               type: object
       summary: 个人中心接口
+      tags:
+      - Center
+  /center/upload:
+    post:
+      consumes:
+      - multipart/form-data
+      parameters:
+      - description: 上传文件示例
+        in: formData
+        name: file
+        required: true
+        type: file
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 上传文件示例,返回包括文件详情
+          schema:
+            allOf:
+            - $ref: '#/definitions/response.Response'
+            - properties:
+                data:
+                  type: string
+                msg:
+                  type: string
+              type: object
+      security:
+      - ApiKeyAuth: []
+      summary: 上传文件示例
       tags:
       - Center
   /center/xiaoqu/list:
@@ -6947,35 +7013,6 @@ paths:
       summary: 设置配置文件内容
       tags:
       - System
-  /upload:
-    post:
-      consumes:
-      - multipart/form-data
-      parameters:
-      - description: 上传文件示例
-        in: formData
-        name: file
-        required: true
-        type: file
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: 上传文件示例,返回包括文件详情
-          schema:
-            allOf:
-            - $ref: '#/definitions/response.Response'
-            - properties:
-                data:
-                  type: string
-                msg:
-                  type: string
-              type: object
-      security:
-      - ApiKeyAuth: []
-      summary: 上传文件示例
-      tags:
-      - Center
   /user/SetSelfInfo:
     put:
       consumes:

@@ -49,7 +49,7 @@ func (b *FileUploadAndDownloadApi) UploadFile(c *gin.Context) {
 // @Produce   application/json
 // @Param     file  formData  file                                                           true  "上传文件示例"
 // @Success   200   {object}  response.Response{data=string,msg=string}  "上传文件示例,返回包括文件详情"
-// @Router    /upload [post]
+// @Router    /center/upload [post] "后台用 /house/upload"
 func (b *FileUploadAndDownloadApi) UploadFile1(c *gin.Context) {
 	var file example.ExaFileUploadAndDownload
 	noSave := c.DefaultQuery("noSave", "0")

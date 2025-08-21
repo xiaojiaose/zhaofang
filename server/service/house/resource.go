@@ -2,10 +2,13 @@ package house
 
 import (
 	"context"
+	"fmt"
 	"github.com/flipped-aurora/gin-vue-admin/server/global"
 	"github.com/flipped-aurora/gin-vue-admin/server/model/common/request"
 	"github.com/flipped-aurora/gin-vue-admin/server/model/house"
 	"github.com/flipped-aurora/gin-vue-admin/server/model/search"
+	"gorm.io/gorm"
+	"time"
 )
 
 type ResourceService struct{}
@@ -34,6 +37,7 @@ func (service *ResourceService) GetPriceByOption(key string) []int {
 }
 
 func (service *ResourceService) CreateOrUpdate(resource *house.Resource) (err error) {
+	resource.UpdatedLastAt = time.Now()
 	err = global.GVA_DB.Where("id = ?", resource.ID).First(&house.Resource{}).Updates(&resource).Error
 	if err != nil && err.Error() == "record not found" {
 		err = global.GVA_DB.Create(resource).Error
@@ -51,6 +55,16 @@ func (service *ResourceService) CreateOrUpdate(resource *house.Resource) (err er
 func (service *ResourceService) GetInfo(id uint) (resource *house.Resource, err error) {
 	err = global.GVA_DB.Model(&house.Resource{}).Where("id = ? ", id).First(&resource).Error
 
+	return
+}
+
+func (service *ResourceService) FollowViewClickAdd(id uint, field string) (err error) {
+	err = global.GVA_DB.Model(&house.Resource{}).Where("id = ? ", id).UpdateColumn(field, gorm.Expr(fmt.Sprintf("%s + ?", field), 1)).Error
+	return
+}
+
+func (service *ResourceService) FollowViewClickSub(id uint, field string) (err error) {
+	err = global.GVA_DB.Model(&house.Resource{}).Where("id = ? ", id).UpdateColumn(field, gorm.Expr(fmt.Sprintf("%s - ?", field), 1)).Error
 	return
 }
 

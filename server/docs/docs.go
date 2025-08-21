@@ -3252,6 +3252,49 @@ const docTemplate = `{
                 }
             }
         },
+        "/center/house/mobile": {
+            "get": {
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Center"
+                ],
+                "summary": "获取 房源手机号",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "id",
+                        "name": "data",
+                        "in": "query",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "结果 {'mobile': '13222222222'}",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/response.Response"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "type": "object",
+                                            "additionalProperties": {
+                                                "type": "string"
+                                            }
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                }
+            }
+        },
         "/center/house/my": {
             "post": {
                 "consumes": [
@@ -3323,7 +3366,7 @@ const docTemplate = `{
                 "tags": [
                     "Center"
                 ],
-                "summary": "创建|编辑 房源",
+                "summary": "查看 房源",
                 "parameters": [
                     {
                         "type": "string",
@@ -3444,6 +3487,57 @@ const docTemplate = `{
                 "responses": {
                     "200": {
                         "description": "个人中心接口",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/response.Response"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "type": "string"
+                                        },
+                                        "msg": {
+                                            "type": "string"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                }
+            }
+        },
+        "/center/upload": {
+            "post": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "consumes": [
+                    "multipart/form-data"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Center"
+                ],
+                "summary": "上传文件示例",
+                "parameters": [
+                    {
+                        "type": "file",
+                        "description": "上传文件示例",
+                        "name": "file",
+                        "in": "formData",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "上传文件示例,返回包括文件详情",
                         "schema": {
                             "allOf": [
                                 {
@@ -7825,57 +7919,6 @@ const docTemplate = `{
                 }
             }
         },
-        "/upload": {
-            "post": {
-                "security": [
-                    {
-                        "ApiKeyAuth": []
-                    }
-                ],
-                "consumes": [
-                    "multipart/form-data"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "Center"
-                ],
-                "summary": "上传文件示例",
-                "parameters": [
-                    {
-                        "type": "file",
-                        "description": "上传文件示例",
-                        "name": "file",
-                        "in": "formData",
-                        "required": true
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "上传文件示例,返回包括文件详情",
-                        "schema": {
-                            "allOf": [
-                                {
-                                    "$ref": "#/definitions/response.Response"
-                                },
-                                {
-                                    "type": "object",
-                                    "properties": {
-                                        "data": {
-                                            "type": "string"
-                                        },
-                                        "msg": {
-                                            "type": "string"
-                                        }
-                                    }
-                                }
-                            ]
-                        }
-                    }
-                }
-            }
-        },
         "/user/SetSelfInfo": {
             "put": {
                 "security": [
@@ -9921,6 +9964,10 @@ const docTemplate = `{
                     "description": "所属城市",
                     "type": "string"
                 },
+                "click": {
+                    "description": "电话获取次数",
+                    "type": "integer"
+                },
                 "createdAt": {
                     "description": "创建时间",
                     "type": "string"
@@ -9944,6 +9991,10 @@ const docTemplate = `{
                 "floor": {
                     "description": "楼层",
                     "type": "string"
+                },
+                "follow": {
+                    "description": "关注次数",
+                    "type": "integer"
                 },
                 "house_type": {
                     "description": "户型",
@@ -9976,6 +10027,14 @@ const docTemplate = `{
                 "updatedAt": {
                     "description": "更新时间",
                     "type": "string"
+                },
+                "updated_last_at": {
+                    "description": "最后编辑时间",
+                    "type": "string"
+                },
+                "view": {
+                    "description": "浏览次数",
+                    "type": "integer"
                 },
                 "xiaoqu": {
                     "description": "所属小区名字",

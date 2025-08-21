@@ -29,6 +29,11 @@ type Resource struct {
 	Owner          uint                 `json:"owner"`                        // 业主
 	Status         string               `json:"status"`                       // 状态 已出租，已下架，待出租
 	ApprovalStatus string               `json:"approval_status"`              // 审批状态： 通过 未通过 待审批
+
+	UpdatedLastAt time.Time `json:"updated_last_at" ` // 最后编辑时间
+	Follow        int       `json:"follow"`           // 关注次数
+	View          int       `json:"view"`             // 浏览次数
+	Click         int       `json:"click"`            // 电话获取次数
 	//Saler        string `json:"saler"`        // 销售
 	//Designer     string `json:"designer"`     // 设计师
 	//LeaseEndDate string `json:"leaseEndDate"` // 截止日期

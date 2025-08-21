@@ -20,7 +20,7 @@ type HouseResourceApi struct {
 
 // View
 // @Tags     Center
-// @Summary  创建|编辑 房源
+// @Summary  查看 房源
 // @Produce  application/json
 // @Param    data  query    string  true  "id"
 // @Success  200   {object}  response.Response{data=house.Resource}  "结果"
@@ -39,7 +39,46 @@ func (h *HouseResourceApi) View(c *gin.Context) {
 		return
 	}
 
+	err = ResourceService.FollowViewClickAdd(uint(req.ID), "view")
+	if err != nil {
+		global.GVA_LOG.Error("view add failed !", zap.Error(err))
+	}
+
 	response.OkWithDetailed(info, "获取成功", c)
+}
+
+// View
+// @Tags     Center
+// @Summary  获取 房源手机号
+// @Produce  application/json
+// @Param    data  query    string  true  "id"
+// @Success  200   {object}  response.Response{data=map[string]string}  "结果 {'mobile': '13222222222'}"
+// @Router   /center/house/mobile [get]
+func (h *HouseResourceApi) GetMobile(c *gin.Context) {
+	var req request.GetById
+	err := c.ShouldBindQuery(&req)
+	if err != nil {
+		response.FailWithMessage(err.Error(), c)
+		return
+	}
+
+	info, err := ResourceService.GetInfo(uint(req.ID))
+	if err != nil {
+		response.FailWithMessage(err.Error(), c)
+		return
+	}
+
+	u, err := userService.FindUserById(int(info.Owner))
+	if err != nil {
+		return
+	}
+
+	err = ResourceService.FollowViewClickAdd(uint(req.ID), "click")
+	if err != nil {
+		global.GVA_LOG.Error("view add failed !", zap.Error(err))
+	}
+
+	response.OkWithDetailed(map[string]string{"mobile": u.Phone}, "获取成功", c)
 }
 
 // @Tags      Center
@@ -414,7 +453,13 @@ func (h *HouseResourceApi) FavoriteAdd(c *gin.Context) {
 	}
 
 	userId := utils.GetUserID(c) // 获取登陆用户
-	FavoriteService.CreateOrUpdate(&house.Favorite{ResourceId: uint(req.ID), UserId: userId})
+	err = FavoriteService.CreateOrUpdate(&house.Favorite{ResourceId: uint(req.ID), UserId: userId})
+	if err == nil {
+		err = ResourceService.FollowViewClickAdd(uint(req.ID), "follow")
+		if err != nil {
+			global.GVA_LOG.Error("follow add failed !", zap.Error(err))
+		}
+	}
 	response.Ok(c)
 	return
 }
@@ -439,7 +484,13 @@ func (h *HouseResourceApi) FavoriteDel(c *gin.Context) {
 	}
 
 	userId := utils.GetUserID(c) // 获取登陆用户
-	FavoriteService.Delete(userId, uint(req.ID))
+	err = FavoriteService.Delete(userId, uint(req.ID))
+	if err == nil {
+		err = ResourceService.FollowViewClickSub(uint(req.ID), "follow")
+		if err != nil {
+			global.GVA_LOG.Error("follow sub failed !", zap.Error(err))
+		}
+	}
 	response.Ok(c)
 	return
 }
