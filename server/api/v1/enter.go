@@ -14,5 +14,6 @@ type ApiGroup struct {
 	ExampleApiGroup example.ApiGroup
 	ApiCenterGroup  center.ApiCenter
 	House           resource.HouseResourceApi
+	Statis          resource.StatisDataApi
 	XiaoQu          resource.XiaoQuApi
 }

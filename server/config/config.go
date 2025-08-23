@@ -43,8 +43,3 @@ type Server struct {
 
 	ZincSearch ZincSearch `mapstructure:"zinc-search" json:"zinc-search" yaml:"zinc-search"`
 }
-
-const (
-	AppID     = "wx1234567890abcdef" // 小程序AppID
-	AppSecret = "your_app_secret"    // 小程序AppSecret
-)

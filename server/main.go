@@ -6,6 +6,7 @@ import (
 	"github.com/flipped-aurora/gin-vue-admin/server/initialize"
 	_ "go.uber.org/automaxprocs"
 	"go.uber.org/zap"
+	"google.golang.org/protobuf/runtime/protoimpl"
 )
 
 //go:generate go env -w GO111MODULE=on
@@ -27,6 +28,32 @@ import (
 // @in                          header
 // @name                        x-token
 // @BasePath                    /
+
+type BatteryData struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Action        string                 `protobuf:"bytes,1,opt,name=action,proto3" json:"action,omitempty"` // 采集动作 "POWER_IN", "POWER_OUT", "START_UP", "SHUT_DOWN", "INITIATIVE_UPLOAD"
+	Info          *Info                  `protobuf:"bytes,2,opt,name=info,proto3" json:"info,omitempty"`
+	Stamp         int64                  `protobuf:"varint,3,opt,name=stamp,proto3" json:"stamp,omitempty"` // 采集时间
+	Type          int32                  `protobuf:"varint,4,opt,name=type,proto3" json:"type,omitempty"`   // 采集种类 1 主动，2 被动
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+type Info struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Cap           float64                `protobuf:"fixed64,1,opt,name=cap,proto3" json:"cap,omitempty"`   // 总容量
+	Ccr           int32                  `protobuf:"varint,2,opt,name=ccr,proto3" json:"ccr,omitempty"`    // 充电状态
+	Bhs           string                 `protobuf:"bytes,3,opt,name=bhs,proto3" json:"bhs,omitempty"`     // 电池健康程度 未知 良好 过热 没电 过电压 温度过低 未知错误
+	Soc           int32                  `protobuf:"varint,4,opt,name=soc,proto3" json:"soc,omitempty"`    // 当前电量
+	Chg           string                 `protobuf:"bytes,5,opt,name=chg,proto3" json:"chg,omitempty"`     // 充电类型 充电器 USB 无线充电 未充电
+	St            string                 `protobuf:"bytes,6,opt,name=st,proto3" json:"st,omitempty"`       // 电池状态 未知 充电中 放电中 未充电 电池满
+	Tech          string                 `protobuf:"bytes,7,opt,name=tech,proto3" json:"tech,omitempty"`   // 电池技术
+	Temp          float64                `protobuf:"fixed64,8,opt,name=temp,proto3" json:"temp,omitempty"` // 温度
+	V             int32                  `protobuf:"varint,9,opt,name=v,proto3" json:"v,omitempty"`        // 电压
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
 func main() {
 	// 初始化系统
 	initializeSystem()

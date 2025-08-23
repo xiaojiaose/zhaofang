@@ -3,6 +3,7 @@ package initialize
 import (
 	"github.com/flipped-aurora/gin-vue-admin/server/model/house"
 	"github.com/flipped-aurora/gin-vue-admin/server/model/human"
+	"github.com/flipped-aurora/gin-vue-admin/server/model/search"
 	"os"
 
 	"github.com/flipped-aurora/gin-vue-admin/server/global"
@@ -72,6 +73,7 @@ func RegisterTables() {
 		human.WxUser{},
 		human.Human{},
 		house.Resource{},
+		search.StatisData{},
 	)
 	if err != nil {
 		global.GVA_LOG.Error("register table failed", zap.Error(err))

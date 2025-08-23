@@ -2,7 +2,6 @@ package system
 
 import (
 	"fmt"
-	"github.com/flipped-aurora/gin-vue-admin/server/config"
 	"github.com/flipped-aurora/gin-vue-admin/server/global"
 	"github.com/flipped-aurora/gin-vue-admin/server/model/common/response"
 	"github.com/flipped-aurora/gin-vue-admin/server/model/system"
@@ -32,14 +31,16 @@ type WxUserApi struct{}
 // @Success      200   {object}   response.Response{data=string,msg=string}
 // @Router   /wx/getMobile [post]
 func (wx *WxUserApi) GetWxMobile(c *gin.Context) {
-	code := c.PostForm("code")
-	if code == "" {
+	var req systemReq.WxMobileLogin
+	err := c.ShouldBindJSON(&req)
+	if req.Code == "" {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "code required"})
 		return
 	}
+	code := req.Code
 
 	// 1. 获取access_token
-	accessToken, err := GetAccessToken(config.AppID, config.AppSecret)
+	accessToken, err := GetAccessToken(global.GVA_CONFIG.System.AppID, global.GVA_CONFIG.System.AppSecret)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "failed to get access token"})
 		return
@@ -252,7 +253,7 @@ func GetPhoneNumber(accessToken, code string) (string, error) {
 			PhoneNumber string `json:"phoneNumber"`
 		} `json:"phone_info"`
 	}
-	if err := json.NewDecoder(resp.Body).Decode(&result); err != nil {
+	if err = json.NewDecoder(resp.Body).Decode(&result); err != nil {
 		return "", err
 	}
 	return result.PhoneInfo.PhoneNumber, nil

@@ -22,6 +22,7 @@ func (s *ApiRouter) InitApiAuthRouter(Router *gin.RouterGroup) {
 	houseRouter := Router.Group("house")
 	houseRecordRouter := Router.Group("house").Use(middleware.OperationRecord())
 	resourceApi := v1.ApiGroupApp.House
+	statisApi := v1.ApiGroupApp.Statis
 	xiaoQuApi := v1.ApiGroupApp.XiaoQu
 	fileUploadApi := v1.ApiGroupApp.ExampleApiGroup.FileUploadAndDownloadApi
 
@@ -34,6 +35,11 @@ func (s *ApiRouter) InitApiAuthRouter(Router *gin.RouterGroup) {
 		houseRouter.POST("list", resourceApi.List)
 		houseRecordRouter.POST("edit", resourceApi.Edit)
 		houseRouter.POST("upload", fileUploadApi.UploadFile1)
+	}
+
+	{
+		houseRouter.GET("/statis/view", statisApi.View)
+
 	}
 
 }

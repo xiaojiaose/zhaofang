@@ -2,6 +2,7 @@ package request
 
 import (
 	"gorm.io/gorm"
+	"time"
 )
 
 // PageInfo Paging common input parameter structure
@@ -30,6 +31,11 @@ func (r *PageInfo) Paginate() func(db *gorm.DB) *gorm.DB {
 // GetById Find by id structure
 type GetById struct {
 	ID int `json:"id" form:"id"` // 主键ID
+}
+
+type GetStatis struct {
+	Start time.Time `json:"start" from:"start"` // 开始时间
+	End   time.Time `json:"end" from:"end"`     // 结束时间
 }
 
 func (r *GetById) Uint() uint {

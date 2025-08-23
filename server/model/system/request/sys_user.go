@@ -84,6 +84,10 @@ type WxLogin struct {
 	WxLoginRequest
 }
 
+type WxMobileLogin struct {
+	Code string `json:"code"`
+}
+
 type WxLoginRequest struct {
 	Code          string `json:"code"`
 	EncryptedData string `json:"encryptedData"`

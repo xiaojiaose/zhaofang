@@ -2942,6 +2942,32 @@ paths:
       summary: 忽略API
       tags:
       - IgnoreApi
+  /api/statis/view:
+    get:
+      parameters:
+      - description: 结束时间
+        in: query
+        name: end
+        type: string
+      - description: 开始时间
+        in: query
+        name: start
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 结果
+          schema:
+            allOf:
+            - $ref: '#/definitions/response.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/house.Resource'
+              type: object
+      summary: 房源详情
+      tags:
+      - Admin
   /api/syncApi:
     get:
       consumes:
