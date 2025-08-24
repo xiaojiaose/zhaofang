@@ -501,7 +501,7 @@ func (h *HouseResourceApi) FavoriteDel(c *gin.Context) {
 // @Produce   application/json
 // @Param     data  body      request.FavoriteSearch   true  "分页获取API列表"
 // @Success   200   {object}  response.Response{data=response.PageResult{list=[]house.Resource},msg=string}  "分页获取API列表,返回包括列表,总数,页码,每页数量"
-// @Router    /center/favorite/List [post]
+// @Router    /center/favorite/list [post]
 func (h *HouseResourceApi) FavoriteList(c *gin.Context) {
 	var pageInfo request.FavoriteSearch
 	err := c.ShouldBindJSON(&pageInfo)

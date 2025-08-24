@@ -26,7 +26,8 @@ func (s *CenterRouter) InitCenterAuthRouter(Router *gin.RouterGroup) {
 
 	{
 		houseRouter.GET("index", centerApi.WxProfile)   //
-		houseRouter.POST("xiaoqu", xiaoQuApi.List)      //
+		houseRouter.POST("xiaoqu/list", xiaoQuApi.List) //
+		houseRouter.GET("xiaoqu/show", xiaoQuApi.Show)
 		houseRouter.GET("distance", xiaoQuApi.Distance) //
 		houseRouter.GET("test", resourceApi.Test)       //
 		houseRouter.GET("area", resourceApi.FilterArea)
@@ -41,7 +42,7 @@ func (s *CenterRouter) InitCenterAuthRouter(Router *gin.RouterGroup) {
 		houseRouter.POST("upload", fileUploadApi.UploadFile1)
 		houseRouter.GET("favorite/add", resourceApi.FavoriteAdd)
 		houseRouter.GET("favorite/del", resourceApi.FavoriteDel)
-		houseRouter.GET("favorite/list", resourceApi.FavoriteList)
+		houseRouter.POST("favorite/list", resourceApi.FavoriteList)
 
 		//houseRouter.GET("incomeInfo", wxUserApi.GetIncomeInfo) //
 	}
