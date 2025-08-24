@@ -52,7 +52,7 @@ func (e *AliSmsService) SendAliSms(phones []string, templateCode string, code st
 	phonesStr := strings.Join(phones, ",")
 	sendSmsRequest := &dysmsapi20170525.SendSmsRequest{
 		PhoneNumbers:  tea.String(phonesStr),
-		SignName:      tea.String("马尚住"),
+		SignName:      tea.String("石家庄纤凝天鼓科技"),
 		TemplateCode:  tea.String("SMS_276406431"),
 		TemplateParam: tea.String(codeParms),
 	}

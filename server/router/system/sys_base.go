@@ -12,7 +12,7 @@ func (s *BaseRouter) InitBaseRouter(Router *gin.RouterGroup) (R gin.IRoutes) {
 		baseRouter.POST("login", baseApi.Login)
 		baseRouter.POST("captcha", baseApi.Captcha)
 		baseRouter.POST("mobileLogin", baseApi.MobileLogin)
-		baseRouter.POST("sendCode", baseApi.SendSms)
+		baseRouter.POST("sendSms", baseApi.SendSms)
 	}
 	return baseRouter
 }
