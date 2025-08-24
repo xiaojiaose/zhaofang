@@ -66,7 +66,7 @@ func (*Local) UploadFile(file *multipart.FileHeader) (string, string, error) {
 		global.GVA_LOG.Error("function io.Copy() failed", zap.Any("err", copyErr.Error()))
 		return "", "", errors.New("function io.Copy() failed, err:" + copyErr.Error())
 	}
-	return filepath, filename, nil
+	return global.GVA_CONFIG.Local.BaseURL + "/" + filepath, filename, nil
 }
 
 //@author: [piexlmax](https://github.com/piexlmax)

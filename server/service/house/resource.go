@@ -94,7 +94,7 @@ func (service *ResourceService) GetPage(xiaoquId, userId uint, appStatus string,
 	}
 
 	if userId != 0 {
-		db = db.Where("user_id = ?", userId)
+		db = db.Where("owner = ?", userId)
 	}
 
 	if len(appStatus) > 0 {
