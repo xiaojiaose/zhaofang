@@ -249,7 +249,8 @@ func (b *BaseApi) SalesRegister(c *gin.Context) {
 		return
 	}
 	r.AuthorityIds = []uint{555}
-	err = utils.Verify(r, utils.RegisterVerify)
+	r.AuthorityId = 555
+	err = utils.Verify(r, utils.RegisterVerify1)
 	if err != nil {
 		response.FailWithMessage(err.Error(), c)
 		return

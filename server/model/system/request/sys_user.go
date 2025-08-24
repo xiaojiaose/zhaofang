@@ -81,15 +81,17 @@ type GetUserList struct {
 type WxLogin struct {
 	Mobile string `json:"mobile"` // 出租人手机号
 	Smn    string `json:"smn"`    // 短息验证码
+	Code   string `json:"code"`
 	WxLoginRequest
 }
 
 type WxMobileLogin struct {
-	Code string `json:"code"`
+	MobileCode string `json:"mobileCode"` // 获取手机号的code
+	OpenidCode string `json:"openidCode"` // 获取openId的code
+	WxLoginRequest
 }
 
 type WxLoginRequest struct {
-	Code          string `json:"code"`
 	EncryptedData string `json:"encryptedData"`
 	Iv            string `json:"iv"`
 	RawData       string `json:"rawData"`

@@ -30,6 +30,10 @@ func (userService *UserService) Register(u system.SysUser) (userInter system.Sys
 	if !errors.Is(global.GVA_DB.Where("username = ?", u.Username).First(&user).Error, gorm.ErrRecordNotFound) { // 判断用户名是否注册
 		return userInter, errors.New("用户名已注册")
 	}
+
+	if !errors.Is(global.GVA_DB.Where("phone = ?", u.Phone).First(&user).Error, gorm.ErrRecordNotFound) { // 判断用户名是否注册
+		return userInter, errors.New("手机号已注册")
+	}
 	// 否则 附加uuid 密码hash加密 注册
 	u.Password = utils.BcryptHash(u.Password)
 	u.UUID = uuid.New()

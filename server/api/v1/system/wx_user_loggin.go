@@ -1,6 +1,7 @@
 package system
 
 import (
+	"errors"
 	"fmt"
 	"github.com/flipped-aurora/gin-vue-admin/server/global"
 	"github.com/flipped-aurora/gin-vue-admin/server/model/common/response"
@@ -11,6 +12,7 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/goccy/go-json"
 	"github.com/silenceper/wechat/v2"
+	"github.com/silenceper/wechat/v2/cache"
 	"github.com/silenceper/wechat/v2/miniprogram/auth"
 	miniConfig "github.com/silenceper/wechat/v2/miniprogram/config"
 	"go.uber.org/zap"
@@ -27,18 +29,17 @@ type WxUserApi struct{}
 // @Tags     Center
 // @Summary  手机号快速验证 , 向用户发起手机号申请，并且必须经过用户同意
 // @Produce   application/json
-// @Param        code  body      string  true  "微信手机号授权code"
+// @Param    data  body      systemReq.WxMobileLogin  true  "微信手机号授权code"
 // @Success      200   {object}   response.Response{data=string,msg=string}
 // @Router   /wx/getMobile [post]
 func (wx *WxUserApi) GetWxMobile(c *gin.Context) {
 	var req systemReq.WxMobileLogin
 	err := c.ShouldBindJSON(&req)
-	if req.Code == "" {
+	if req.MobileCode == "" || req.OpenidCode == "" {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "code required"})
 		return
 	}
-	code := req.Code
-
+	memoryCache := cache.NewMemory()
 	// 1. 获取access_token
 	accessToken, err := GetAccessToken(global.GVA_CONFIG.System.AppID, global.GVA_CONFIG.System.AppSecret)
 	if err != nil {
@@ -47,13 +48,46 @@ func (wx *WxUserApi) GetWxMobile(c *gin.Context) {
 	}
 
 	// 2. 调用微信手机号接口
-	phoneInfo, err := GetPhoneNumber(accessToken, code)
+	phoneInfo, err := GetPhoneNumber(accessToken, req.MobileCode)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
+	global.GVA_LOG.Warn("phoneInfo", zap.String("phoneInfo", phoneInfo))
 
-	c.JSON(http.StatusOK, phoneInfo)
+	// 3. 初始化微信小程序配置
+	wc := wechat.NewWechat()
+	cfg := &miniConfig.Config{
+		AppID:     global.GVA_CONFIG.System.AppID,
+		AppSecret: global.GVA_CONFIG.System.AppSecret,
+		Cache:     memoryCache,
+	}
+	var authResult auth.ResCode2Session
+	var userInfo systemReq.UserInfo
+
+	mini := wc.GetMiniProgram(cfg)
+	// 3. 用 前端传来的code 获取 openid 和 session_key
+	authResult, err = mini.GetAuth().Code2Session(req.OpenidCode)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+	global.GVA_LOG.Warn("根据code获取openid", zap.String("openid", authResult.OpenID))
+
+	// 4. 解密用户资料
+	if err = utils.DecryptWXData(authResult.SessionKey, req.EncryptedData, req.Iv, &userInfo); err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+	global.GVA_LOG.Warn("根据code获取openid", zap.String("userInfo", fmt.Sprintf("%+v", userInfo)))
+
+	h, err := findUser(authResult.OpenID, phoneInfo, c)
+	if err != nil {
+		return
+	}
+	wx.TokenNext(c, h)
+	return
+
 }
 
 // WxLogin
@@ -97,8 +131,8 @@ func (wx *WxUserApi) WxLogin(c *gin.Context) {
 			// 1. 初始化微信小程序配置
 			wc := wechat.NewWechat()
 			cfg := &miniConfig.Config{
-				AppID:     "你的小程序AppID", // todo
-				AppSecret: "你的小程序AppSecret",
+				AppID:     global.GVA_CONFIG.System.AppID,
+				AppSecret: global.GVA_CONFIG.System.AppSecret,
 			}
 			mini := wc.GetMiniProgram(cfg)
 
@@ -118,47 +152,56 @@ func (wx *WxUserApi) WxLogin(c *gin.Context) {
 
 		}
 
-		h := userService.FindUserByOpenid(authResult.OpenID)
-		if h == nil {
-			global.GVA_LOG.Debug("1,通过openid查找用户，没找到", zap.String("openid", authResult.OpenID))
-
-			h = userService.FindUserByMobile(req.Mobile)
-			if h == nil {
-				//global.GVA_LOG.Debug("2,再通过手机号查找用户，也没找到，需要创建一个", zap.String("mobile", req.Mobile), zap.String("openid", authResult.OpenID))
-				//h = &human.WxUser{
-				//	Mobile: req.Mobile,
-				//	Openid: authResult.OpenID,
-				//}
-				//err = humanService.CreateWxUser(h)
-				//if err != nil {
-				//	global.GVA_LOG.Debug("2,再通过手机号查找用户，也没找到，需要创建，结果创建失败..", zap.String("mobile", req.Mobile), zap.String("openid", authResult.OpenID))
-				//	response.FailWithMessage(err.Error(), c)
-				//	return
-				//}
-				response.FailWithMessage("该手机号没有账号，请核对", c)
-			} else {
-				global.GVA_LOG.Debug("2,再通过手机号查找用户，找到了，需要更新用户的openid", zap.String("mobile", req.Mobile), zap.String("openid", authResult.OpenID))
-				h.Openid = authResult.OpenID
-				if userInfo.AvatarURL != "" {
-					h.HeaderImg = userInfo.AvatarURL
-				}
-				if userInfo.NickName != "" {
-					h.WxNickName = userInfo.NickName
-				}
-				err = userService.SetUserInfo(*h)
-				if err != nil {
-					global.GVA_LOG.Debug("2,再通过手机号查找用户，也没找到，需要更新用户的openid，结果更新失败..", zap.String("mobile", req.Mobile), zap.String("openid", authResult.OpenID))
-					response.FailWithMessage(err.Error(), c)
-					return
-				}
-			}
-
+		h, err := findUser(authResult.OpenID, req.Mobile, c)
+		if err != nil {
+			return
 		}
 		wx.TokenNext(c, h)
 		return
 	}
 
 	response.FailWithMessage("验证码不正确", c)
+}
+
+func findUser(openID, mobile string, c *gin.Context) (h *system.SysUser, err error) {
+	h = userService.FindUserByOpenid(openID)
+	if h == nil {
+		global.GVA_LOG.Debug("1,通过openid查找用户，没找到", zap.String("openid", openID))
+
+		h = userService.FindUserByMobile(mobile)
+		if h == nil {
+			//global.GVA_LOG.Debug("2,再通过手机号查找用户，也没找到，需要创建一个", zap.String("mobile", req.Mobile), zap.String("openid", authResult.OpenID))
+			//h = &human.WxUser{
+			//	Mobile: req.Mobile,
+			//	Openid: authResult.OpenID,
+			//}
+			//err = humanService.CreateWxUser(h)
+			//if err != nil {
+			//	global.GVA_LOG.Debug("2,再通过手机号查找用户，也没找到，需要创建，结果创建失败..", zap.String("mobile", req.Mobile), zap.String("openid", authResult.OpenID))
+			//	response.FailWithMessage(err.Error(), c)
+			//	return
+			//}
+			err = errors.New("该手机号没有账号，请核对")
+			response.FailWithMessage("该手机号没有账号，请核对", c)
+			return
+		} else {
+			global.GVA_LOG.Debug("2,再通过手机号查找用户，找到了，需要更新用户的openid", zap.String("mobile", mobile), zap.String("openid", openID))
+			h.Openid = openID
+			//if userInfo.AvatarURL != "" {
+			//	h.HeaderImg = userInfo.AvatarURL
+			//}
+			//if userInfo.NickName != "" {
+			//	h.WxNickName = userInfo.NickName
+			//}
+			err = userService.SetUserInfo(*h)
+			if err != nil {
+				global.GVA_LOG.Debug("2,再通过手机号查找用户，也没找到，需要更新用户的openid，结果更新失败..", zap.String("mobile", mobile), zap.String("openid", openID))
+				response.FailWithMessage(err.Error(), c)
+				return
+			}
+		}
+	}
+	return
 }
 
 // TokenNext 登录以后签发jwt

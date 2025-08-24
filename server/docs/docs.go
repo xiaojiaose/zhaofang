@@ -863,7 +863,7 @@ const docTemplate = `{
                 "tags": [
                     "Admin"
                 ],
-                "summary": "房源详情",
+                "summary": "数据中心",
                 "parameters": [
                     {
                         "type": "string",
@@ -890,7 +890,7 @@ const docTemplate = `{
                                     "type": "object",
                                     "properties": {
                                         "data": {
-                                            "$ref": "#/definitions/house.Resource"
+                                            "$ref": "#/definitions/search.StatisData"
                                         }
                                     }
                                 }
@@ -8637,11 +8637,11 @@ const docTemplate = `{
                 "parameters": [
                     {
                         "description": "微信手机号授权code",
-                        "name": "code",
+                        "name": "data",
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "type": "string"
+                            "$ref": "#/definitions/request.WxMobileLogin"
                         }
                     }
                 ],
@@ -9659,6 +9659,14 @@ const docTemplate = `{
                 "addr": {
                     "description": "端口值",
                     "type": "integer"
+                },
+                "app-id": {
+                    "description": "小程序AppID",
+                    "type": "string"
+                },
+                "app-secret": {
+                    "description": "小程序AppSecret",
+                    "type": "string"
                 },
                 "db-type": {
                     "description": "数据库类型:mysql(默认)|sqlite|sqlserver|postgresql",
@@ -11142,6 +11150,31 @@ const docTemplate = `{
                 }
             }
         },
+        "request.WxMobileLogin": {
+            "type": "object",
+            "properties": {
+                "encryptedData": {
+                    "type": "string"
+                },
+                "iv": {
+                    "type": "string"
+                },
+                "mobileCode": {
+                    "description": "获取手机号的code",
+                    "type": "string"
+                },
+                "openidCode": {
+                    "description": "获取openId的code",
+                    "type": "string"
+                },
+                "rawData": {
+                    "type": "string"
+                },
+                "signature": {
+                    "type": "string"
+                }
+            }
+        },
         "response.Area": {
             "type": "object",
             "properties": {
@@ -11424,6 +11457,54 @@ const docTemplate = `{
                 },
                 "num": {
                     "description": "房源数量",
+                    "type": "integer"
+                }
+            }
+        },
+        "search.StatisData": {
+            "type": "object",
+            "properties": {
+                "ID": {
+                    "description": "主键ID",
+                    "type": "integer"
+                },
+                "add": {
+                    "description": "新增帖子",
+                    "type": "integer"
+                },
+                "add_saler": {
+                    "description": "新增经纪人",
+                    "type": "integer"
+                },
+                "click": {
+                    "description": "联系方式被点击数",
+                    "type": "integer"
+                },
+                "createdAt": {
+                    "description": "创建时间",
+                    "type": "string"
+                },
+                "date": {
+                    "type": "string"
+                },
+                "follow": {
+                    "description": "帖子关注数",
+                    "type": "integer"
+                },
+                "shared": {
+                    "description": "帖子分享数",
+                    "type": "integer"
+                },
+                "updatedAt": {
+                    "description": "更新时间",
+                    "type": "string"
+                },
+                "use_saler": {
+                    "description": "使用的经纪人",
+                    "type": "integer"
+                },
+                "view": {
+                    "description": "帖子浏览数",
                     "type": "integer"
                 }
             }
