@@ -3473,6 +3473,54 @@ const docTemplate = `{
                 }
             }
         },
+        "/center/house/xiaoquAgg": {
+            "post": {
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Center"
+                ],
+                "summary": "指定查询条件  返回小区列表 包含每个小区的房源数量（聚合）",
+                "parameters": [
+                    {
+                        "description": "查询条件",
+                        "name": "data",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/request.ResourceSearch"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "返回小区列表 包含每个小区的房源数量（聚合）",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/response.Response"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "type": "array",
+                                            "items": {
+                                                "$ref": "#/definitions/response.XiaoquRsp"
+                                            }
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                }
+            }
+        },
         "/center/index": {
             "get": {
                 "consumes": [
@@ -10651,6 +10699,7 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "nickName": {
+                    "description": "昵称",
                     "type": "string"
                 },
                 "page": {
@@ -10666,6 +10715,7 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "username": {
+                    "description": "用户名",
                     "type": "string"
                 }
             }

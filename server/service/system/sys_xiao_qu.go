@@ -60,7 +60,7 @@ func (s *XiaoQuService) GetInfo(id uint) (user system.XiaoQu, err error) {
 
 func (s *XiaoQuService) GetDistance(lat float64, lng float64) (xqList []system.XiaoQu, err error) {
 	tx := global.GVA_DB.Raw("SELECT id,name, longitude, latitude, (6371 * ACOS(COS(RADIANS(@lat)) * COS(RADIANS(latitude)) * COS(RADIANS(longitude) - RADIANS(@lng)) + SIN(RADIANS(@lat)) * SIN(RADIANS(latitude)))) AS distance FROM xiao_qu HAVING distance < 1 ORDER BY distance;",
-		sql.Named("lat", lat), sql.Named("lng", lng)).
+		sql.Named("lat", lat), sql.Named("lng", lng)).Limit(30).
 		Find(&xqList)
 	return xqList, tx.Error
 }

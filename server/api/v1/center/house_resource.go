@@ -116,7 +116,7 @@ func (h *HouseResourceApi) GetMobile(c *gin.Context) {
 // @Produce   application/json
 // @Param     data  body      request.ResourceSearch   true  "查询条件"
 // @Success   200   {object}  response.Response{data=[]response.XiaoquRsp}  "返回小区列表 包含每个小区的房源数量（聚合）"
-// @Router    /center/house/listByXiaoqu [post]
+// @Router    /center/house/xiaoquAgg [post]
 func (h *HouseResourceApi) ListByXiaoquAgg(c *gin.Context) {
 	var req request.ResourceSearch
 	err := c.ShouldBindJSON(&req)
@@ -185,7 +185,7 @@ func (h *HouseResourceApi) ListByXiaoquAgg(c *gin.Context) {
 		response.FailWithMessage(err.Error(), c)
 		return
 	}
-	response.OkWithDetailed(agg, "获取成功", c)
+	response.OkWithDetailed(list, "获取成功", c)
 }
 
 // @Tags      Center

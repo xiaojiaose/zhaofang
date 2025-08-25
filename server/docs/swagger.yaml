@@ -1341,6 +1341,7 @@ definitions:
         description: 关键字
         type: string
       nickName:
+        description: 昵称
         type: string
       page:
         description: 页码
@@ -1352,6 +1353,7 @@ definitions:
         description: 手机号搜索
         type: string
       username:
+        description: 用户名
         type: string
     type: object
   request.HouseStateReq:
@@ -4494,6 +4496,34 @@ paths:
                   $ref: '#/definitions/house.Resource'
               type: object
       summary: 查看 房源
+      tags:
+      - Center
+  /center/house/xiaoquAgg:
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: 查询条件
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/request.ResourceSearch'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 返回小区列表 包含每个小区的房源数量（聚合）
+          schema:
+            allOf:
+            - $ref: '#/definitions/response.Response'
+            - properties:
+                data:
+                  items:
+                    $ref: '#/definitions/response.XiaoquRsp'
+                  type: array
+              type: object
+      summary: 指定查询条件  返回小区列表 包含每个小区的房源数量（聚合）
       tags:
       - Center
   /center/index:

@@ -70,9 +70,9 @@ type ChangeUserInfo struct {
 
 type GetUserList struct {
 	common.PageInfo
-	Username    string `json:"username" form:"username"`
-	NickName    string `json:"nickName" form:"nickName"`
-	Phone       string `json:"phone" form:"phone"` // 手机号搜索
+	Username    string `json:"username" form:"username"` // 用户名
+	NickName    string `json:"nickName" form:"nickName"` // 昵称
+	Phone       string `json:"phone" form:"phone"`       // 手机号搜索
 	Email       string `json:"email" form:"email"`
 	AuthorityId int    `json:"authorityId" form:"authorityId"`
 	Bind        int    `json:"bind" form:"bind"` // 绑定的状态 1 已绑定 2 未绑定

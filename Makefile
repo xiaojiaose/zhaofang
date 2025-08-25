@@ -56,6 +56,7 @@ build-server-local:
 	&& go build -ldflags "-B 0x$(shell head -c20 /dev/urandom|od -An -tx1|tr -d ' \n') -X main.Version=${TAGS_OPT}" -v
 pack:
 	@cd server/ && if [ -f "bin/core" ];then rm -rf bin/core; else echo "OK!"; fi \
+	&& swag init \
 	&& GOOS=linux GOARCH=amd64 go build -ldflags '-s -w' -o  bin/core main.go;
 #打包前后端二合一镜像
 image: build
