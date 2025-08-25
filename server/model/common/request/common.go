@@ -82,8 +82,8 @@ type SearchNameResource struct {
 }
 
 type HouseStateReq struct {
-	Ids   []uint
-	State int // 1 上架（通过），2下架（不通过）
+	Ids   []uint // 房源id
+	State int    // 1 上架（通过），2下架（不通过）
 }
 
 type FavoriteSearch struct {

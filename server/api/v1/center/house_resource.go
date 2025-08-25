@@ -47,6 +47,35 @@ func (h *HouseResourceApi) View(c *gin.Context) {
 	response.OkWithDetailed(info, "获取成功", c)
 }
 
+// @Tags      Center
+// @Summary   房源上下架 可批量
+// @accept    application/json
+// @Produce   application/json
+// @Param     data  body      request.HouseStateReq   true  "参数"
+// @Success   200
+// @Router    /center/house/state [post]
+func (h *HouseResourceApi) States(c *gin.Context) {
+	var req request.HouseStateReq
+	err := c.ShouldBindJSON(&req)
+	if err != nil {
+		response.FailWithMessage(err.Error(), c)
+		return
+	}
+
+	status := "待出租"
+	if req.State == 1 {
+		status = "已下架"
+	}
+	err = ResourceService.SetApprovalStatus(req.Ids, status)
+	if err != nil {
+		global.GVA_LOG.Error("获取失败!", zap.Error(err))
+		response.FailWithMessage(err.Error(), c)
+		return
+	}
+	response.Ok(c)
+	return
+}
+
 // View
 // @Tags     Center
 // @Summary  获取 房源手机号

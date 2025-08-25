@@ -171,6 +171,8 @@ definitions:
     type: object
   config.Local:
     properties:
+      base-url:
+        type: string
       path:
         description: 本地文件访问路径
         type: string
@@ -1355,6 +1357,7 @@ definitions:
   request.HouseStateReq:
     properties:
       ids:
+        description: 房源id
         items:
           type: integer
         type: array
@@ -4223,41 +4226,6 @@ paths:
       summary: 根据坐标获取一公里小区列表
       tags:
       - Center
-  /center/favorite/List:
-    post:
-      consumes:
-      - application/json
-      parameters:
-      - description: 分页获取API列表
-        in: body
-        name: data
-        required: true
-        schema:
-          $ref: '#/definitions/request.FavoriteSearch'
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: 分页获取API列表,返回包括列表,总数,页码,每页数量
-          schema:
-            allOf:
-            - $ref: '#/definitions/response.Response'
-            - properties:
-                data:
-                  allOf:
-                  - $ref: '#/definitions/response.PageResult'
-                  - properties:
-                      list:
-                        items:
-                          $ref: '#/definitions/house.Resource'
-                        type: array
-                    type: object
-                msg:
-                  type: string
-              type: object
-      summary: favorite 列表
-      tags:
-      - Center
   /center/favorite/add:
     get:
       consumes:
@@ -4306,6 +4274,41 @@ paths:
                   type: string
               type: object
       summary: favorite 取消房源
+      tags:
+      - Center
+  /center/favorite/list:
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: 分页获取API列表
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/request.FavoriteSearch'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 分页获取API列表,返回包括列表,总数,页码,每页数量
+          schema:
+            allOf:
+            - $ref: '#/definitions/response.Response'
+            - properties:
+                data:
+                  allOf:
+                  - $ref: '#/definitions/response.PageResult'
+                  - properties:
+                      list:
+                        items:
+                          $ref: '#/definitions/house.Resource'
+                        type: array
+                    type: object
+                msg:
+                  type: string
+              type: object
+      summary: favorite 列表
       tags:
       - Center
   /center/house/create:
@@ -4449,6 +4452,25 @@ paths:
                   type: string
               type: object
       summary: 我发的房源列表
+      tags:
+      - Center
+  /center/house/state:
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: 参数
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/request.HouseStateReq'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+      summary: 房源上下架 可批量
       tags:
       - Center
   /center/house/view:

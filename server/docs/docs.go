@@ -3001,69 +3001,6 @@ const docTemplate = `{
                 }
             }
         },
-        "/center/favorite/List": {
-            "post": {
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "Center"
-                ],
-                "summary": "favorite 列表",
-                "parameters": [
-                    {
-                        "description": "分页获取API列表",
-                        "name": "data",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/request.FavoriteSearch"
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "分页获取API列表,返回包括列表,总数,页码,每页数量",
-                        "schema": {
-                            "allOf": [
-                                {
-                                    "$ref": "#/definitions/response.Response"
-                                },
-                                {
-                                    "type": "object",
-                                    "properties": {
-                                        "data": {
-                                            "allOf": [
-                                                {
-                                                    "$ref": "#/definitions/response.PageResult"
-                                                },
-                                                {
-                                                    "type": "object",
-                                                    "properties": {
-                                                        "list": {
-                                                            "type": "array",
-                                                            "items": {
-                                                                "$ref": "#/definitions/house.Resource"
-                                                            }
-                                                        }
-                                                    }
-                                                }
-                                            ]
-                                        },
-                                        "msg": {
-                                            "type": "string"
-                                        }
-                                    }
-                                }
-                            ]
-                        }
-                    }
-                }
-            }
-        },
         "/center/favorite/add": {
             "get": {
                 "consumes": [
@@ -3139,6 +3076,69 @@ const docTemplate = `{
                                 {
                                     "type": "object",
                                     "properties": {
+                                        "msg": {
+                                            "type": "string"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                }
+            }
+        },
+        "/center/favorite/list": {
+            "post": {
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Center"
+                ],
+                "summary": "favorite 列表",
+                "parameters": [
+                    {
+                        "description": "分页获取API列表",
+                        "name": "data",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/request.FavoriteSearch"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "分页获取API列表,返回包括列表,总数,页码,每页数量",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/response.Response"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "allOf": [
+                                                {
+                                                    "$ref": "#/definitions/response.PageResult"
+                                                },
+                                                {
+                                                    "type": "object",
+                                                    "properties": {
+                                                        "list": {
+                                                            "type": "array",
+                                                            "items": {
+                                                                "$ref": "#/definitions/house.Resource"
+                                                            }
+                                                        }
+                                                    }
+                                                }
+                                            ]
+                                        },
                                         "msg": {
                                             "type": "string"
                                         }
@@ -3399,6 +3399,36 @@ const docTemplate = `{
                                 }
                             ]
                         }
+                    }
+                }
+            }
+        },
+        "/center/house/state": {
+            "post": {
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Center"
+                ],
+                "summary": "房源上下架 可批量",
+                "parameters": [
+                    {
+                        "description": "参数",
+                        "name": "data",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/request.HouseStateReq"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK"
                     }
                 }
             }
@@ -8975,6 +9005,9 @@ const docTemplate = `{
         "config.Local": {
             "type": "object",
             "properties": {
+                "base-url": {
+                    "type": "string"
+                },
                 "path": {
                     "description": "本地文件访问路径",
                     "type": "string"
@@ -10641,6 +10674,7 @@ const docTemplate = `{
             "type": "object",
             "properties": {
                 "ids": {
+                    "description": "房源id",
                     "type": "array",
                     "items": {
                         "type": "integer"

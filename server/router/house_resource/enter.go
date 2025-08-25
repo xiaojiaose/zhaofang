@@ -27,7 +27,7 @@ func (s *ApiRouter) InitApiAuthRouter(Router *gin.RouterGroup) {
 	fileUploadApi := v1.ApiGroupApp.ExampleApiGroup.FileUploadAndDownloadApi
 
 	{
-		houseRouter.POST("xiaoqu", xiaoQuApi.List) // /
+		houseRouter.POST("xiaoqu", xiaoQuApi.List)
 		houseRouter.GET("area", resourceApi.FilterArea)
 		houseRouter.GET("options", resourceApi.FilterOptions)
 		houseRecordRouter.POST("create", resourceApi.Create)
@@ -35,6 +35,8 @@ func (s *ApiRouter) InitApiAuthRouter(Router *gin.RouterGroup) {
 		houseRouter.POST("list", resourceApi.List)
 		houseRecordRouter.POST("edit", resourceApi.Edit)
 		houseRouter.POST("upload", fileUploadApi.UploadFile1)
+		houseRouter.POST("approvalState", resourceApi.ApprovalStatus)
+		houseRouter.POST("state", resourceApi.States)
 	}
 
 	{
