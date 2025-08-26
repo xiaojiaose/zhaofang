@@ -76,4 +76,5 @@ func initializeSystem() {
 		initialize.RegisterTables() // 初始化表
 	}
 	global.InitZincSearch(global.GVA_CONFIG.ZincSearch.Url, global.GVA_CONFIG.ZincSearch.Username, global.GVA_CONFIG.ZincSearch.Password)
+	initialize.GeoXiaoqu()
 }

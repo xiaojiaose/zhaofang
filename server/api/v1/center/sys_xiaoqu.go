@@ -1,12 +1,17 @@
 package center
 
 import (
+	"fmt"
 	"github.com/flipped-aurora/gin-vue-admin/server/global"
 	"github.com/flipped-aurora/gin-vue-admin/server/model/common/request"
 	"github.com/flipped-aurora/gin-vue-admin/server/model/common/response"
+	"github.com/flipped-aurora/gin-vue-admin/server/model/system"
+	test12 "github.com/flipped-aurora/gin-vue-admin/server/utils/test"
 	"github.com/gin-gonic/gin"
 	"go.uber.org/zap"
 	"strconv"
+
+	"github.com/paulmach/orb"
 )
 
 type XiaoQuApi struct{}
@@ -35,6 +40,17 @@ func (receiver *XiaoQuApi) Show(c *gin.Context) {
 	return
 }
 
+func (receiver *XiaoQuApi) DistanceTree(c *gin.Context) {
+	lat, _ := strconv.ParseFloat(c.Query("lat"), 64)
+	lng, _ := strconv.ParseFloat(c.Query("lng"), 64)
+	qus, err := XiaoQuService.GetDistance(lat, lng)
+	if err != nil {
+		response.FailWithMessage(err.Error(), c)
+		return
+	}
+	response.OkWithDetailed(qus, "获取成功", c)
+}
+
 // Distance
 // @Tags     Center
 // @Summary  根据坐标获取一公里小区列表
@@ -47,12 +63,26 @@ func (receiver *XiaoQuApi) Show(c *gin.Context) {
 func (receiver *XiaoQuApi) Distance(c *gin.Context) {
 	lat, _ := strconv.ParseFloat(c.Query("lat"), 64)
 	lng, _ := strconv.ParseFloat(c.Query("lng"), 64)
-	qus, err := XiaoQuService.GetDistance(lat, lng)
+	// 1. 定义目标点
+	point := orb.Point{lat, lng} // orb使用[Lng, Lat]顺序
+	//point := orb.Point{116.3974, 39.9093} // 北京
+	radius := 1000.0 // 1公里
+
+	results, err := test12.GeoSearch.FindNearbyCommunities(point, radius)
 	if err != nil {
-		response.FailWithMessage(err.Error(), c)
+		fmt.Println("Error:", err)
 		return
 	}
-	response.OkWithDetailed(qus, "获取成功", c)
+
+	var xqList []system.XiaoQu
+	for _, result := range results {
+		x := system.XiaoQu{Name: result.Name, Latitude: fmt.Sprintf("%f", result.Point().Lon()), Longitude: fmt.Sprintf("%f", result.Point().Lat())}
+		id, _ := strconv.ParseFloat(result.ID, 64)
+		x.ID = uint(id)
+		xqList = append(xqList, x)
+	}
+	fmt.Printf("找到 %d 个社区在 %.0f 米范围内\n", len(results), radius)
+	response.OkWithDetailed(xqList, "获取成功", c)
 }
 
 // List

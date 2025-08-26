@@ -36,7 +36,7 @@ func Reload() error {
 		// 确保数据库表结构是最新的
 		RegisterTables()
 	}
-
+	GeoXiaoqu()
 	// 重新初始化定时任务
 	Timer()
 

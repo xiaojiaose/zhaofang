@@ -28,8 +28,10 @@ func (s *CenterRouter) InitCenterAuthRouter(Router *gin.RouterGroup) {
 		houseRouter.GET("index", centerApi.WxProfile)   //
 		houseRouter.POST("xiaoqu/list", xiaoQuApi.List) //
 		houseRouter.GET("xiaoqu/show", xiaoQuApi.Show)
-		houseRouter.GET("distance", xiaoQuApi.Distance) //
-		houseRouter.GET("test", resourceApi.Test)       //
+		houseRouter.GET("distance", xiaoQuApi.Distance)         //
+		houseRouter.GET("distanceTree", xiaoQuApi.DistanceTree) //
+
+		houseRouter.GET("test", resourceApi.Test) //
 		houseRouter.GET("area", resourceApi.FilterArea)
 		houseRouter.GET("options", resourceApi.FilterOptions)
 		houseRouter.POST("house/create", resourceApi.Create)
