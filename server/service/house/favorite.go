@@ -23,6 +23,11 @@ func (service *FavoriteService) Delete(userId, resource uint) (err error) {
 	return
 }
 
+func (service *FavoriteService) GetByUserIdRIds(userId uint, resources []uint) (list []house.Favorite, err error) {
+	err = global.GVA_DB.Model(&house.Favorite{}).Where("user_id = ? and resource_id in ?", userId, resources).Find(&list).Error
+	return
+}
+
 func (service *FavoriteService) GetPage(userId uint, info request.PageInfo, order string, desc bool) (list interface{}, total int64, err error) {
 
 	limit := info.PageSize

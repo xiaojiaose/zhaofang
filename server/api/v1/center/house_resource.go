@@ -7,6 +7,7 @@ import (
 	"github.com/flipped-aurora/gin-vue-admin/server/model/common/request"
 	"github.com/flipped-aurora/gin-vue-admin/server/model/common/response"
 	"github.com/flipped-aurora/gin-vue-admin/server/model/house"
+	response2 "github.com/flipped-aurora/gin-vue-admin/server/model/house/response"
 	"github.com/flipped-aurora/gin-vue-admin/server/utils"
 	"github.com/gin-gonic/gin"
 	"github.com/linxdeep/linxdeep-framework/pkg/searchx"
@@ -217,8 +218,31 @@ func (h *HouseResourceApi) ListByXiaoquId(c *gin.Context) {
 		response.FailWithMessage("获取失败", c)
 		return
 	}
+	var ids []uint
+	for _, i2 := range list.([]house.Resource) {
+		ids = append(ids, i2.ID)
+	}
+
+	flist, err := FavoriteService.GetByUserIdRIds(utils.GetUserID(c), ids)
+	if err != nil {
+		global.GVA_LOG.Error("获取失败 favorite.GetByUserIdRIds!", zap.Error(err))
+	}
+	fmap := make(map[uint]bool)
+	for _, favorite := range flist {
+		fmap[favorite.ResourceId] = true
+	}
+	var res []response2.ResourceResponse
+	for _, i2 := range list.([]house.Resource) {
+		r := response2.ResourceResponse{
+			Resource: i2,
+		}
+		if _, ok := fmap[i2.ID]; ok {
+			r.Follow = true
+		}
+		res = append(res, r)
+	}
 	response.OkWithDetailed(response.PageResult{
-		List:     list,
+		List:     res,
 		Total:    total,
 		Page:     pageInfo.Page,
 		PageSize: pageInfo.PageSize,
