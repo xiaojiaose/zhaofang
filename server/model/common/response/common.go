@@ -28,8 +28,10 @@ type Area struct {
 }
 
 type Districts struct {
-	Name string `json:"name"` // 商圈name
-	Id   uint   `json:"id"`   // 商圈id
+	Name      string `json:"name"`      // 商圈name
+	Id        uint   `json:"id"`        // 商圈id
+	Latitude  string `json:"latitude"`  // latitude
+	Longitude string `json:"longitude"` // longitude
 }
 
 type XiaoquRsp struct {

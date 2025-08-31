@@ -2,6 +2,7 @@ package center
 
 import (
 	v1 "github.com/flipped-aurora/gin-vue-admin/server/api/v1"
+	"github.com/flipped-aurora/gin-vue-admin/server/middleware"
 	"github.com/gin-gonic/gin"
 )
 
@@ -18,6 +19,7 @@ func (s *CenterRouter) InitCenterRouter(Router *gin.RouterGroup) {
 }
 
 func (s *CenterRouter) InitCenterAuthRouter(Router *gin.RouterGroup) {
+	houseRouterRecord := Router.Group("center").Use(middleware.OperationRecord())
 	houseRouter := Router.Group("center")
 	centerApi := v1.ApiGroupApp.ApiCenterGroup.WxUserApi
 	resourceApi := v1.ApiGroupApp.ApiCenterGroup.HouseResourceApi
@@ -25,27 +27,27 @@ func (s *CenterRouter) InitCenterAuthRouter(Router *gin.RouterGroup) {
 	fileUploadApi := v1.ApiGroupApp.ExampleApiGroup.FileUploadAndDownloadApi
 
 	{
-		houseRouter.GET("index", centerApi.WxProfile)   //
-		houseRouter.POST("xiaoqu/list", xiaoQuApi.List) //
-		houseRouter.GET("xiaoqu/show", xiaoQuApi.Show)
+		houseRouterRecord.GET("index", centerApi.WxProfile)   //
+		houseRouterRecord.POST("xiaoqu/list", xiaoQuApi.List) //
+		houseRouterRecord.GET("xiaoqu/show", xiaoQuApi.Show)
 		houseRouter.GET("distance", xiaoQuApi.Distance)         //
 		houseRouter.GET("distanceTree", xiaoQuApi.DistanceTree) //
 
 		houseRouter.GET("test", resourceApi.Test) //
 		houseRouter.GET("area", resourceApi.FilterArea)
 		houseRouter.GET("options", resourceApi.FilterOptions)
-		houseRouter.POST("house/create", resourceApi.Create)
-		houseRouter.GET("house/view", resourceApi.View)
-		houseRouter.GET("house/mobile", resourceApi.GetMobile)
+		houseRouterRecord.POST("house/create", resourceApi.Create)
+		houseRouterRecord.GET("house/view", resourceApi.View)
+		houseRouterRecord.GET("house/mobile", resourceApi.GetMobile)
 		houseRouter.POST("house/xiaoquAgg", resourceApi.ListByXiaoquAgg)
-		houseRouter.POST("house/listByXiaoqu", resourceApi.ListByXiaoquId)
-		houseRouter.POST("house/my", resourceApi.ListByUserId)
-		houseRouter.POST("house/edit", resourceApi.Edit)
-		houseRouter.POST("upload", fileUploadApi.UploadFile1)
-		houseRouter.GET("favorite/add", resourceApi.FavoriteAdd)
-		houseRouter.GET("favorite/del", resourceApi.FavoriteDel)
-		houseRouter.POST("favorite/list", resourceApi.FavoriteList)
-		houseRouter.POST("state", resourceApi.States)
+		houseRouterRecord.POST("house/listByXiaoqu", resourceApi.ListByXiaoquId)
+		houseRouterRecord.POST("house/my", resourceApi.ListByUserId)
+		houseRouterRecord.POST("house/edit", resourceApi.Edit)
+		houseRouterRecord.POST("upload", fileUploadApi.UploadFile1)
+		houseRouterRecord.GET("favorite/add", resourceApi.FavoriteAdd)
+		houseRouterRecord.GET("favorite/del", resourceApi.FavoriteDel)
+		houseRouterRecord.POST("favorite/list", resourceApi.FavoriteList)
+		houseRouterRecord.POST("state", resourceApi.States)
 
 		//houseRouter.GET("incomeInfo", wxUserApi.GetIncomeInfo) //
 	}

@@ -24,7 +24,7 @@ type HouseResourceApi struct {
 // @Summary  查看 房源
 // @Produce  application/json
 // @Param    data  query    string  true  "id"
-// @Success  200   {object}  response.Response{data=house.Resource}  "结果"
+// @Success  200   {object}  response.Response{data=response2.ResourceResponse}  "结果"
 // @Router   /center/house/view [get]
 func (h *HouseResourceApi) View(c *gin.Context) {
 	var req request.GetById
@@ -39,13 +39,23 @@ func (h *HouseResourceApi) View(c *gin.Context) {
 		response.FailWithMessage(err.Error(), c)
 		return
 	}
+	xq, err := XiaoQuService.GetInfo(info.XiaoquId)
+	if err != nil {
+		response.FailWithMessage(err.Error(), c)
+		return
+	}
+	r := response2.ResourceResponse{
+		Resource:  *info,
+		Latitude:  xq.Latitude,
+		Longitude: xq.Longitude,
+	}
 
 	err = ResourceService.FollowViewClickAdd(uint(req.ID), "view")
 	if err != nil {
 		global.GVA_LOG.Error("view add failed !", zap.Error(err))
 	}
 
-	response.OkWithDetailed(info, "获取成功", c)
+	response.OkWithDetailed(r, "获取成功", c)
 }
 
 // @Tags      Center
@@ -194,7 +204,7 @@ func (h *HouseResourceApi) ListByXiaoquAgg(c *gin.Context) {
 // @accept    application/json
 // @Produce   application/json
 // @Param     data  body      request.SearchResource   true  "分页获取API列表"
-// @Success   200   {object}  response.Response{data=response.PageResult{list=[]house.Resource},msg=string}  "分页获取API列表,返回包括列表,总数,页码,每页数量"
+// @Success   200   {object}  response.Response{data=response.PageResult{list=[]response2.ResourceResponse},msg=string}  "分页获取API列表,返回包括列表,总数,页码,每页数量"
 // @Router    /center/house/listByXiaoqu [post]
 func (h *HouseResourceApi) ListByXiaoquId(c *gin.Context) {
 	var pageInfo request.SearchResource
@@ -458,8 +468,10 @@ func (h *HouseResourceApi) FilterArea(c *gin.Context) {
 		}
 		for _, district := range districtList {
 			list[area.Name].Districts = append(list[area.Name].Districts, response.Districts{
-				Name: district.Name,
-				Id:   district.ID,
+				Name:      district.Name,
+				Id:        district.ID,
+				Latitude:  district.Latitude,
+				Longitude: district.Longitude,
 			})
 		}
 

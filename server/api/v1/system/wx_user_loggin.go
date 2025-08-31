@@ -102,6 +102,8 @@ func (wx *WxUserApi) WxLogin(c *gin.Context) {
 	err := c.ShouldBindJSON(&req)
 	key := req.Mobile
 
+	fmt.Printf("url: /wx/login, req:%+v\n", req)
+
 	if err != nil {
 		response.FailWithMessage(err.Error(), c)
 		return
@@ -123,16 +125,17 @@ func (wx *WxUserApi) WxLogin(c *gin.Context) {
 	codeString := code.(int)
 	if req.Smn == "111111" || strconv.Itoa(codeString) == req.Smn {
 		var authResult auth.ResCode2Session
-		var userInfo systemReq.UserInfo
-
+		//var userInfo systemReq.UserInfo
+		memoryCache := cache.NewMemory()
 		if req.Code == "22222" {
-			authResult.OpenID = "1111111111111111"
+			authResult.OpenID = "11111111111111113"
 		} else {
 			// 1. 初始化微信小程序配置
 			wc := wechat.NewWechat()
 			cfg := &miniConfig.Config{
 				AppID:     global.GVA_CONFIG.System.AppID,
 				AppSecret: global.GVA_CONFIG.System.AppSecret,
+				Cache:     memoryCache,
 			}
 			mini := wc.GetMiniProgram(cfg)
 
@@ -145,10 +148,10 @@ func (wx *WxUserApi) WxLogin(c *gin.Context) {
 			global.GVA_LOG.Debug("根据code获取openid", zap.String("openid", authResult.OpenID))
 
 			// 2. 解密用户资料
-			if err = utils.DecryptWXData(authResult.SessionKey, req.EncryptedData, req.Iv, &userInfo); err != nil {
-				c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
-				return
-			}
+			//if err = utils.DecryptWXData(authResult.SessionKey, req.EncryptedData, req.Iv, &userInfo); err != nil {
+			//	c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+			//	return
+			//}
 
 		}
 

@@ -6,5 +6,7 @@ import (
 
 type ResourceResponse struct {
 	house.Resource
-	Follow bool `json:"follow"` // 关注是否
+	Follow    bool   `json:"follow"`    // 关注是否
+	Latitude  string `json:"latitude"`  // latitude
+	Longitude string `json:"longitude"` // longitude
 }
