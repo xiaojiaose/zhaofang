@@ -10350,6 +10350,10 @@ const docTemplate = `{
                     "description": "关注次数",
                     "type": "integer"
                 },
+                "house": {
+                    "description": "房号",
+                    "type": "string"
+                },
                 "house_type": {
                     "description": "户型",
                     "type": "string"
@@ -11688,6 +11692,10 @@ const docTemplate = `{
                 "follow": {
                     "description": "关注是否",
                     "type": "boolean"
+                },
+                "house": {
+                    "description": "房号",
+                    "type": "string"
                 },
                 "house_type": {
                     "description": "户型",

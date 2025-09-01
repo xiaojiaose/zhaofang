@@ -37,6 +37,45 @@ func (service *ResourceService) GetPriceByOption(key string) []int {
 }
 
 func (service *ResourceService) CreateOrUpdate(resource *house.Resource) (err error) {
+	var doorNo string
+	if resource.BuildingId != "" {
+		var building house.DictBuilding
+		err = global.GVA_DB.Model(&house.DictBuilding{}).Where("building_open_id = ? ", resource.BuildingId).First(&building).Error
+		if err != nil {
+			global.GVA_LOG.Error(err.Error())
+			err = nil
+		} else {
+			doorNo = building.EncryptBuildingName + "号楼 "
+		}
+	}
+
+	if resource.UnitId != "" {
+		var unit house.DictUnit
+		err = global.GVA_DB.Model(&house.DictUnit{}).Where("unit_open_id = ? ", resource.UnitId).First(&unit).Error
+		if err != nil {
+			global.GVA_LOG.Error(err.Error())
+			err = nil
+		} else {
+			doorNo = doorNo + unit.EncryptUnitName + "单元 "
+		}
+
+	}
+
+	if resource.HouseId != "" {
+		var house1 house.DictHouse
+		err = global.GVA_DB.Model(&house.DictHouse{}).Where("house_open_id = ? ", resource.HouseId).First(&house1).Error
+		if err != nil {
+			global.GVA_LOG.Error(err.Error())
+			err = nil
+		} else {
+			doorNo = doorNo + house1.EncryptHouseName + "室"
+		}
+	}
+
+	if doorNo != "" {
+		resource.DoorNo = doorNo
+	}
+
 	resource.UpdatedLastAt = time.Now()
 	err = global.GVA_DB.Where("id = ?", resource.ID).First(&house.Resource{}).Updates(&resource).Error
 	if err != nil && err.Error() == "record not found" {
