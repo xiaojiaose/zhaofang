@@ -10,3 +10,8 @@ type ResourceResponse struct {
 	Latitude  string `json:"latitude"`  // latitude
 	Longitude string `json:"longitude"` // longitude
 }
+
+type DictBuildingResponse struct {
+	Id   string `json:"id"`
+	Name string `json:"name"`
+}

@@ -51,5 +51,6 @@ var (
 	sysVersionService       = service.ServiceGroupApp.SystemServiceGroup.SysVersionService
 	humanService            = service.ServiceGroupApp.HumanService
 	xiaoQuService           = service.ServiceGroupApp.SystemServiceGroup.XiaoQuService
+	dictService             = service.ServiceGroupApp.SystemServiceGroup.DictService
 	aliSmsService           = service.ServiceGroupApp.SystemServiceGroup.AliSmsService
 )

@@ -13,6 +13,9 @@ func (s *BaseRouter) InitBaseRouter(Router *gin.RouterGroup) (R gin.IRoutes) {
 		baseRouter.POST("captcha", baseApi.Captcha)
 		baseRouter.POST("mobileLogin", baseApi.MobileLogin)
 		baseRouter.POST("sendSms", baseApi.SendSms)
+		baseRouter.GET("building", xiaoquApi.GetBuilding)
+		baseRouter.GET("unit", xiaoquApi.GetUnit)
+		baseRouter.GET("house", xiaoquApi.GetHouse)
 	}
 	return baseRouter
 }

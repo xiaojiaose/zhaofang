@@ -890,6 +890,25 @@ definitions:
         description: 收件人:多个以英文逗号分隔 例：a@qq.com b@qq.com 正式开发中请把此项目作为参数使用
         type: string
     type: object
+  house.DictBuilding:
+    properties:
+      ID:
+        description: 主键ID
+        type: integer
+      buildingName:
+        description: 注意：这里包含 Unicode 转义序列
+        type: string
+      buildingOpenId:
+        type: string
+      communityId:
+        type: integer
+      createdAt:
+        description: 创建时间
+        type: string
+      updatedAt:
+        description: 更新时间
+        type: string
+    type: object
   house.Resource:
     properties:
       ID:
@@ -905,6 +924,9 @@ definitions:
         allOf:
         - $ref: '#/definitions/common.AttachmentMap'
         description: 公寓照片
+      building:
+        description: 楼栋
+        type: string
       city:
         description: 所属城市
         type: string
@@ -952,6 +974,9 @@ definitions:
         type: integer
       status:
         description: 状态 已出租，已下架，待出租
+        type: string
+      unit:
+        description: 单元
         type: string
       updated_last_at:
         description: 最后编辑时间
@@ -1505,6 +1530,12 @@ definitions:
       houseType:
         description: 1居室、2居室
         type: string
+      page:
+        description: 页码
+        type: integer
+      pageSize:
+        description: 每页大小
+        type: integer
       price:
         description: 价格 1580
         type: integer
@@ -1758,6 +1789,12 @@ definitions:
       id:
         description: 商圈id
         type: integer
+      latitude:
+        description: latitude
+        type: string
+      longitude:
+        description: longitude
+        type: string
       name:
         description: 商圈name
         type: string
@@ -1836,6 +1873,9 @@ definitions:
         allOf:
         - $ref: '#/definitions/common.AttachmentMap'
         description: 公寓照片
+      building:
+        description: 楼栋
+        type: string
       city:
         description: 所属城市
         type: string
@@ -1866,6 +1906,12 @@ definitions:
       house_type:
         description: 户型
         type: string
+      latitude:
+        description: latitude
+        type: string
+      longitude:
+        description: longitude
+        type: string
       owner:
         description: 业主
         type: integer
@@ -1883,6 +1929,9 @@ definitions:
         type: integer
       status:
         description: 状态 已出租，已下架，待出租
+        type: string
+      unit:
+        description: 单元
         type: string
       updated_last_at:
         description: 最后编辑时间
@@ -2582,6 +2631,8 @@ definitions:
       city:
         description: city
         type: string
+      community_id:
+        type: integer
       createdAt:
         description: 创建时间
         type: string
@@ -4111,6 +4162,30 @@ paths:
       summary: 回滚自动生成代码
       tags:
       - AutoCode
+  /base/building:
+    get:
+      parameters:
+      - description: 主键ID
+        in: query
+        name: id
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 结果
+          schema:
+            allOf:
+            - $ref: '#/definitions/response.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/house.DictBuilding'
+                msg:
+                  type: string
+              type: object
+      summary: 指定小区id获取楼栋列表
+      tags:
+      - Center
   /base/captcha:
     post:
       consumes:
@@ -4134,6 +4209,30 @@ paths:
       summary: 生成验证码
       tags:
       - Base
+  /base/house:
+    get:
+      parameters:
+      - description: 主键ID
+        in: query
+        name: id
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 结果
+          schema:
+            allOf:
+            - $ref: '#/definitions/response.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/house.DictBuilding'
+                msg:
+                  type: string
+              type: object
+      summary: 指定单元id获取门牌列表
+      tags:
+      - Center
   /base/login:
     post:
       parameters:
@@ -4188,6 +4287,30 @@ paths:
       security:
       - ApiKeyAuth: []
       summary: 获取验证码
+      tags:
+      - Center
+  /base/unit:
+    get:
+      parameters:
+      - description: 主键ID
+        in: query
+        name: id
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 结果
+          schema:
+            allOf:
+            - $ref: '#/definitions/response.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/house.DictBuilding'
+                msg:
+                  type: string
+              type: object
+      summary: 指定楼栋id获取单元列表
       tags:
       - Center
   /casbin/UpdateCasbin:
@@ -4572,7 +4695,7 @@ paths:
             - $ref: '#/definitions/response.Response'
             - properties:
                 data:
-                  $ref: '#/definitions/house.Resource'
+                  $ref: '#/definitions/response.ResourceResponse'
               type: object
       summary: 查看 房源
       tags:
@@ -4603,6 +4726,41 @@ paths:
                   type: array
               type: object
       summary: 指定查询条件  返回小区列表 包含每个小区的房源数量（聚合）
+      tags:
+      - Center
+  /center/house/xiaoquAggList:
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: 查询条件
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/request.ResourceSearch'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 指定查询条件  返回指定小区房源列表
+          schema:
+            allOf:
+            - $ref: '#/definitions/response.Response'
+            - properties:
+                data:
+                  allOf:
+                  - $ref: '#/definitions/response.PageResult'
+                  - properties:
+                      list:
+                        items:
+                          $ref: '#/definitions/response.ResourceResponse'
+                        type: array
+                    type: object
+                msg:
+                  type: string
+              type: object
+      summary: 指定查询条件  返回指定小区房源列表
       tags:
       - Center
   /center/index:

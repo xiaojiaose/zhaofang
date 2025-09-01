@@ -2659,6 +2659,48 @@ const docTemplate = `{
                 }
             }
         },
+        "/base/building": {
+            "get": {
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Center"
+                ],
+                "summary": "指定小区id获取楼栋列表",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "主键ID",
+                        "name": "id",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "结果",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/response.Response"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/house.DictBuilding"
+                                        },
+                                        "msg": {
+                                            "type": "string"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                }
+            }
+        },
         "/base/captcha": {
             "post": {
                 "security": [
@@ -2689,6 +2731,48 @@ const docTemplate = `{
                                     "properties": {
                                         "data": {
                                             "$ref": "#/definitions/response.SysCaptchaResponse"
+                                        },
+                                        "msg": {
+                                            "type": "string"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                }
+            }
+        },
+        "/base/house": {
+            "get": {
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Center"
+                ],
+                "summary": "指定单元id获取门牌列表",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "主键ID",
+                        "name": "id",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "结果",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/response.Response"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/house.DictBuilding"
                                         },
                                         "msg": {
                                             "type": "string"
@@ -2787,6 +2871,48 @@ const docTemplate = `{
                                     "properties": {
                                         "data": {
                                             "$ref": "#/definitions/response.SysCaptchaResponse"
+                                        },
+                                        "msg": {
+                                            "type": "string"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                }
+            }
+        },
+        "/base/unit": {
+            "get": {
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Center"
+                ],
+                "summary": "指定楼栋id获取单元列表",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "主键ID",
+                        "name": "id",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "结果",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/response.Response"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/house.DictBuilding"
                                         },
                                         "msg": {
                                             "type": "string"
@@ -3463,7 +3589,7 @@ const docTemplate = `{
                                     "type": "object",
                                     "properties": {
                                         "data": {
-                                            "$ref": "#/definitions/house.Resource"
+                                            "$ref": "#/definitions/response.ResourceResponse"
                                         }
                                     }
                                 }
@@ -3512,6 +3638,69 @@ const docTemplate = `{
                                             "items": {
                                                 "$ref": "#/definitions/response.XiaoquRsp"
                                             }
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                }
+            }
+        },
+        "/center/house/xiaoquAggList": {
+            "post": {
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Center"
+                ],
+                "summary": "指定查询条件  返回指定小区房源列表",
+                "parameters": [
+                    {
+                        "description": "查询条件",
+                        "name": "data",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/request.ResourceSearch"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "指定查询条件  返回指定小区房源列表",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/response.Response"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "allOf": [
+                                                {
+                                                    "$ref": "#/definitions/response.PageResult"
+                                                },
+                                                {
+                                                    "type": "object",
+                                                    "properties": {
+                                                        "list": {
+                                                            "type": "array",
+                                                            "items": {
+                                                                "$ref": "#/definitions/response.ResourceResponse"
+                                                            }
+                                                        }
+                                                    }
+                                                }
+                                            ]
+                                        },
+                                        "msg": {
+                                            "type": "string"
                                         }
                                     }
                                 }
@@ -10071,6 +10260,33 @@ const docTemplate = `{
                 }
             }
         },
+        "house.DictBuilding": {
+            "type": "object",
+            "properties": {
+                "ID": {
+                    "description": "主键ID",
+                    "type": "integer"
+                },
+                "buildingName": {
+                    "description": "注意：这里包含 Unicode 转义序列",
+                    "type": "string"
+                },
+                "buildingOpenId": {
+                    "type": "string"
+                },
+                "communityId": {
+                    "type": "integer"
+                },
+                "createdAt": {
+                    "description": "创建时间",
+                    "type": "string"
+                },
+                "updatedAt": {
+                    "description": "更新时间",
+                    "type": "string"
+                }
+            }
+        },
         "house.Resource": {
             "type": "object",
             "properties": {
@@ -10093,6 +10309,10 @@ const docTemplate = `{
                             "$ref": "#/definitions/common.AttachmentMap"
                         }
                     ]
+                },
+                "building": {
+                    "description": "楼栋",
+                    "type": "string"
                 },
                 "city": {
                     "description": "所属城市",
@@ -10156,6 +10376,10 @@ const docTemplate = `{
                 },
                 "status": {
                     "description": "状态 已出租，已下架，待出租",
+                    "type": "string"
+                },
+                "unit": {
+                    "description": "单元",
                     "type": "string"
                 },
                 "updatedAt": {
@@ -10932,6 +11156,14 @@ const docTemplate = `{
                     "description": "1居室、2居室",
                     "type": "string"
                 },
+                "page": {
+                    "description": "页码",
+                    "type": "integer"
+                },
+                "pageSize": {
+                    "description": "每页大小",
+                    "type": "integer"
+                },
                 "price": {
                     "description": "价格 1580",
                     "type": "integer"
@@ -11290,6 +11522,14 @@ const docTemplate = `{
                     "description": "商圈id",
                     "type": "integer"
                 },
+                "latitude": {
+                    "description": "latitude",
+                    "type": "string"
+                },
+                "longitude": {
+                    "description": "longitude",
+                    "type": "string"
+                },
                 "name": {
                     "description": "商圈name",
                     "type": "string"
@@ -11409,6 +11649,10 @@ const docTemplate = `{
                         }
                     ]
                 },
+                "building": {
+                    "description": "楼栋",
+                    "type": "string"
+                },
                 "city": {
                     "description": "所属城市",
                     "type": "string"
@@ -11449,6 +11693,14 @@ const docTemplate = `{
                     "description": "户型",
                     "type": "string"
                 },
+                "latitude": {
+                    "description": "latitude",
+                    "type": "string"
+                },
+                "longitude": {
+                    "description": "longitude",
+                    "type": "string"
+                },
                 "owner": {
                     "description": "业主",
                     "type": "integer"
@@ -11471,6 +11723,10 @@ const docTemplate = `{
                 },
                 "status": {
                     "description": "状态 已出租，已下架，待出租",
+                    "type": "string"
+                },
+                "unit": {
+                    "description": "单元",
                     "type": "string"
                 },
                 "updatedAt": {
@@ -12471,6 +12727,9 @@ const docTemplate = `{
                 "city": {
                     "description": "city",
                     "type": "string"
+                },
+                "community_id": {
+                    "type": "integer"
                 },
                 "createdAt": {
                     "description": "创建时间",

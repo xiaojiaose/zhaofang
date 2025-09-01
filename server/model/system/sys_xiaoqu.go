@@ -18,6 +18,7 @@ type XiaoQu struct {
 	Longitude   string `json:"longitude"`    // longitude
 	Able        bool   `json:"able"`         // 是否启用
 	HouseNum    int    `json:"house_num"`    // 房源数量
+	CommunityId int    `json:"community_id"`
 }
 
 func (s *XiaoQu) TableName() string {

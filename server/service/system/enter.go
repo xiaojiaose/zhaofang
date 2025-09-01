@@ -1,6 +1,9 @@
 package system
 
-import "github.com/flipped-aurora/gin-vue-admin/server/plugin/sms/service"
+import (
+	"github.com/flipped-aurora/gin-vue-admin/server/plugin/sms/service"
+	"github.com/flipped-aurora/gin-vue-admin/server/service/house"
+)
 
 type ServiceGroup struct {
 	JwtService
@@ -21,6 +24,7 @@ type ServiceGroup struct {
 	SysParamsService
 	SysVersionService
 	XiaoQuService
+	house.DictService
 	AutoCodePlugin   autoCodePlugin
 	AutoCodePackage  autoCodePackage
 	AutoCodeHistory  autoCodeHistory

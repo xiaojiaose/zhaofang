@@ -4,6 +4,7 @@ import (
 	"github.com/flipped-aurora/gin-vue-admin/server/global"
 	"github.com/flipped-aurora/gin-vue-admin/server/model/common/request"
 	"github.com/flipped-aurora/gin-vue-admin/server/model/common/response"
+	response2 "github.com/flipped-aurora/gin-vue-admin/server/model/house/response"
 	"github.com/gin-gonic/gin"
 	"go.uber.org/zap"
 	"strconv"
@@ -88,4 +89,99 @@ func (receiver *XiaoQuApi) List(c *gin.Context) {
 		PageSize: pageInfo.PageSize,
 	}, "获取成功", c)
 
+}
+
+// Show
+// @Tags     Center
+// @Summary  指定小区id获取楼栋列表
+// @Produce  application/json
+// @Param    data  query    request.GetById  true  "小区 id"
+// @Success  200   {object}  response.Response{data=house.DictBuilding,msg=string}  "结果"
+// @Router   /base/building [get]
+func (receiver *XiaoQuApi) GetBuilding(c *gin.Context) {
+	var api request.GetById
+	err := c.ShouldBindQuery(&api)
+	if err != nil {
+		response.FailWithMessage(err.Error(), c)
+		return
+	}
+
+	xq, _ := XiaoQuService.GetInfo(uint(api.ID))
+
+	qu, err2 := DictService.GetBuilding(strconv.Itoa(xq.CommunityId))
+	if err2 != nil {
+		response.FailWithMessage(err2.Error(), c)
+		return
+	}
+	var ll []response2.DictBuildingResponse
+	for _, building := range qu {
+		ll = append(ll, response2.DictBuildingResponse{
+			Id:   building.BuildingOpenID,
+			Name: building.EncryptBuildingName,
+		})
+	}
+	response.OkWithDetailed(ll, "获取成功", c)
+	return
+}
+
+// Show
+// @Tags     Center
+// @Summary  指定楼栋id获取单元列表
+// @Produce  application/json
+// @Param    data  query    request.GetByIdStr  true  "楼栋 id"
+// @Success  200   {object}  response.Response{data=house.DictBuilding,msg=string}  "结果"
+// @Router   /base/unit [get]
+func (receiver *XiaoQuApi) GetUnit(c *gin.Context) {
+	var api request.GetByIdStr
+	err := c.ShouldBindQuery(&api)
+	if err != nil {
+		response.FailWithMessage(err.Error(), c)
+		return
+	}
+
+	qu, err2 := DictService.GetUnit(api.ID)
+	if err2 != nil {
+		response.FailWithMessage(err2.Error(), c)
+		return
+	}
+	var ll []response2.DictBuildingResponse
+	for _, building := range qu {
+		ll = append(ll, response2.DictBuildingResponse{
+			Id:   building.UnitOpenID,
+			Name: building.EncryptUnitName,
+		})
+	}
+	response.OkWithDetailed(ll, "获取成功", c)
+	return
+}
+
+// Show
+// @Tags     Center
+// @Summary  指定单元id获取门牌列表
+// @Produce  application/json
+// @Param    data  query    request.GetByIdStr  true  "单元 id"
+// @Success  200   {object}  response.Response{data=house.DictBuilding,msg=string}  "结果"
+// @Router   /base/house [get]
+func (receiver *XiaoQuApi) GetHouse(c *gin.Context) {
+	var api request.GetByIdStr
+	err := c.ShouldBindQuery(&api)
+	if err != nil {
+		response.FailWithMessage(err.Error(), c)
+		return
+	}
+
+	qu, err2 := DictService.GetHouse(api.ID)
+	if err2 != nil {
+		response.FailWithMessage(err2.Error(), c)
+		return
+	}
+	var ll []response2.DictBuildingResponse
+	for _, building := range qu {
+		ll = append(ll, response2.DictBuildingResponse{
+			Id:   building.HouseOpenId,
+			Name: building.EncryptHouseName,
+		})
+	}
+	response.OkWithDetailed(ll, "获取成功", c)
+	return
 }

@@ -33,6 +33,10 @@ type GetById struct {
 	ID int `json:"id" form:"id"` // 主键ID
 }
 
+type GetByIdStr struct {
+	ID string `json:"id" form:"id"` // 主键ID
+}
+
 type GetStatis struct {
 	Start time.Time `json:"start" from:"start"` // 开始时间
 	End   time.Time `json:"end" from:"end"`     // 结束时间
