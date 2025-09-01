@@ -200,6 +200,92 @@ func (h *HouseResourceApi) ListByXiaoquAgg(c *gin.Context) {
 }
 
 // @Tags      Center
+// @Summary   指定查询条件  返回指定小区房源列表
+// @accept    application/json
+// @Produce   application/json
+// @Param     data  body      request.ResourceSearch   true  "查询条件"
+// @Success   200   {object}  response.Response{data=response.PageResult{list=[]response2.ResourceResponse},msg=string}  "指定查询条件  返回指定小区房源列表"
+// @Router    /center/house/xiaoquAggList [post]
+func (h *HouseResourceApi) ListByXiaoquAggList(c *gin.Context) {
+	var req request.ResourceSearch
+	err := c.ShouldBindJSON(&req)
+	if err != nil {
+		response.FailWithMessage(err.Error(), c)
+		return
+	}
+
+	condition := searchx.Condition{
+		Terms: []searchx.Term{
+			{Field: "status", Value: "待出租"},
+		},
+		Ors: []searchx.Condition{
+			{
+				Terms: []searchx.Term{},
+			},
+		},
+		Aggs: []searchx.Agg{
+			{Field: "xiaoqu_id"},
+		},
+	}
+
+	if len(req.Feature) > 0 {
+		for _, f := range strings.Split(req.Feature, ",") {
+			condition.Terms = append(condition.Terms, searchx.Term{Field: "feature", Value: "*" + f + "*"})
+		}
+	}
+	if len(req.HouseType) > 0 {
+		condition.Terms = append(condition.Terms, searchx.Term{Field: "house_type", Value: req.HouseType + "*"})
+	}
+
+	if len(req.RentType) > 0 {
+		condition.Terms = append(condition.Terms, searchx.Term{Field: "rent_type", Value: req.RentType + "*"})
+	}
+	if req.Price > 0 {
+		priceOption := ResourceService.GetPriceByOption(strconv.Itoa(req.Price))
+		g := priceOption[0]
+		l := priceOption[1]
+		condition.Ranges = append(condition.Ranges, searchx.Range{Field: "price", GreatEqual: fmt.Sprintf("%d", g), LessEqual: fmt.Sprintf("%d", l)})
+	}
+
+	for _, i := range req.XiaoquId {
+		condition.Ors[0].Terms = append(condition.Ors[0].Terms, searchx.Term{Field: "xiaoqu_id", Value: strconv.Itoa(i)})
+	}
+
+	if req.PageSize == 0 {
+		req.PageSize = 50
+	}
+	if req.Page > 0 {
+		req.Page = req.Page - 1
+	}
+	houseList, total, err := global.Gva_ResourceSearch.Search(context.Background(), condition, searchx.QueryParams{
+		Fields: []string{"house_id", "xiaoqu", "xiaoqu_id", "_id"},
+		Size:   req.PageSize,
+		Page:   req.Page,
+	})
+
+	var houseIds []uint
+	for _, buffer := range houseList {
+		x, _ := strconv.ParseUint(buffer.HouseId, 10, 0)
+		houseIds = append(houseIds, uint(x))
+	}
+
+	var resources []*house.Resource
+	if len(houseIds) > 0 {
+		resources, err = ResourceService.GetListByIds(houseIds)
+		if err != nil {
+			return
+		}
+	}
+
+	response.OkWithDetailed(response.PageResult{
+		List:     resources,
+		Total:    int64(total),
+		Page:     req.Page,
+		PageSize: req.PageSize,
+	}, "获取成功", c)
+}
+
+// @Tags      Center
 // @Summary   指定小区id 分页获取房源列表
 // @accept    application/json
 // @Produce   application/json

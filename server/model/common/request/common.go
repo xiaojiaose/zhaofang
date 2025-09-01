@@ -98,4 +98,7 @@ type ResourceSearch struct {
 	RentType  string `json:"rentType"`  // 整租、合租、分整租
 	Price     int    `json:"price"`     // 价格 1580
 	Feature   string `json:"feature"`   // 有无电梯
+
+	Page     int `json:"page" form:"page"`         // 页码
+	PageSize int `json:"pageSize" form:"pageSize"` // 每页大小
 }

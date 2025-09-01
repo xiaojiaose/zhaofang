@@ -40,6 +40,7 @@ func (s *CenterRouter) InitCenterAuthRouter(Router *gin.RouterGroup) {
 		houseRouterRecord.GET("house/view", resourceApi.View)
 		houseRouterRecord.GET("house/mobile", resourceApi.GetMobile)
 		houseRouter.POST("house/xiaoquAgg", resourceApi.ListByXiaoquAgg)
+		houseRouter.POST("house/xiaoquAggList", resourceApi.ListByXiaoquAggList)
 		houseRouterRecord.POST("house/listByXiaoqu", resourceApi.ListByXiaoquId)
 		houseRouterRecord.POST("house/my", resourceApi.ListByUserId)
 		houseRouterRecord.POST("house/edit", resourceApi.Edit)

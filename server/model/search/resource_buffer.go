@@ -7,6 +7,7 @@ import (
 
 type ResourceBuffer struct {
 	ID          string
+	HouseId     string `json:"house_id"`
 	City        string `json:"city" `                // 所属城市
 	Districts   string `json:"districts" `           // 所属商圈s
 	DistrictIds string `json:"district_ids" `        // 所属商圈s
@@ -22,6 +23,7 @@ type ResourceBuffer struct {
 func FromDeviceDB(entity *house.Resource) *ResourceBuffer {
 	return &ResourceBuffer{
 		ID:          strconv.Itoa(int(entity.ID)),
+		HouseId:     strconv.Itoa(int(entity.ID)),
 		City:        entity.City,
 		Districts:   entity.Districts,
 		DistrictIds: entity.DistrictIds,
@@ -60,6 +62,8 @@ func FromDeviceES(data map[string]interface{}) *ResourceBuffer {
 			result.Feature = value.(string)
 		case "status":
 			result.Status = value.(string)
+		case "house_id":
+			result.HouseId = value.(string)
 		}
 	}
 
@@ -68,6 +72,7 @@ func FromDeviceES(data map[string]interface{}) *ResourceBuffer {
 
 func (d *ResourceBuffer) ToData() map[string]interface{} {
 	return map[string]interface{}{
+		"house_id":     d.HouseId,
 		"city":         d.City,
 		"districts":    d.Districts,
 		"district_ids": d.DistrictIds,
