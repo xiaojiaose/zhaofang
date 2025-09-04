@@ -44,10 +44,21 @@ func (h *HouseResourceApi) View(c *gin.Context) {
 		response.FailWithMessage(err.Error(), c)
 		return
 	}
+
 	r := response2.ResourceResponse{
 		Resource:  *info,
 		Latitude:  xq.Latitude,
 		Longitude: xq.Longitude,
+	}
+
+	flist, err := FavoriteService.GetByUserIdRIds(utils.GetUserID(c), []uint{uint(req.ID)})
+	if err != nil {
+		global.GVA_LOG.Error("获取失败 favorite.GetByUserIdRIds!", zap.Error(err))
+	}
+	for _, favorite := range flist {
+		if favorite.ResourceId == uint(req.ID) {
+			r.Follow = true
+		}
 	}
 
 	err = ResourceService.FollowViewClickAdd(uint(req.ID), "view")
@@ -435,6 +446,33 @@ func (h *HouseResourceApi) Create(c *gin.Context) {
 		}
 	}
 	response.Ok(c)
+}
+
+// @Tags      Center
+// @Summary   删除房源
+// @accept    application/json
+// @Produce   application/json
+// @Param    data  query    string  true  "id"
+// @Success   200   {object}  response.Response{data=string}  "结果"
+// @Router    /center/house/del [post]
+func (h *HouseResourceApi) DeleteByUserId(c *gin.Context) {
+	var req request.GetById
+	err := c.ShouldBindJSON(&req)
+	if err != nil {
+		response.FailWithMessage(err.Error(), c)
+		return
+	}
+
+	userId := utils.GetUserID(c) // 获取登陆用户
+
+	err = ResourceService.DelByUser(uint(req.ID), userId)
+	if err != nil {
+		global.GVA_LOG.Error("删除失败!", zap.Error(err))
+		response.FailWithMessage("删除失败", c)
+		return
+	}
+	response.Ok(c)
+	return
 }
 
 // Edit

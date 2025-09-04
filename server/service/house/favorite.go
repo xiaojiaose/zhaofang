@@ -10,7 +10,7 @@ type FavoriteService struct {
 }
 
 func (service *FavoriteService) CreateOrUpdate(favorite *house.Favorite) (err error) {
-	err = global.GVA_DB.Where("id = ?", favorite.ID).First(&house.Favorite{}).Updates(&favorite).Error
+	err = global.GVA_DB.Where("resource_id = ? and user_id = ?", favorite.ResourceId, favorite.UserId).First(&house.Favorite{}).Updates(&favorite).Error
 	if err != nil && err.Error() == "record not found" {
 		err = global.GVA_DB.Create(favorite).Error
 	}
@@ -24,6 +24,9 @@ func (service *FavoriteService) Delete(userId, resource uint) (err error) {
 }
 
 func (service *FavoriteService) GetByUserIdRIds(userId uint, resources []uint) (list []house.Favorite, err error) {
+	if userId == 0 {
+		return
+	}
 	err = global.GVA_DB.Model(&house.Favorite{}).Where("user_id = ? and resource_id in ?", userId, resources).Find(&list).Error
 	return
 }

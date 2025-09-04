@@ -95,7 +95,7 @@ func Routers() *gin.Engine {
 	{
 		// 微信公众号业务数据接口
 		PublicWeGroup.Use(middleware.JWTAuth())
-		centerRouter.InitCenterAuthRouter(PublicWeGroup)
+		centerRouter.InitCenterAuthRouter(PublicWeGroup, PublicGroup)
 	}
 
 	{

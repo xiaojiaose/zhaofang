@@ -18,9 +18,10 @@ func (s *CenterRouter) InitCenterRouter(Router *gin.RouterGroup) {
 
 }
 
-func (s *CenterRouter) InitCenterAuthRouter(Router *gin.RouterGroup) {
+func (s *CenterRouter) InitCenterAuthRouter(Router *gin.RouterGroup, publicRouter *gin.RouterGroup) {
 	houseRouterRecord := Router.Group("center").Use(middleware.OperationRecord())
 	houseRouter := Router.Group("center")
+	public := publicRouter.Group("center")
 	centerApi := v1.ApiGroupApp.ApiCenterGroup.WxUserApi
 	resourceApi := v1.ApiGroupApp.ApiCenterGroup.HouseResourceApi
 	xiaoQuApi := v1.ApiGroupApp.ApiCenterGroup.XiaoQuApi
@@ -37,7 +38,8 @@ func (s *CenterRouter) InitCenterAuthRouter(Router *gin.RouterGroup) {
 		houseRouter.GET("area", resourceApi.FilterArea)
 		houseRouter.GET("options", resourceApi.FilterOptions)
 		houseRouterRecord.POST("house/create", resourceApi.Create)
-		houseRouterRecord.GET("house/view", resourceApi.View)
+		houseRouterRecord.POST("/house/del", resourceApi.DeleteByUserId)
+		public.GET("/house/view", resourceApi.View)
 		houseRouterRecord.GET("house/mobile", resourceApi.GetMobile)
 		houseRouter.POST("house/xiaoquAgg", resourceApi.ListByXiaoquAgg)
 		houseRouter.POST("house/xiaoquAggList", resourceApi.ListByXiaoquAggList)

@@ -4644,6 +4644,31 @@ paths:
       summary: 创建|编辑 房源
       tags:
       - Center
+  /center/house/del:
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: id
+        in: query
+        name: data
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 结果
+          schema:
+            allOf:
+            - $ref: '#/definitions/response.Response'
+            - properties:
+                data:
+                  type: string
+              type: object
+      summary: 删除房源
+      tags:
+      - Center
   /center/house/edit:
     post:
       parameters:
