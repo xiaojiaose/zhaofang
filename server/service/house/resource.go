@@ -97,6 +97,10 @@ func (service *ResourceService) GetInfo(id uint) (resource *house.Resource, err 
 	return
 }
 
+func (service *ResourceService) DelByUser(id, owner uint) (err error) {
+	return global.GVA_DB.Where("id = ? and owner = ?", id, owner).Delete(&house.Resource{}).Error
+}
+
 func (service *ResourceService) FollowViewClickAdd(id uint, field string) (err error) {
 	err = global.GVA_DB.Model(&house.Resource{}).Where("id = ? ", id).UpdateColumn(field, gorm.Expr(fmt.Sprintf("%s + ?", field), 1)).Error
 	return
@@ -142,6 +146,10 @@ func (service *ResourceService) GetPage(xiaoquId, userId uint, appStatus string,
 
 	if len(status) > 0 {
 		db = db.Where("status = ?", status)
+	}
+
+	if len(info.Keyword) > 0 {
+		db = db.Where("door_no like ?", "%"+info.Keyword+"%")
 	}
 
 	err = db.Count(&total).Error

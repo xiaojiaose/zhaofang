@@ -33,6 +33,8 @@ func (s *ApiRouter) InitApiAuthRouter(Router *gin.RouterGroup) {
 		houseRecordRouter.POST("create", resourceApi.Create)
 		houseRouter.GET("view", resourceApi.View)
 		houseRecordRouter.POST("list", resourceApi.List)
+		houseRecordRouter.POST("del", resourceApi.DeleteByUserId)
+		houseRecordRouter.POST("my", resourceApi.ListByUserId)
 		houseRecordRouter.POST("edit", resourceApi.Edit)
 		houseRouter.POST("upload", fileUploadApi.UploadFile1)
 		houseRecordRouter.POST("approvalState", resourceApi.ApprovalStatus)

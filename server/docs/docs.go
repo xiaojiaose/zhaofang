@@ -739,6 +739,69 @@ const docTemplate = `{
                 }
             }
         },
+        "/api/house/my": {
+            "post": {
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Admin"
+                ],
+                "summary": "我发的房源列表",
+                "parameters": [
+                    {
+                        "description": "分页获取API列表",
+                        "name": "data",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/request.MySearchResource"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "分页获取API列表,返回包括列表,总数,页码,每页数量",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/response.Response"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "allOf": [
+                                                {
+                                                    "$ref": "#/definitions/response.PageResult"
+                                                },
+                                                {
+                                                    "type": "object",
+                                                    "properties": {
+                                                        "list": {
+                                                            "type": "array",
+                                                            "items": {
+                                                                "$ref": "#/definitions/house.Resource"
+                                                            }
+                                                        }
+                                                    }
+                                                }
+                                            ]
+                                        },
+                                        "msg": {
+                                            "type": "string"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                }
+            }
+        },
         "/api/house/options": {
             "get": {
                 "produces": [
@@ -10310,7 +10373,7 @@ const docTemplate = `{
                         }
                     ]
                 },
-                "building": {
+                "building_id": {
                     "description": "楼栋",
                     "type": "string"
                 },
@@ -10350,7 +10413,7 @@ const docTemplate = `{
                     "description": "关注次数",
                     "type": "integer"
                 },
-                "house": {
+                "house_id": {
                     "description": "房号",
                     "type": "string"
                 },
@@ -10365,6 +10428,10 @@ const docTemplate = `{
                 "price": {
                     "description": "房源价格",
                     "type": "integer"
+                },
+                "region": {
+                    "description": "行政区",
+                    "type": "string"
                 },
                 "remarks": {
                     "description": "备注信息",
@@ -10382,7 +10449,7 @@ const docTemplate = `{
                     "description": "状态 已出租，已下架，待出租",
                     "type": "string"
                 },
-                "unit": {
+                "unit_id": {
                     "description": "单元",
                     "type": "string"
                 },
@@ -11091,6 +11158,43 @@ const docTemplate = `{
                 }
             }
         },
+        "request.MySearchResource": {
+            "type": "object",
+            "properties": {
+                "desc": {
+                    "description": "排序方式:升序false(默认)|降序true",
+                    "type": "boolean"
+                },
+                "doorNo": {
+                    "description": "户室号",
+                    "type": "string"
+                },
+                "keyword": {
+                    "description": "关键字",
+                    "type": "string"
+                },
+                "orderKey": {
+                    "description": "排序",
+                    "type": "string"
+                },
+                "page": {
+                    "description": "页码",
+                    "type": "integer"
+                },
+                "pageSize": {
+                    "description": "每页大小",
+                    "type": "integer"
+                },
+                "status": {
+                    "description": "出租类型： 已出租，已下架，待出租",
+                    "type": "string"
+                },
+                "xiaoquId": {
+                    "description": "小区id",
+                    "type": "integer"
+                }
+            }
+        },
         "request.PageInfo": {
             "type": "object",
             "properties": {
@@ -11653,7 +11757,7 @@ const docTemplate = `{
                         }
                     ]
                 },
-                "building": {
+                "building_id": {
                     "description": "楼栋",
                     "type": "string"
                 },
@@ -11693,7 +11797,7 @@ const docTemplate = `{
                     "description": "关注是否",
                     "type": "boolean"
                 },
-                "house": {
+                "house_id": {
                     "description": "房号",
                     "type": "string"
                 },
@@ -11717,6 +11821,10 @@ const docTemplate = `{
                     "description": "房源价格",
                     "type": "integer"
                 },
+                "region": {
+                    "description": "行政区",
+                    "type": "string"
+                },
                 "remarks": {
                     "description": "备注信息",
                     "type": "string"
@@ -11733,7 +11841,7 @@ const docTemplate = `{
                     "description": "状态 已出租，已下架，待出租",
                     "type": "string"
                 },
-                "unit": {
+                "unit_id": {
                     "description": "单元",
                     "type": "string"
                 },

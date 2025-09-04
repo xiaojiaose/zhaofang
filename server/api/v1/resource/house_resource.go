@@ -120,16 +120,18 @@ func (h *HouseResourceApi) List(c *gin.Context) {
 	var (
 		list  interface{}
 		total int64
+		//uId   uint
 	)
 
-	u := UserService.FindUserByMobile(pageInfo.Phone)
-	if u != nil {
-		list, total, err = ResourceService.GetPage(pageInfo.XiaoquId, u.ID, pageInfo.ApprovalStatus, "", pageInfo.PageInfo, pageInfo.OrderKey, pageInfo.Desc)
-		if err != nil {
-			global.GVA_LOG.Error("获取失败!", zap.Error(err))
-			response.FailWithMessage("获取失败", c)
-			return
-		}
+	//u := UserService.FindUserByMobile(pageInfo.Phone)
+	//if u != nil {
+	//	uId = u.ID
+	//}
+	list, total, err = ResourceService.GetPage(pageInfo.XiaoquId, 0, pageInfo.ApprovalStatus, "", pageInfo.PageInfo, pageInfo.OrderKey, pageInfo.Desc)
+	if err != nil {
+		global.GVA_LOG.Error("获取失败!", zap.Error(err))
+		response.FailWithMessage("获取失败", c)
+		return
 	}
 
 	response.OkWithDetailed(response.PageResult{
@@ -139,6 +141,72 @@ func (h *HouseResourceApi) List(c *gin.Context) {
 		PageSize: pageInfo.PageSize,
 	}, "获取成功", c)
 
+	return
+}
+
+// @Tags      Admin
+// @Summary   删除房源
+// @accept    application/json
+// @Produce   application/json
+// @Param    data  query    string  true  "id"
+// @Success   200   {object}
+// @Router    /api/house/del [post]
+func (h *HouseResourceApi) DeleteByUserId(c *gin.Context) {
+	var req request.GetById
+	err := c.ShouldBindJSON(&req)
+	if err != nil {
+		response.FailWithMessage(err.Error(), c)
+		return
+	}
+
+	userId := utils.GetUserID(c) // 获取登陆用户
+
+	err = ResourceService.DelByUser(uint(req.ID), userId)
+	if err != nil {
+		global.GVA_LOG.Error("删除失败!", zap.Error(err))
+		response.FailWithMessage("删除失败", c)
+		return
+	}
+	response.Ok(c)
+	return
+}
+
+// @Tags      Admin
+// @Summary   我发的房源列表
+// @accept    application/json
+// @Produce   application/json
+// @Param     data  body      request.MySearchResource   true  "分页获取API列表"
+// @Success   200   {object}  response.Response{data=response.PageResult{list=[]house.Resource},msg=string}  "分页获取API列表,返回包括列表,总数,页码,每页数量"
+// @Router    /api/house/my [post]
+func (h *HouseResourceApi) ListByUserId(c *gin.Context) {
+	var pageInfo request.MySearchResource
+	err := c.ShouldBindJSON(&pageInfo)
+	if err != nil {
+		response.FailWithMessage(err.Error(), c)
+		return
+	}
+
+	if pageInfo.PageInfo.Page == 0 {
+		pageInfo.PageInfo.Page = 1
+	}
+
+	if pageInfo.PageInfo.PageSize == 0 {
+		pageInfo.PageInfo.PageSize = 50
+	}
+	userId := utils.GetUserID(c) // 获取登陆用户
+	pageInfo.PageInfo.Keyword = pageInfo.DoorNo
+	list, total, err := ResourceService.GetPage(pageInfo.XiaoquId, userId, "", pageInfo.Status, pageInfo.PageInfo, pageInfo.OrderKey, pageInfo.Desc)
+	if err != nil {
+		global.GVA_LOG.Error("获取失败!", zap.Error(err))
+		response.FailWithMessage("获取失败", c)
+		return
+	}
+	response.OkWithDetailed(response.PageResult{
+		List:     list,
+		Total:    total,
+		Page:     pageInfo.Page,
+		PageSize: pageInfo.PageSize,
+	}, "获取成功", c)
 	return
 }
 

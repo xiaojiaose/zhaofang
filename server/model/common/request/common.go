@@ -76,6 +76,15 @@ type SearchResource struct {
 	Desc     bool   `json:"desc"`     // 排序方式:升序false(默认)|降序true
 }
 
+type MySearchResource struct {
+	PageInfo
+	DoorNo   string `json:"doorNo"`   // 户室号
+	Status   string `json:"status"`   // 出租类型： 已出租，已下架，待出租
+	XiaoquId uint   `json:"xiaoquId"` // 小区id
+	OrderKey string `json:"orderKey"` // 排序
+	Desc     bool   `json:"desc"`     // 排序方式:升序false(默认)|降序true
+}
+
 type SearchNameResource struct {
 	PageInfo
 	XiaoquId       uint   `json:"xiaoquId"` // 小区id

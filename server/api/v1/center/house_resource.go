@@ -107,10 +107,12 @@ func (h *HouseResourceApi) GetMobile(c *gin.Context) {
 		response.FailWithMessage(err.Error(), c)
 		return
 	}
-
-	u, err := userService.FindUserById(int(info.Owner))
-	if err != nil {
-		return
+	if len(info.Phone) == 0 {
+		u, err := userService.FindUserById(int(info.Owner))
+		if err != nil {
+			return
+		}
+		info.Phone = u.Phone
 	}
 
 	err = ResourceService.FollowViewClickAdd(uint(req.ID), "click")
@@ -118,7 +120,7 @@ func (h *HouseResourceApi) GetMobile(c *gin.Context) {
 		global.GVA_LOG.Error("view add failed !", zap.Error(err))
 	}
 
-	response.OkWithDetailed(map[string]string{"mobile": u.Phone}, "获取成功", c)
+	response.OkWithDetailed(map[string]string{"mobile": info.Phone}, "获取成功", c)
 }
 
 // @Tags      Center
@@ -415,7 +417,7 @@ func (h *HouseResourceApi) Create(c *gin.Context) {
 	req.Districts = xiaoqu.Districts
 	req.DistrictIds = xiaoqu.DistrictIds
 	req.City = xiaoqu.City
-	req.Area = xiaoqu.Area
+	req.Region = xiaoqu.Area
 	req.Status = "待出租"
 	err = ResourceService.CreateOrUpdate(&req)
 	if err != nil {
