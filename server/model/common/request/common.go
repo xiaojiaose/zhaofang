@@ -94,6 +94,10 @@ type SearchNameResource struct {
 	ApprovalStatus string `json:"approvalStatus"` //  通过 未通过 待审批
 }
 
+type SearchOther struct {
+	Phone string `json:"phone"`
+}
+
 type HouseStateReq struct {
 	Ids   []uint // 房源id
 	State int    // 1 上架（通过），2下架（不通过）

@@ -56,7 +56,7 @@ func (h *HouseResourceApi) States(c *gin.Context) {
 	if req.State == 1 {
 		status = "已下架"
 	}
-	err = ResourceService.SetApprovalStatus(req.Ids, status)
+	err = ResourceService.SetState(req.Ids, status)
 	if err != nil {
 		global.GVA_LOG.Error("获取失败!", zap.Error(err))
 		response.FailWithMessage(err.Error(), c)
@@ -85,7 +85,7 @@ func (h *HouseResourceApi) ApprovalStatus(c *gin.Context) {
 	if req.State == 1 {
 		approvalStatus = "通过"
 	}
-	err = ResourceService.SetState(req.Ids, approvalStatus)
+	err = ResourceService.SetApprovalStatus(req.Ids, approvalStatus)
 	if err != nil {
 		global.GVA_LOG.Error("获取失败!", zap.Error(err))
 		response.FailWithMessage(err.Error(), c)
@@ -120,14 +120,20 @@ func (h *HouseResourceApi) List(c *gin.Context) {
 	var (
 		list  interface{}
 		total int64
-		//uId   uint
+		uId   uint
 	)
 
-	//u := UserService.FindUserByMobile(pageInfo.Phone)
-	//if u != nil {
-	//	uId = u.ID
-	//}
-	list, total, err = ResourceService.GetPage(pageInfo.XiaoquId, 0, pageInfo.ApprovalStatus, "", pageInfo.PageInfo, pageInfo.OrderKey, pageInfo.Desc)
+	if len(pageInfo.Phone) > 0 {
+		u := UserService.FindUserByMobile(pageInfo.Phone)
+		if u != nil {
+			uId = u.ID
+		} else {
+			response.FailWithMessage("经纪人手机号不存在", c)
+			return
+		}
+	}
+
+	list, total, err = ResourceService.GetPage(pageInfo.XiaoquId, uId, pageInfo.ApprovalStatus, "", pageInfo.PageInfo, pageInfo.OrderKey, pageInfo.Desc, request.SearchOther{})
 	if err != nil {
 		global.GVA_LOG.Error("获取失败!", zap.Error(err))
 		response.FailWithMessage("获取失败", c)
@@ -195,7 +201,7 @@ func (h *HouseResourceApi) ListByUserId(c *gin.Context) {
 	}
 	userId := utils.GetUserID(c) // 获取登陆用户
 	pageInfo.PageInfo.Keyword = pageInfo.DoorNo
-	list, total, err := ResourceService.GetPage(pageInfo.XiaoquId, userId, "", pageInfo.Status, pageInfo.PageInfo, pageInfo.OrderKey, pageInfo.Desc)
+	list, total, err := ResourceService.GetPage(pageInfo.XiaoquId, userId, "", pageInfo.Status, pageInfo.PageInfo, pageInfo.OrderKey, pageInfo.Desc, request.SearchOther{})
 	if err != nil {
 		global.GVA_LOG.Error("获取失败!", zap.Error(err))
 		response.FailWithMessage("获取失败", c)

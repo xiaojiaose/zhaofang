@@ -88,7 +88,7 @@ func (h *HouseResourceApi) States(c *gin.Context) {
 	if req.State == 1 {
 		status = "已下架"
 	}
-	err = ResourceService.SetApprovalStatus(req.Ids, status)
+	err = ResourceService.SetState(req.Ids, status)
 	if err != nil {
 		global.GVA_LOG.Error("获取失败!", zap.Error(err))
 		response.FailWithMessage(err.Error(), c)
@@ -321,7 +321,7 @@ func (h *HouseResourceApi) ListByXiaoquId(c *gin.Context) {
 		pageInfo.PageInfo.PageSize = 50
 	}
 
-	list, total, err := ResourceService.GetPage(pageInfo.XiaoquId, 0, "", "待出租", pageInfo.PageInfo, pageInfo.OrderKey, pageInfo.Desc)
+	list, total, err := ResourceService.GetPage(pageInfo.XiaoquId, 0, "", "待出租", pageInfo.PageInfo, pageInfo.OrderKey, pageInfo.Desc, request.SearchOther{})
 	if err != nil {
 		global.GVA_LOG.Error("获取失败!", zap.Error(err))
 		response.FailWithMessage("获取失败", c)
@@ -382,7 +382,7 @@ func (h *HouseResourceApi) ListByUserId(c *gin.Context) {
 		pageInfo.PageInfo.PageSize = 50
 	}
 	userId := utils.GetUserID(c) // 获取登陆用户
-	list, total, err := ResourceService.GetPage(0, userId, "", "", pageInfo.PageInfo, pageInfo.OrderKey, pageInfo.Desc)
+	list, total, err := ResourceService.GetPage(0, userId, "", "", pageInfo.PageInfo, pageInfo.OrderKey, pageInfo.Desc, request.SearchOther{})
 	if err != nil {
 		global.GVA_LOG.Error("获取失败!", zap.Error(err))
 		response.FailWithMessage("获取失败", c)

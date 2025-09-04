@@ -125,7 +125,7 @@ func (service *ResourceService) GetListByIds(ids []uint) (resources []*house.Res
 	return
 }
 
-func (service *ResourceService) GetPage(xiaoquId, userId uint, appStatus string, status string, info request.PageInfo, order string, desc bool) (list interface{}, total int64, err error) {
+func (service *ResourceService) GetPage(xiaoquId, userId uint, appStatus string, status string, info request.PageInfo, order string, desc bool, Other request.SearchOther) (list interface{}, total int64, err error) {
 
 	limit := info.PageSize
 	offset := info.PageSize * (info.Page - 1)
