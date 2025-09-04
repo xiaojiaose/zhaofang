@@ -634,6 +634,49 @@ const docTemplate = `{
                 }
             }
         },
+        "/api/house/del": {
+            "post": {
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Admin"
+                ],
+                "summary": "删除房源",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "id",
+                        "name": "data",
+                        "in": "query",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "结果",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/response.Response"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "type": "string"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                }
+            }
+        },
         "/api/house/edit": {
             "post": {
                 "produces": [
@@ -10425,6 +10468,10 @@ const docTemplate = `{
                     "description": "业主",
                     "type": "integer"
                 },
+                "phone": {
+                    "description": "联系手机号",
+                    "type": "string"
+                },
                 "price": {
                     "description": "房源价格",
                     "type": "integer"
@@ -11816,6 +11863,10 @@ const docTemplate = `{
                 "owner": {
                     "description": "业主",
                     "type": "integer"
+                },
+                "phone": {
+                    "description": "联系手机号",
+                    "type": "string"
                 },
                 "price": {
                     "description": "房源价格",

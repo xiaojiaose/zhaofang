@@ -149,7 +149,7 @@ func (h *HouseResourceApi) List(c *gin.Context) {
 // @accept    application/json
 // @Produce   application/json
 // @Param    data  query    string  true  "id"
-// @Success   200   {object}
+// @Success   200   {object}  response.Response{data=string}  "结果"
 // @Router    /api/house/del [post]
 func (h *HouseResourceApi) DeleteByUserId(c *gin.Context) {
 	var req request.GetById

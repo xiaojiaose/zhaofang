@@ -963,6 +963,9 @@ definitions:
       owner:
         description: 业主
         type: integer
+      phone:
+        description: 联系手机号
+        type: string
       price:
         description: 房源价格
         type: integer
@@ -1951,6 +1954,9 @@ definitions:
       owner:
         description: 业主
         type: integer
+      phone:
+        description: 联系手机号
+        type: string
       price:
         description: 房源价格
         type: integer
@@ -3048,6 +3054,31 @@ paths:
                   type: string
               type: object
       summary: 创建房源
+      tags:
+      - Admin
+  /api/house/del:
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: id
+        in: query
+        name: data
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 结果
+          schema:
+            allOf:
+            - $ref: '#/definitions/response.Response'
+            - properties:
+                data:
+                  type: string
+              type: object
+      summary: 删除房源
       tags:
       - Admin
   /api/house/edit:
