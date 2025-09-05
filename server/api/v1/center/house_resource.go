@@ -412,7 +412,10 @@ func (h *HouseResourceApi) Create(c *gin.Context) {
 		return
 	}
 
-	req.Owner = utils.GetUserID(c) // 获取登陆用户
+	loginUser := utils.GetUserInfo(c)
+	req.Owner = loginUser.BaseClaims.ID // 获取登陆用户
+	req.Phone = loginUser.BaseClaims.Mobile
+	
 	if req.XiaoquId == 0 {
 		response.FailWithMessage("小区id不能为空", c)
 		return

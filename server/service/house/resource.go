@@ -76,6 +76,10 @@ func (service *ResourceService) CreateOrUpdate(resource *house.Resource) (err er
 		resource.DoorNo = doorNo
 	}
 
+	if imgs, ok := resource.Attachments["house"]; ok && len(imgs) > 0 {
+		resource.HasPic = true
+	}
+
 	resource.UpdatedLastAt = time.Now()
 	err = global.GVA_DB.Where("id = ?", resource.ID).First(&house.Resource{}).Updates(&resource).Error
 	if err != nil && err.Error() == "record not found" {
@@ -150,6 +154,18 @@ func (service *ResourceService) GetPage(xiaoquId, userId uint, appStatus string,
 
 	if len(info.Keyword) > 0 {
 		db = db.Where("door_no like ?", "%"+info.Keyword+"%")
+	}
+
+	if Other.Phone != "" {
+		db = db.Where("phone = ?", Other.Phone)
+	}
+
+	if Other.HasPic {
+		db = db.Where("has_pic = ?", Other.HasPic)
+	}
+
+	if Other.UpdatedAtLast.IsZero() == false && Other.UpdatedAtStart.IsZero() == false {
+		db = db.Where("updated_last_at > ? and updated_last_at < ?", Other.UpdatedAtStart, Other.UpdatedAtLast)
 	}
 
 	err = db.Count(&total).Error

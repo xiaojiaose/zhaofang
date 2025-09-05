@@ -15,3 +15,12 @@ func (s StatisService) ByDate(start, end time.Time) (list []search.StatisData, e
 	err = db.Find(&list).Error
 	return
 }
+
+func (s StatisService) VisitRecord(userId uint) (list []search.VisitRecord, err error) {
+	db := global.GVA_DB.Model(&search.VisitRecord{})
+	if userId > 0 {
+		db.Where("user_id > ? ", userId)
+	}
+	err = db.Find(&list).Error
+	return
+}

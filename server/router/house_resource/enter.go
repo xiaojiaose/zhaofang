@@ -43,7 +43,8 @@ func (s *ApiRouter) InitApiAuthRouter(Router *gin.RouterGroup) {
 
 	{
 		houseRecordRouter.GET("/statis/view", statisApi.View)
-
+		houseRecordRouter.GET("/statis/visit", statisApi.VisitRecord)
+		houseRecordRouter.GET("/statis/visit/house", statisApi.VisitHouse)
 	}
 
 }

@@ -1006,6 +1006,111 @@ const docTemplate = `{
                 }
             }
         },
+        "/api/statis/visit": {
+            "get": {
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Admin"
+                ],
+                "summary": "访问数据",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "手机号",
+                        "name": "phone",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "微信号",
+                        "name": "wxNo",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "结果",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/response.Response"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/request.VisitResponse"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                }
+            }
+        },
+        "/api/statis/visit/house": {
+            "post": {
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Admin"
+                ],
+                "summary": "帖子数据",
+                "parameters": [
+                    {
+                        "description": "分页获取API列表",
+                        "name": "data",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/request.SearchNameResource"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "分页获取API列表,返回包括列表,总数,页码,每页数量",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/response.Response"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "allOf": [
+                                                {
+                                                    "$ref": "#/definitions/response.PageResult"
+                                                },
+                                                {
+                                                    "type": "object",
+                                                    "properties": {
+                                                        "list": {
+                                                            "type": "array",
+                                                            "items": {
+                                                                "$ref": "#/definitions/response.ResourceVisitResponse"
+                                                            }
+                                                        }
+                                                    }
+                                                }
+                                            ]
+                                        },
+                                        "msg": {
+                                            "type": "string"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                }
+            }
+        },
         "/api/syncApi": {
             "get": {
                 "security": [
@@ -10499,6 +10604,10 @@ const docTemplate = `{
                     "description": "关注次数",
                     "type": "integer"
                 },
+                "hasPic": {
+                    "description": "是否有照片",
+                    "type": "boolean"
+                },
                 "house_id": {
                     "description": "房号",
                     "type": "string"
@@ -11636,6 +11745,23 @@ const docTemplate = `{
                 }
             }
         },
+        "request.VisitResponse": {
+            "type": "object",
+            "properties": {
+                "date": {
+                    "description": "访问时间",
+                    "type": "string"
+                },
+                "phone": {
+                    "description": "手机号",
+                    "type": "string"
+                },
+                "wxNo": {
+                    "description": "微信号",
+                    "type": "string"
+                }
+            }
+        },
         "request.WxLogin": {
             "type": "object",
             "properties": {
@@ -11887,6 +12013,10 @@ const docTemplate = `{
                     "description": "关注是否",
                     "type": "boolean"
                 },
+                "hasPic": {
+                    "description": "是否有照片",
+                    "type": "boolean"
+                },
                 "house_id": {
                     "description": "房号",
                     "type": "string"
@@ -11950,6 +12080,146 @@ const docTemplate = `{
                 "view": {
                     "description": "浏览次数",
                     "type": "integer"
+                },
+                "xiaoqu": {
+                    "description": "所属小区名字",
+                    "type": "string"
+                },
+                "xiaoqu_id": {
+                    "description": "所属小区id",
+                    "type": "integer"
+                }
+            }
+        },
+        "response.ResourceVisitResponse": {
+            "type": "object",
+            "properties": {
+                "ID": {
+                    "description": "主键ID",
+                    "type": "integer"
+                },
+                "approval_status": {
+                    "description": "审批状态： 通过 未通过 待审批",
+                    "type": "string"
+                },
+                "area": {
+                    "description": "房源面积",
+                    "type": "string"
+                },
+                "attachments": {
+                    "description": "公寓照片",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/common.AttachmentMap"
+                        }
+                    ]
+                },
+                "building_id": {
+                    "description": "楼栋",
+                    "type": "string"
+                },
+                "city": {
+                    "description": "所属城市",
+                    "type": "string"
+                },
+                "click": {
+                    "description": "电话获取次数",
+                    "type": "integer"
+                },
+                "createdAt": {
+                    "description": "创建时间",
+                    "type": "string"
+                },
+                "district_ids": {
+                    "description": "所属商圈s",
+                    "type": "string"
+                },
+                "districts": {
+                    "description": "所属商圈s",
+                    "type": "string"
+                },
+                "door_no": {
+                    "description": "门牌号",
+                    "type": "string"
+                },
+                "feature": {
+                    "description": "房源特色",
+                    "type": "string"
+                },
+                "floor": {
+                    "description": "楼层",
+                    "type": "string"
+                },
+                "follow": {
+                    "description": "关注次数",
+                    "type": "integer"
+                },
+                "hasPic": {
+                    "description": "是否有照片",
+                    "type": "boolean"
+                },
+                "house_id": {
+                    "description": "房号",
+                    "type": "string"
+                },
+                "house_type": {
+                    "description": "户型",
+                    "type": "string"
+                },
+                "owner": {
+                    "description": "业主",
+                    "type": "integer"
+                },
+                "phone": {
+                    "description": "联系手机号",
+                    "type": "string"
+                },
+                "price": {
+                    "description": "房源价格",
+                    "type": "integer"
+                },
+                "region": {
+                    "description": "行政区",
+                    "type": "string"
+                },
+                "remarks": {
+                    "description": "备注信息",
+                    "type": "string"
+                },
+                "rent_type": {
+                    "description": "出租类型",
+                    "type": "string"
+                },
+                "room_number": {
+                    "description": "房间数量",
+                    "type": "integer"
+                },
+                "status": {
+                    "description": "状态 已出租，已下架，待出租",
+                    "type": "string"
+                },
+                "unit_id": {
+                    "description": "单元",
+                    "type": "string"
+                },
+                "updatedAt": {
+                    "description": "更新时间",
+                    "type": "string"
+                },
+                "updated_last_at": {
+                    "description": "最后编辑时间",
+                    "type": "string"
+                },
+                "view": {
+                    "description": "浏览次数",
+                    "type": "integer"
+                },
+                "wxNickName": {
+                    "type": "string"
+                },
+                "wxNo": {
+                    "description": "微信号",
+                    "type": "string"
                 },
                 "xiaoqu": {
                     "description": "所属小区名字",

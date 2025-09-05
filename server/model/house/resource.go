@@ -30,6 +30,7 @@ type Resource struct {
 	Feature        string               `json:"feature" `                     // 房源特色
 	Remarks        string               `json:"remarks"`                      // 备注信息
 	Attachments    common.AttachmentMap `json:"attachments" gorm:"TYPE:json"` // 公寓照片
+	HasPic         bool                 `json:"hasPic"`                       // 是否有照片
 	Owner          uint                 `json:"owner"`                        // 业主
 	Status         string               `json:"status"`                       // 状态 已出租，已下架，待出租
 	ApprovalStatus string               `json:"approval_status"`              // 审批状态： 通过 未通过 待审批

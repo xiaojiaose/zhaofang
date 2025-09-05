@@ -57,6 +57,14 @@ func (userService *UserService) FindUserByMobile(mobile string) (userInter *syst
 	}
 	return &user
 }
+func (userService *UserService) FindUserByWxNo(wxNo string) (userInter *system.SysUser) {
+
+	var user system.SysUser
+	if errors.Is(global.GVA_DB.Where("wx_no = ?", wxNo).First(&user).Error, gorm.ErrRecordNotFound) {
+		return
+	}
+	return &user
+}
 
 //@author: [piexlmax](https://github.com/piexlmax)
 //@author: [SliverHorn](https://github.com/SliverHorn)
@@ -143,6 +151,12 @@ func (userService *UserService) GetUserInfoList(info systemReq.GetUserList) (lis
 	}
 	err = db.Limit(limit).Offset(offset).Preload("Authorities").Preload("Authority").Find(&userList).Error
 	return userList, total, err
+}
+
+func (userService *UserService) GetUsersByIds(ids []uint) (list []system.SysUser, err error) {
+	var userList []system.SysUser
+	err = global.GVA_DB.Model(&system.SysUser{}).Where("id IN ?", ids).Find(&userList).Error
+	return
 }
 
 //@author: [piexlmax](https://github.com/piexlmax)

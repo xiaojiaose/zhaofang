@@ -78,6 +78,7 @@ func RegisterTables() {
 		house.DictHouse{},
 		house.DictBuilding{},
 		house.DictUnit{},
+		search.VisitRecord{},
 	)
 	if err != nil {
 		global.GVA_LOG.Error("register table failed", zap.Error(err))

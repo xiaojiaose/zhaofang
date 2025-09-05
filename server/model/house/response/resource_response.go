@@ -11,6 +11,12 @@ type ResourceResponse struct {
 	Longitude string `json:"longitude"` // longitude
 }
 
+type ResourceVisitResponse struct {
+	house.Resource
+	WxNo       string `json:"wxNo"` // 微信号
+	WxNickName string `json:"wxNickName"`
+}
+
 type DictBuildingResponse struct {
 	Id   string `json:"id"`
 	Name string `json:"name"`

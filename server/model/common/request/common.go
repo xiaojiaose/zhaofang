@@ -42,6 +42,17 @@ type GetStatis struct {
 	End   time.Time `json:"end" from:"end"`     // 结束时间
 }
 
+type VisitReq struct {
+	Phone string `json:"phone" from:"phone"` // 手机号
+	WxNo  string `json:"wxNo" from:"wxNo"`   // 微信号
+}
+
+type VisitResponse struct {
+	Phone string    `json:"phone" from:"phone"` // 手机号
+	WxNo  string    `json:"wxNo" from:"wxNo"`   // 微信号
+	Date  time.Time `json:"date" from:"date"`   // 访问时间
+}
+
 func (r *GetById) Uint() uint {
 	return uint(r.ID)
 }
@@ -94,8 +105,26 @@ type SearchNameResource struct {
 	ApprovalStatus string `json:"approvalStatus"` //  通过 未通过 待审批
 }
 
+type SearchHouseResource struct {
+	PageInfo
+	XiaoquId       uint      `json:"xiaoquId"`       // 小区id
+	RentType       string    `json:"rentType"`       // 出租类型
+	DoorNo         string    `json:"doorNo"`         // 户室号
+	OrderKey       string    `json:"orderKey"`       // 排序
+	Desc           bool      `json:"desc"`           // 排序方式:升序false(默认)|降序true
+	Phone          string    `json:"phone"`          // 手机号
+	WxNo           string    `json:"wxNo"`           // 微信号
+	ApprovalStatus string    `json:"approvalStatus"` //  审核状态： 通过 未通过 待审批
+	HasPic         bool      `json:"hasPic"`         // 是否有图片
+	UpdatedAtLast  time.Time `json:"updatedAtLast"`  // 开始时间
+	UpdatedAtStart time.Time `json:"updatedAtStart"` // 结束时间
+}
+
 type SearchOther struct {
-	Phone string `json:"phone"`
+	Phone          string    `json:"phone"`
+	HasPic         bool      `json:"hasPic"`         // 是否有图片
+	UpdatedAtLast  time.Time `json:"updatedAtLast"`  // 开始时间
+	UpdatedAtStart time.Time `json:"updatedAtStart"` // 结束时间
 }
 
 type HouseStateReq struct {
