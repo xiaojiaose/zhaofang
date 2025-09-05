@@ -12863,6 +12863,9 @@ const docTemplate = `{
                 "wxNickName": {
                     "description": "用户昵称",
                     "type": "string"
+                },
+                "wxNo": {
+                    "type": "string"
                 }
             }
         },

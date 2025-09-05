@@ -2623,6 +2623,8 @@ definitions:
       wxNickName:
         description: 用户昵称
         type: string
+      wxNo:
+        type: string
     type: object
   system.SysVersion:
     properties:
