@@ -981,6 +981,9 @@ definitions:
       rent_type:
         description: 出租类型
         type: string
+      room_code:
+        description: 房间号
+        type: string
       room_number:
         description: 房间数量
         type: integer
@@ -1626,6 +1629,51 @@ definitions:
         description: 更新时间
         type: string
     type: object
+  request.SearchHouseResource:
+    properties:
+      approvalStatus:
+        description: 审核状态： 通过 未通过 待审批
+        type: string
+      desc:
+        description: 排序方式:升序false(默认)|降序true
+        type: boolean
+      doorNo:
+        description: 户室号
+        type: string
+      hasPic:
+        description: 是否有图片
+        type: boolean
+      keyword:
+        description: 关键字
+        type: string
+      orderKey:
+        description: 排序
+        type: string
+      page:
+        description: 页码
+        type: integer
+      pageSize:
+        description: 每页大小
+        type: integer
+      phone:
+        description: 手机号
+        type: string
+      rentType:
+        description: 出租类型
+        type: string
+      updatedAtLast:
+        description: 开始时间
+        type: string
+      updatedAtStart:
+        description: 结束时间
+        type: string
+      wxNo:
+        description: 微信号
+        type: string
+      xiaoquId:
+        description: 小区id
+        type: integer
+    type: object
   request.SearchNameResource:
     properties:
       approvalStatus:
@@ -1987,6 +2035,9 @@ definitions:
       rent_type:
         description: 出租类型
         type: string
+      room_code:
+        description: 房间号
+        type: string
       room_number:
         description: 房间数量
         type: integer
@@ -2083,6 +2134,9 @@ definitions:
         type: string
       rent_type:
         description: 出租类型
+        type: string
+      room_code:
+        description: 房间号
         type: string
       room_number:
         description: 房间数量
@@ -3318,6 +3372,50 @@ paths:
       summary: 筛选用到的选择项
       tags:
       - Admin
+  /api/house/statis/view:
+    get:
+      parameters:
+      - description: 结束时间
+        in: query
+        name: end
+        type: string
+      - description: 开始时间
+        in: query
+        name: start
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 结果
+          schema:
+            allOf:
+            - $ref: '#/definitions/response.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/search.StatisData'
+              type: object
+      summary: 数据中心
+      tags:
+      - Admin
+  /api/house/type/options:
+    get:
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 结果
+          schema:
+            allOf:
+            - $ref: '#/definitions/response.Response'
+            - properties:
+                data:
+                  additionalProperties: true
+                  type: object
+              type: object
+      summary: new 房型筛选用到的选择项
+      tags:
+      - Admin
   /api/house/view:
     get:
       parameters:
@@ -3362,30 +3460,37 @@ paths:
       summary: 忽略API
       tags:
       - IgnoreApi
-  /api/statis/view:
-    get:
+  /api/statis/list:
+    post:
       parameters:
-      - description: 结束时间
-        in: query
-        name: end
-        type: string
-      - description: 开始时间
-        in: query
-        name: start
-        type: string
+      - description: 分页获取API列表
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/request.SearchHouseResource'
       produces:
       - application/json
       responses:
         "200":
-          description: 结果
+          description: 分页获取API列表,返回包括列表,总数,页码,每页数量
           schema:
             allOf:
             - $ref: '#/definitions/response.Response'
             - properties:
                 data:
-                  $ref: '#/definitions/search.StatisData'
+                  allOf:
+                  - $ref: '#/definitions/response.PageResult'
+                  - properties:
+                      list:
+                        items:
+                          $ref: '#/definitions/response.ResourceVisitResponse'
+                        type: array
+                    type: object
+                msg:
+                  type: string
               type: object
-      summary: 数据中心
+      summary: 帖子数据
       tags:
       - Admin
   /api/statis/visit:
@@ -3412,39 +3517,6 @@ paths:
                   $ref: '#/definitions/request.VisitResponse'
               type: object
       summary: 访问数据
-      tags:
-      - Admin
-  /api/statis/visit/house:
-    post:
-      parameters:
-      - description: 分页获取API列表
-        in: body
-        name: data
-        required: true
-        schema:
-          $ref: '#/definitions/request.SearchNameResource'
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: 分页获取API列表,返回包括列表,总数,页码,每页数量
-          schema:
-            allOf:
-            - $ref: '#/definitions/response.Response'
-            - properties:
-                data:
-                  allOf:
-                  - $ref: '#/definitions/response.PageResult'
-                  - properties:
-                      list:
-                        items:
-                          $ref: '#/definitions/response.ResourceVisitResponse'
-                        type: array
-                    type: object
-                msg:
-                  type: string
-              type: object
-      summary: 帖子数据
       tags:
       - Admin
   /api/syncApi:
@@ -5135,6 +5207,24 @@ paths:
                   type: string
               type: object
       summary: 个人中心接口
+      tags:
+      - Center
+  /center/type/options:
+    get:
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 结果
+          schema:
+            allOf:
+            - $ref: '#/definitions/response.Response'
+            - properties:
+                data:
+                  additionalProperties: true
+                  type: object
+              type: object
+      summary: new 房型筛选用到的选择项
       tags:
       - Center
   /center/upload:

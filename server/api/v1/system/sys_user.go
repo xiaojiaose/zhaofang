@@ -513,18 +513,25 @@ func (b *BaseApi) SetUserInfo(c *gin.Context) {
 		}
 	}
 	origin, _ := userService.FindUserById(int(user.ID))
-	err = userService.SetUserInfo(system.SysUser{
-		GVA_MODEL: global.GVA_MODEL{
-			ID: user.ID,
-		},
-		NickName:   user.NickName,
-		HeaderImg:  user.HeaderImg,
-		Phone:      user.Phone,
-		Email:      user.Email,
-		Enable:     user.Enable,
-		WxNickName: origin.WxNickName,
-		Openid:     origin.Openid,
-	})
+	if user.Enable > 0 && origin.Enable != user.Enable {
+		origin.Enable = user.Enable
+		err = userService.SetUserInfo(*origin)
+	} else {
+		u := system.SysUser{
+			GVA_MODEL: global.GVA_MODEL{
+				ID: user.ID,
+			},
+			NickName:   user.NickName,
+			HeaderImg:  user.HeaderImg,
+			Phone:      user.Phone,
+			Email:      user.Email,
+			Enable:     user.Enable,
+			WxNickName: origin.WxNickName,
+			Openid:     origin.Openid,
+		}
+		err = userService.SetUserInfo(u)
+	}
+
 	if err != nil {
 		global.GVA_LOG.Error("设置失败!", zap.Error(err))
 		response.FailWithMessage("设置失败", c)

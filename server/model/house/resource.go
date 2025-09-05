@@ -19,6 +19,7 @@ type Resource struct {
 	Xiaoqu         string               `json:"xiaoqu"`                       // 所属小区名字
 	HouseType      string               `json:"house_type,omitempty"`         // 户型
 	RentType       string               `json:"rent_type,omitempty"`          // 出租类型
+	RoomCode       string               `json:"room_code"`                    // 房间号
 	BuildingId     string               `json:"building_id,omitempty"`        // 楼栋
 	UnitId         string               `json:"unit_id,omitempty"`            // 单元
 	HouseId        string               `json:"house_id,omitempty"`           // 房号

@@ -53,7 +53,7 @@ func (h *HouseResourceApi) States(c *gin.Context) {
 	}
 
 	status := "待出租"
-	if req.State == 1 {
+	if req.State == 2 {
 		status = "已下架"
 	}
 	err = ResourceService.SetState(req.Ids, status)
@@ -123,17 +123,17 @@ func (h *HouseResourceApi) List(c *gin.Context) {
 		uId   uint
 	)
 
-	if len(pageInfo.Phone) > 0 {
-		u := UserService.FindUserByMobile(pageInfo.Phone)
-		if u != nil {
-			uId = u.ID
-		} else {
-			response.FailWithMessage("经纪人手机号不存在", c)
-			return
-		}
-	}
+	//if len(pageInfo.Phone) > 0 {
+	//	u := UserService.FindUserByMobile(pageInfo.Phone)
+	//	if u != nil {
+	//		uId = u.ID
+	//	} else {
+	//		response.FailWithMessage("经纪人手机号不存在", c)
+	//		return
+	//	}
+	//}
 
-	list, total, err = ResourceService.GetPage(pageInfo.XiaoquId, uId, pageInfo.ApprovalStatus, "", pageInfo.PageInfo, pageInfo.OrderKey, pageInfo.Desc, request.SearchOther{})
+	list, total, err = ResourceService.GetPage(pageInfo.XiaoquId, uId, pageInfo.ApprovalStatus, "", pageInfo.PageInfo, pageInfo.OrderKey, pageInfo.Desc, request.SearchOther{Phone: pageInfo.Phone})
 	if err != nil {
 		global.GVA_LOG.Error("获取失败!", zap.Error(err))
 		response.FailWithMessage("获取失败", c)
@@ -356,5 +356,24 @@ func (h *HouseResourceApi) FilterOptions(c *gin.Context) {
 	}
 
 	response.OkWithDetailed(options, "获取成功", c)
+
+}
+
+// FilterTypeOptions
+// @Tags     Admin
+// @Summary  new 房型筛选用到的选择项
+// @Produce  application/json
+// @Success  200   {object}  response.Response{data=map[string]interface{}}  "结果"
+// @Router   /api/house/type/options [get]
+func (h *HouseResourceApi) FilterTypeOptions(c *gin.Context) {
+	options, err := ResourceService.FilterOptions1()
+	if err != nil {
+		return
+	}
+
+	response.OkWithDetailed(map[string]interface{}{
+		"houseType": options,
+		"price":     map[string]string{"1": "500以下", "2": "500-1000元", "3": "1000-1500元", "4": "1500-2000元", "5": "2000-2500元", "6": "2500-3000元", "7": "3000元以上"},
+	}, "获取成功", c)
 
 }

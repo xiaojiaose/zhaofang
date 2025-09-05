@@ -415,7 +415,7 @@ func (h *HouseResourceApi) Create(c *gin.Context) {
 	loginUser := utils.GetUserInfo(c)
 	req.Owner = loginUser.BaseClaims.ID // 获取登陆用户
 	req.Phone = loginUser.BaseClaims.Mobile
-	
+
 	if req.XiaoquId == 0 {
 		response.FailWithMessage("小区id不能为空", c)
 		return
@@ -623,7 +623,30 @@ func (h *HouseResourceApi) FilterOptions(c *gin.Context) {
 		return
 	}
 
-	response.OkWithDetailed(options, "获取成功", c)
+	response.OkWithDetailed(map[string]interface{}{
+		"houseType": options,
+		"price":     map[string]string{"1": "500以下", "2": "500-1000元", "3": "1000-1500元", "4": "1500-2000元", "5": "2000-2500元", "6": "2500-3000元", "7": "3000元以上"},
+	}, "获取成功", c)
+
+}
+
+// FilterTypeOptions
+// @Tags     Center
+// @Summary  new 房型筛选用到的选择项
+// @Produce  application/json
+// @Success  200   {object}  response.Response{data=map[string]interface{}}  "结果"
+// @Router   /center/type/options [get]
+func (h *HouseResourceApi) FilterTypeOptions(c *gin.Context) {
+
+	options, err := ResourceService.FilterOptions1()
+	if err != nil {
+		return
+	}
+
+	response.OkWithDetailed(map[string]interface{}{
+		"houseType": options,
+		"price":     map[string]string{"1": "500以下", "2": "500-1000元", "3": "1000-1500元", "4": "1500-2000元", "5": "2000-2500元", "6": "2500-3000元", "7": "3000元以上"},
+	}, "获取成功", c)
 
 }
 

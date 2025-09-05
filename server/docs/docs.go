@@ -882,6 +882,83 @@ const docTemplate = `{
                 }
             }
         },
+        "/api/house/statis/view": {
+            "get": {
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Admin"
+                ],
+                "summary": "数据中心",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "结束时间",
+                        "name": "end",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "开始时间",
+                        "name": "start",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "结果",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/response.Response"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/search.StatisData"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                }
+            }
+        },
+        "/api/house/type/options": {
+            "get": {
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Admin"
+                ],
+                "summary": "new 房型筛选用到的选择项",
+                "responses": {
+                    "200": {
+                        "description": "结果",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/response.Response"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "type": "object",
+                                            "additionalProperties": true
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                }
+            }
+        },
         "/api/house/view": {
             "get": {
                 "produces": [
@@ -961,32 +1038,29 @@ const docTemplate = `{
                 }
             }
         },
-        "/api/statis/view": {
-            "get": {
+        "/api/statis/list": {
+            "post": {
                 "produces": [
                     "application/json"
                 ],
                 "tags": [
                     "Admin"
                 ],
-                "summary": "数据中心",
+                "summary": "帖子数据",
                 "parameters": [
                     {
-                        "type": "string",
-                        "description": "结束时间",
-                        "name": "end",
-                        "in": "query"
-                    },
-                    {
-                        "type": "string",
-                        "description": "开始时间",
-                        "name": "start",
-                        "in": "query"
+                        "description": "分页获取API列表",
+                        "name": "data",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/request.SearchHouseResource"
+                        }
                     }
                 ],
                 "responses": {
                     "200": {
-                        "description": "结果",
+                        "description": "分页获取API列表,返回包括列表,总数,页码,每页数量",
                         "schema": {
                             "allOf": [
                                 {
@@ -996,7 +1070,25 @@ const docTemplate = `{
                                     "type": "object",
                                     "properties": {
                                         "data": {
-                                            "$ref": "#/definitions/search.StatisData"
+                                            "allOf": [
+                                                {
+                                                    "$ref": "#/definitions/response.PageResult"
+                                                },
+                                                {
+                                                    "type": "object",
+                                                    "properties": {
+                                                        "list": {
+                                                            "type": "array",
+                                                            "items": {
+                                                                "$ref": "#/definitions/response.ResourceVisitResponse"
+                                                            }
+                                                        }
+                                                    }
+                                                }
+                                            ]
+                                        },
+                                        "msg": {
+                                            "type": "string"
                                         }
                                     }
                                 }
@@ -1042,66 +1134,6 @@ const docTemplate = `{
                                     "properties": {
                                         "data": {
                                             "$ref": "#/definitions/request.VisitResponse"
-                                        }
-                                    }
-                                }
-                            ]
-                        }
-                    }
-                }
-            }
-        },
-        "/api/statis/visit/house": {
-            "post": {
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "Admin"
-                ],
-                "summary": "帖子数据",
-                "parameters": [
-                    {
-                        "description": "分页获取API列表",
-                        "name": "data",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/request.SearchNameResource"
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "分页获取API列表,返回包括列表,总数,页码,每页数量",
-                        "schema": {
-                            "allOf": [
-                                {
-                                    "$ref": "#/definitions/response.Response"
-                                },
-                                {
-                                    "type": "object",
-                                    "properties": {
-                                        "data": {
-                                            "allOf": [
-                                                {
-                                                    "$ref": "#/definitions/response.PageResult"
-                                                },
-                                                {
-                                                    "type": "object",
-                                                    "properties": {
-                                                        "list": {
-                                                            "type": "array",
-                                                            "items": {
-                                                                "$ref": "#/definitions/response.ResourceVisitResponse"
-                                                            }
-                                                        }
-                                                    }
-                                                }
-                                            ]
-                                        },
-                                        "msg": {
-                                            "type": "string"
                                         }
                                     }
                                 }
@@ -4066,6 +4098,38 @@ const docTemplate = `{
                                         },
                                         "msg": {
                                             "type": "string"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                }
+            }
+        },
+        "/center/type/options": {
+            "get": {
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Center"
+                ],
+                "summary": "new 房型筛选用到的选择项",
+                "responses": {
+                    "200": {
+                        "description": "结果",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/response.Response"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "type": "object",
+                                            "additionalProperties": true
                                         }
                                     }
                                 }
@@ -10640,6 +10704,10 @@ const docTemplate = `{
                     "description": "出租类型",
                     "type": "string"
                 },
+                "room_code": {
+                    "description": "房间号",
+                    "type": "string"
+                },
                 "room_number": {
                     "description": "房间数量",
                     "type": "integer"
@@ -11541,6 +11609,67 @@ const docTemplate = `{
                 }
             }
         },
+        "request.SearchHouseResource": {
+            "type": "object",
+            "properties": {
+                "approvalStatus": {
+                    "description": "审核状态： 通过 未通过 待审批",
+                    "type": "string"
+                },
+                "desc": {
+                    "description": "排序方式:升序false(默认)|降序true",
+                    "type": "boolean"
+                },
+                "doorNo": {
+                    "description": "户室号",
+                    "type": "string"
+                },
+                "hasPic": {
+                    "description": "是否有图片",
+                    "type": "boolean"
+                },
+                "keyword": {
+                    "description": "关键字",
+                    "type": "string"
+                },
+                "orderKey": {
+                    "description": "排序",
+                    "type": "string"
+                },
+                "page": {
+                    "description": "页码",
+                    "type": "integer"
+                },
+                "pageSize": {
+                    "description": "每页大小",
+                    "type": "integer"
+                },
+                "phone": {
+                    "description": "手机号",
+                    "type": "string"
+                },
+                "rentType": {
+                    "description": "出租类型",
+                    "type": "string"
+                },
+                "updatedAtLast": {
+                    "description": "开始时间",
+                    "type": "string"
+                },
+                "updatedAtStart": {
+                    "description": "结束时间",
+                    "type": "string"
+                },
+                "wxNo": {
+                    "description": "微信号",
+                    "type": "string"
+                },
+                "xiaoquId": {
+                    "description": "小区id",
+                    "type": "integer"
+                }
+            }
+        },
         "request.SearchNameResource": {
             "type": "object",
             "properties": {
@@ -12057,6 +12186,10 @@ const docTemplate = `{
                     "description": "出租类型",
                     "type": "string"
                 },
+                "room_code": {
+                    "description": "房间号",
+                    "type": "string"
+                },
                 "room_number": {
                     "description": "房间数量",
                     "type": "integer"
@@ -12188,6 +12321,10 @@ const docTemplate = `{
                 },
                 "rent_type": {
                     "description": "出租类型",
+                    "type": "string"
+                },
+                "room_code": {
+                    "description": "房间号",
                     "type": "string"
                 },
                 "room_number": {

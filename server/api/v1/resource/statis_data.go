@@ -21,7 +21,7 @@ type StatisDataApi struct {
 // @Produce  application/json
 // @Param    data  query   request.GetStatis  true   "start, end"
 // @Success  200   {object}  response.Response{data=search.StatisData}  "结果"
-// @Router   /api/statis/view [get]
+// @Router   /api/house/statis/view [get]
 func (s *StatisDataApi) View(c *gin.Context) {
 	var req request.GetStatis
 	err := c.ShouldBindQuery(&req)
@@ -118,9 +118,9 @@ func (s *StatisDataApi) VisitRecord(c *gin.Context) {
 // @Tags     Admin
 // @Summary   帖子数据
 // @Produce  application/json
-// @Param     data  body      request.SearchNameResource   true  "分页获取API列表"
+// @Param     data  body      request.SearchHouseResource   true  "分页获取API列表"
 // @Success   200   {object}  response.Response{data=response.PageResult{list=[]response2.ResourceVisitResponse},msg=string}  "分页获取API列表,返回包括列表,总数,页码,每页数量"
-// @Router   /api/statis/visit/house [post]
+// @Router   /api/statis/list [post]
 func (s *StatisDataApi) VisitHouse(c *gin.Context) {
 	var req request.SearchHouseResource
 	err := c.ShouldBindJSON(&req)

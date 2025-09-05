@@ -105,6 +105,12 @@ type SearchNameResource struct {
 	ApprovalStatus string `json:"approvalStatus"` //  通过 未通过 待审批
 }
 
+type RentType struct {
+	Name      string   `json:"name"` // 房型 整租、分整租、合租
+	HouseType []string `json:"houseType"`
+	Feature   []string `json:"feature"`
+}
+
 type SearchHouseResource struct {
 	PageInfo
 	XiaoquId       uint      `json:"xiaoquId"`       // 小区id

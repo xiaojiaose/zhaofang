@@ -30,6 +30,7 @@ func (s *ApiRouter) InitApiAuthRouter(Router *gin.RouterGroup) {
 		houseRouter.POST("xiaoqu", xiaoQuApi.List)
 		houseRouter.GET("area", resourceApi.FilterArea)
 		houseRouter.GET("options", resourceApi.FilterOptions)
+		houseRouter.GET("type/options", resourceApi.FilterTypeOptions)
 		houseRecordRouter.POST("create", resourceApi.Create)
 		houseRouter.GET("view", resourceApi.View)
 		houseRecordRouter.POST("list", resourceApi.List)
@@ -44,7 +45,7 @@ func (s *ApiRouter) InitApiAuthRouter(Router *gin.RouterGroup) {
 	{
 		houseRecordRouter.GET("/statis/view", statisApi.View)
 		houseRecordRouter.GET("/statis/visit", statisApi.VisitRecord)
-		houseRecordRouter.GET("/statis/visit/house", statisApi.VisitHouse)
+		houseRecordRouter.POST("/statis/list", statisApi.VisitHouse)
 	}
 
 }

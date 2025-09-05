@@ -37,6 +37,7 @@ func (s *CenterRouter) InitCenterAuthRouter(Router *gin.RouterGroup, publicRoute
 		houseRouter.GET("test", resourceApi.Test) //
 		houseRouter.GET("area", resourceApi.FilterArea)
 		houseRouter.GET("options", resourceApi.FilterOptions)
+		houseRouter.GET("/type/options", resourceApi.FilterTypeOptions)
 		houseRouterRecord.POST("house/create", resourceApi.Create)
 		houseRouterRecord.POST("/house/del", resourceApi.DeleteByUserId)
 		public.GET("/house/view", resourceApi.View)

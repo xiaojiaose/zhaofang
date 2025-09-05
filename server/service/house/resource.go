@@ -19,6 +19,29 @@ func (service *ResourceService) FilterOptions() (list map[string]map[string]stri
 	list["houseType"] = map[string]string{"1": "1居", "2": "2居", "3": "3居", "4": "4居+", "5": "开间"}
 	list["feature"] = map[string]string{"1": "可短租", "2": "包物业", "3": "南北通透", "4": "全南项"}
 	list["price"] = map[string]string{"1": "500以下", "2": "500-1000元", "3": "1000-1500元", "4": "1500-2000元", "5": "2000-2500元", "6": "2500-3000元", "7": "3000元以上"}
+
+	return
+}
+
+func (service *ResourceService) FilterOptions1() (list []request.RentType, err error) {
+	list = append(list,
+		request.RentType{
+			Name:      "整租",
+			HouseType: []string{"1居", "2居", "3居", "4居+", "开间"},
+			Feature:   []string{"可短租", "包物业", "南北通透", "包取暖", "密码看房", "可办公注册"},
+		},
+		request.RentType{
+			Name:      "分整租",
+			HouseType: []string{"1居", "2居", "3居", "4居+"},
+			Feature:   []string{"带阳台", "包物业", "包水暖", "朝南", "可做饭", "密码看房"},
+		},
+		request.RentType{
+			Name:      "合租",
+			HouseType: []string{"主卧", "次卧", "暗间"},
+			Feature:   []string{"带阳台", "包物业", "包水暖", "朝南", "可做饭", "密码看房"},
+		},
+	)
+
 	return
 }
 
