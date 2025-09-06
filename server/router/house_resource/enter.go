@@ -44,8 +44,9 @@ func (s *ApiRouter) InitApiAuthRouter(Router *gin.RouterGroup) {
 
 	{
 		houseRecordRouter.GET("/statis/view", statisApi.View)
-		houseRecordRouter.GET("/statis/visit", statisApi.VisitRecord)
+		houseRecordRouter.POST("/statis/visit", statisApi.VisitRecord)
 		houseRecordRouter.POST("/statis/list", statisApi.VisitHouse)
+		houseRecordRouter.POST("/statis/all", statisApi.VisitHouse)
 	}
 
 }

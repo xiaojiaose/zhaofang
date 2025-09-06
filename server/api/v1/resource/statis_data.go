@@ -53,15 +53,23 @@ func (s *StatisDataApi) View(c *gin.Context) {
 // @Tags     Admin
 // @Summary   访问数据
 // @Produce  application/json
-// @Param    data  query   request.VisitReq  true   "start, end"
-// @Success  200   {object}  response.Response{data=request.VisitResponse}  "结果"
-// @Router   /api/statis/visit [get]
+// @Param     data  body      request.VisitReq   true  "分页获取API列表"
+// @Success  200   {object}  response.Response{data=response.PageResult{list=[]request.VisitResponse},msg=string}  "分页获取API列表,返回包括列表,总数,页码,每页数量"
+// @Router   /api/statis/visit [post]
 func (s *StatisDataApi) VisitRecord(c *gin.Context) {
 	var req request.VisitReq
-	err := c.ShouldBindQuery(&req)
+	err := c.ShouldBindJSON(&req)
 	if err != nil {
 		response.FailWithMessage(err.Error(), c)
 		return
+	}
+
+	if req.PageInfo.Page == 0 {
+		req.PageInfo.Page = 1
+	}
+
+	if req.PageInfo.PageSize == 0 {
+		req.PageInfo.PageSize = 50
 	}
 
 	var (
@@ -82,13 +90,13 @@ func (s *StatisDataApi) VisitRecord(c *gin.Context) {
 		}
 	}
 
-	list, err := StatisService.VisitRecord(userId)
+	list, total, err := StatisService.VisitRecord(userId, req.PageInfo, req.OrderKey, req.Desc)
 	if err != nil {
 		response.FailWithMessage(err.Error(), c)
 		return
 	}
 	var userIds []uint
-	for _, data := range list {
+	for _, data := range list.([]search.VisitRecord) {
 		userIds = append(userIds, data.UserId)
 	}
 	userMap := make(map[uint]system.SysUser)
@@ -100,7 +108,7 @@ func (s *StatisDataApi) VisitRecord(c *gin.Context) {
 	}
 
 	var re []request.VisitResponse
-	for _, data := range list {
+	for _, data := range list.([]search.VisitRecord) {
 		r := request.VisitResponse{
 			Date: data.Date,
 		}
@@ -110,7 +118,12 @@ func (s *StatisDataApi) VisitRecord(c *gin.Context) {
 		}
 		re = append(re, r)
 	}
-	response.OkWithData(re, c)
+	response.OkWithData(response.PageResult{
+		List:     re,
+		Total:    total,
+		Page:     req.Page,
+		PageSize: req.PageSize,
+	}, c)
 	return
 }
 

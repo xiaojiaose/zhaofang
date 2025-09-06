@@ -894,15 +894,15 @@ const docTemplate = `{
                 "parameters": [
                     {
                         "type": "string",
-                        "description": "结束时间",
                         "name": "end",
-                        "in": "query"
+                        "in": "query",
+                        "required": true
                     },
                     {
                         "type": "string",
-                        "description": "开始时间",
                         "name": "start",
-                        "in": "query"
+                        "in": "query",
+                        "required": true
                     }
                 ],
                 "responses": {
@@ -1099,7 +1099,7 @@ const docTemplate = `{
             }
         },
         "/api/statis/visit": {
-            "get": {
+            "post": {
                 "produces": [
                     "application/json"
                 ],
@@ -1109,21 +1109,18 @@ const docTemplate = `{
                 "summary": "访问数据",
                 "parameters": [
                     {
-                        "type": "string",
-                        "description": "手机号",
-                        "name": "phone",
-                        "in": "query"
-                    },
-                    {
-                        "type": "string",
-                        "description": "微信号",
-                        "name": "wxNo",
-                        "in": "query"
+                        "description": "分页获取API列表",
+                        "name": "data",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/request.VisitReq"
+                        }
                     }
                 ],
                 "responses": {
                     "200": {
-                        "description": "结果",
+                        "description": "分页获取API列表,返回包括列表,总数,页码,每页数量",
                         "schema": {
                             "allOf": [
                                 {
@@ -1133,7 +1130,25 @@ const docTemplate = `{
                                     "type": "object",
                                     "properties": {
                                         "data": {
-                                            "$ref": "#/definitions/request.VisitResponse"
+                                            "allOf": [
+                                                {
+                                                    "$ref": "#/definitions/response.PageResult"
+                                                },
+                                                {
+                                                    "type": "object",
+                                                    "properties": {
+                                                        "list": {
+                                                            "type": "array",
+                                                            "items": {
+                                                                "$ref": "#/definitions/request.VisitResponse"
+                                                            }
+                                                        }
+                                                    }
+                                                }
+                                            ]
+                                        },
+                                        "msg": {
+                                            "type": "string"
                                         }
                                     }
                                 }
@@ -3029,6 +3044,51 @@ const docTemplate = `{
             }
         },
         "/base/login": {
+            "post": {
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Admin"
+                ],
+                "summary": "用户名+密码登录",
+                "parameters": [
+                    {
+                        "description": "用户名, 密码, 验证码",
+                        "name": "data",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/request.Login"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "返回包括用户信息,token,过期时间",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/response.Response"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/response.LoginResponse"
+                                        },
+                                        "msg": {
+                                            "type": "string"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                }
+            }
+        },
+        "/base/mobileLogin": {
             "post": {
                 "produces": [
                     "application/json"
@@ -11874,6 +11934,39 @@ const docTemplate = `{
                 }
             }
         },
+        "request.VisitReq": {
+            "type": "object",
+            "properties": {
+                "desc": {
+                    "description": "排序方式:升序false(默认)|降序true",
+                    "type": "boolean"
+                },
+                "keyword": {
+                    "description": "关键字",
+                    "type": "string"
+                },
+                "orderKey": {
+                    "description": "排序",
+                    "type": "string"
+                },
+                "page": {
+                    "description": "页码",
+                    "type": "integer"
+                },
+                "pageSize": {
+                    "description": "每页大小",
+                    "type": "integer"
+                },
+                "phone": {
+                    "description": "手机号",
+                    "type": "string"
+                },
+                "wxNo": {
+                    "description": "微信号",
+                    "type": "string"
+                }
+            }
+        },
         "request.VisitResponse": {
             "type": "object",
             "properties": {
@@ -12546,13 +12639,6 @@ const docTemplate = `{
                     "description": "联系方式被点击数",
                     "type": "integer"
                 },
-                "createdAt": {
-                    "description": "创建时间",
-                    "type": "string"
-                },
-                "date": {
-                    "type": "string"
-                },
                 "follow": {
                     "description": "帖子关注数",
                     "type": "integer"
@@ -12560,10 +12646,6 @@ const docTemplate = `{
                 "shared": {
                     "description": "帖子分享数",
                     "type": "integer"
-                },
-                "updatedAt": {
-                    "description": "更新时间",
-                    "type": "string"
                 },
                 "use_saler": {
                     "description": "使用的经纪人",

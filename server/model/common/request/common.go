@@ -38,13 +38,16 @@ type GetByIdStr struct {
 }
 
 type GetStatis struct {
-	Start time.Time `json:"start" from:"start"` // 开始时间
-	End   time.Time `json:"end" from:"end"`     // 结束时间
+	Start time.Time `form:"start" binding:"required" time_format:"2006-01-02T15:04:05Z"`
+	End   time.Time `form:"end" binding:"required" time_format:"2006-01-02T15:04:05Z"`
 }
 
 type VisitReq struct {
 	Phone string `json:"phone" from:"phone"` // 手机号
 	WxNo  string `json:"wxNo" from:"wxNo"`   // 微信号
+	PageInfo
+	OrderKey string `json:"orderKey"` // 排序
+	Desc     bool   `json:"desc"`     // 排序方式:升序false(默认)|降序true
 }
 
 type VisitResponse struct {

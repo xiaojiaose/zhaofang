@@ -154,8 +154,7 @@ func (userService *UserService) GetUserInfoList(info systemReq.GetUserList) (lis
 }
 
 func (userService *UserService) GetUsersByIds(ids []uint) (list []system.SysUser, err error) {
-	var userList []system.SysUser
-	err = global.GVA_DB.Model(&system.SysUser{}).Where("id IN ?", ids).Find(&userList).Error
+	err = global.GVA_DB.Model(&system.SysUser{}).Where("id IN ?", ids).Find(&list).Error
 	return
 }
 

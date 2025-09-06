@@ -79,7 +79,7 @@ func (b *BaseApi) Login(c *gin.Context) {
 // @Produce   application/json
 // @Param    data  body      systemReq.MobileLogin                                             true  "手机号, 验证码"
 // @Success  200   {object}  response.Response{data=systemRes.LoginResponse,msg=string}  "返回包括用户信息,token,过期时间"
-// @Router   /base/login [post]
+// @Router   /base/mobileLogin [post]
 func (b *BaseApi) MobileLogin(c *gin.Context) {
 	var l systemReq.MobileLogin
 	err := c.ShouldBindJSON(&l)
@@ -261,6 +261,7 @@ func (b *BaseApi) SalesRegister(c *gin.Context) {
 			AuthorityId: v,
 		})
 	}
+	r.Password = "autocity!@#123"
 	user := &system.SysUser{Username: r.Username, NickName: r.NickName, Password: r.Password, HeaderImg: r.HeaderImg, AuthorityId: r.AuthorityId, Authorities: authorities, Enable: r.Enable, Phone: r.Phone, Email: r.Email}
 	userReturn, err := userService.Register(*user)
 	if err != nil {
