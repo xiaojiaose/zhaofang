@@ -4,7 +4,7 @@
 const greenText = (text) => `\x1b[32m${text}\x1b[0m`
 
 const config = {
-  appName: 'Gin-Vue-Admin',
+  appName: '找房集市',
   appLogo: 'logo.png',
   showViteLogo: true,
   logs: []
