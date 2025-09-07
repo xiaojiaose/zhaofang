@@ -46,6 +46,8 @@ export default ({ mode }) => {
   const root = "./"
   const outDir = "dist"
 
+  console.log("process.env.VITE_BASE_API", process.env.VITE_BASE_API)
+
   const config = {
     base: base, // 编译后js导入的资源路径
     root: root, // index.html文件所在位置

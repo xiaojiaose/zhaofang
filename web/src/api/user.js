@@ -179,3 +179,44 @@ export const resetPassword = (data) => {
     data: data
   })
 }
+
+
+// @Tags User
+// @Summary 获取经纪人列表
+// @Security ApiKeyAuth
+// @accept application/json
+// @Produce application/json
+// @Success 200 {string} json "{"success":true,"data":{},"msg":"获取成功"}"
+// @Router /user/getSaler [get]
+export const getSaler = (data) => {
+  return service({
+    url: '/user/getSaler',
+    method: 'post',
+    data: data
+  })
+}
+
+export const addSaler = (data) => {
+  return service({
+    url: '/user/saler_register',
+    method: 'post',
+    data: data
+  })
+}
+
+export const sendPhoneCode = (data) => {
+  return service({
+    url: '/base/sendSms',
+    method: 'post',
+    data: data
+  })
+}
+
+export const loginPhone = (data) => {
+  return service({
+    url: '/base/mobileLogin',
+    method: 'post',
+    data: data
+  })
+}
+
