@@ -24,10 +24,10 @@ var houseType = map[string]string{
 	"2居":  "2居",
 	"3居":  "3居",
 	"4居+": "4居+",
-	"开间":  "开间",
-	"主卧":  "主卧",
-	"次卧":  "次卧",
-	"暗间":  "暗间",
+	"开间": "开间",
+	"主卧": "主卧",
+	"次卧": "次卧",
+	"暗间": "暗间",
 }
 
 // View
@@ -159,12 +159,18 @@ func (h *HouseResourceApi) ListByXiaoquAgg(c *gin.Context) {
 		response.FailWithMessage(err.Error(), c)
 		return
 	}
+	global.GVA_LOG.Info("xiaoquAgg 参数", zap.String("req", fmt.Sprintf("%+v", req)))
 
 	condition := searchx.Condition{
 		Terms: []searchx.Term{
 			{Field: "status", Value: "待出租"},
 		},
 		Ors: []searchx.Condition{
+			{
+				Terms: []searchx.Term{},
+			},
+		},
+		Nots: []searchx.Condition{
 			{
 				Terms: []searchx.Term{},
 			},
