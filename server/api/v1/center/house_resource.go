@@ -19,6 +19,17 @@ import (
 type HouseResourceApi struct {
 }
 
+var houseType = map[string]string{
+	"1居":  "1居",
+	"2居":  "2居",
+	"3居":  "3居",
+	"4居+": "4居+",
+	"开间":  "开间",
+	"主卧":  "主卧",
+	"次卧":  "次卧",
+	"暗间":  "暗间",
+}
+
 // View
 // @Tags     Center
 // @Summary  查看 房源
@@ -169,7 +180,12 @@ func (h *HouseResourceApi) ListByXiaoquAgg(c *gin.Context) {
 		}
 	}
 	if len(req.HouseType) > 0 {
-		condition.Terms = append(condition.Terms, searchx.Term{Field: "house_type", Value: req.HouseType + "*"})
+		for _, v := range houseType {
+			if strings.Contains(req.HouseType, v) {
+				continue
+			}
+			condition.Nots[0].Terms = append(condition.Nots[0].Terms, searchx.Term{Field: "house_type", Value: v})
+		}
 	}
 
 	if len(req.RentType) > 0 {
@@ -239,6 +255,11 @@ func (h *HouseResourceApi) ListByXiaoquAggList(c *gin.Context) {
 		Aggs: []searchx.Agg{
 			{Field: "xiaoqu_id"},
 		},
+		Nots: []searchx.Condition{
+			{
+				Terms: []searchx.Term{},
+			},
+		},
 	}
 
 	if len(req.Feature) > 0 {
@@ -246,8 +267,14 @@ func (h *HouseResourceApi) ListByXiaoquAggList(c *gin.Context) {
 			condition.Terms = append(condition.Terms, searchx.Term{Field: "feature", Value: "*" + f + "*"})
 		}
 	}
+
 	if len(req.HouseType) > 0 {
-		condition.Terms = append(condition.Terms, searchx.Term{Field: "house_type", Value: req.HouseType + "*"})
+		for _, v := range houseType {
+			if strings.Contains(req.HouseType, v) {
+				continue
+			}
+			condition.Nots[0].Terms = append(condition.Nots[0].Terms, searchx.Term{Field: "house_type", Value: v})
+		}
 	}
 
 	if len(req.RentType) > 0 {
@@ -274,6 +301,8 @@ func (h *HouseResourceApi) ListByXiaoquAggList(c *gin.Context) {
 		Fields: []string{"house_id", "xiaoqu", "xiaoqu_id", "_id"},
 		Size:   req.PageSize,
 		Page:   req.Page,
+		Asc:    false,
+		By:     "last_update",
 	})
 
 	var houseIds []uint
@@ -321,7 +350,7 @@ func (h *HouseResourceApi) ListByXiaoquId(c *gin.Context) {
 		pageInfo.PageInfo.PageSize = 50
 	}
 
-	list, total, err := ResourceService.GetPage(pageInfo.XiaoquId, 0, "", "待出租", pageInfo.PageInfo, pageInfo.OrderKey, pageInfo.Desc, request.SearchOther{})
+	list, total, err := ResourceService.GetPage(pageInfo.XiaoquId, 0, "", "待出租", pageInfo.PageInfo, "updated_last_at", true, request.SearchOther{})
 	if err != nil {
 		global.GVA_LOG.Error("获取失败!", zap.Error(err))
 		response.FailWithMessage("获取失败", c)

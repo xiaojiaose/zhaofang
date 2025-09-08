@@ -8,6 +8,7 @@ import (
 	"github.com/flipped-aurora/gin-vue-admin/server/model/house"
 	"github.com/flipped-aurora/gin-vue-admin/server/model/search"
 	"gorm.io/gorm"
+	"strconv"
 	"time"
 )
 
@@ -125,7 +126,15 @@ func (service *ResourceService) GetInfo(id uint) (resource *house.Resource, err 
 }
 
 func (service *ResourceService) DelByUser(id, owner uint) (err error) {
-	return global.GVA_DB.Where("id = ? and owner = ?", id, owner).Delete(&house.Resource{}).Error
+	err = global.GVA_DB.Where("id = ? and owner = ?", id, owner).Delete(&house.Resource{}).Error
+	if err == nil {
+		err = global.Gva_ResourceSearch.Del(context.Background(), strconv.Itoa(int(id)))
+		if err != nil {
+			return err
+		}
+	}
+
+	return
 }
 
 func (service *ResourceService) FollowViewClickAdd(id uint, field string) (err error) {
@@ -148,7 +157,7 @@ func (service *ResourceService) SetApprovalStatus(ids []uint, value string) (err
 }
 
 func (service *ResourceService) GetListByIds(ids []uint) (resources []*house.Resource, err error) {
-	err = global.GVA_DB.Model(&house.Resource{}).Where("id in ? ", ids).Find(&resources).Error
+	err = global.GVA_DB.Model(&house.Resource{}).Where("id in ?", ids).Order("updated_last_at desc").Find(&resources).Error
 	return
 }
 

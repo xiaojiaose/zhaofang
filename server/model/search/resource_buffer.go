@@ -3,6 +3,7 @@ package search
 import (
 	"github.com/flipped-aurora/gin-vue-admin/server/model/house"
 	"strconv"
+	"time"
 )
 
 type ResourceBuffer struct {
@@ -18,6 +19,7 @@ type ResourceBuffer struct {
 	Price       int    `json:"price"`                // 房源价格
 	Feature     string `json:"feature" `             // 房源特色
 	Status      string `json:"status" `              // 房源状态
+	LastUpdate  string `json:"last_update"`          // 最后更新
 }
 
 func FromDeviceDB(entity *house.Resource) *ResourceBuffer {
@@ -34,6 +36,7 @@ func FromDeviceDB(entity *house.Resource) *ResourceBuffer {
 		Price:       entity.Price,
 		Feature:     entity.Feature,
 		Status:      entity.Status,
+		LastUpdate:  entity.UpdatedLastAt.Format(time.RFC3339),
 	}
 }
 
@@ -83,5 +86,6 @@ func (d *ResourceBuffer) ToData() map[string]interface{} {
 		"price":        d.Price,
 		"feature":      d.Feature,
 		"status":       d.Status,
+		"last_update":  d.LastUpdate,
 	}
 }

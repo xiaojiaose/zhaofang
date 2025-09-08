@@ -27,6 +27,13 @@ func (d ResourceSearch) Add(ctx context.Context, device search.ResourceBuffer) e
 	return nil
 }
 
+func (d ResourceSearch) Del(ctx context.Context, id string) error {
+	if err := d.engine.Delete(ctx, d.index, id); err != nil {
+		return err
+	}
+	return nil
+}
+
 func (d ResourceSearch) Search(
 	ctx context.Context,
 	condition searchx.Condition,
