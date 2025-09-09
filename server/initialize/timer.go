@@ -26,12 +26,14 @@ func Timer() {
 
 		// 其他定时任务定在这里 参考上方使用方法
 
-		//_, err := global.GVA_Timer.AddTaskByFunc("定时任务标识", "corn表达式", func() {
-		//	具体执行内容...
-		//  ......
-		//}, option...)
-		//if err != nil {
-		//	fmt.Println("add timer error:", err)
-		//}
+		_, err = global.GVA_Timer.AddTaskByFunc("StatistVisits", "0 0 14 * * *", func() {
+			err = task.StatisticVisits(global.GVA_DB) // 定时任务方法定在task文件包中
+			if err != nil {
+				fmt.Println("timer error:", err)
+			}
+		}, "", option...)
+		if err != nil {
+			fmt.Println("add timer error:", err)
+		}
 	}()
 }

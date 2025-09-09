@@ -13,4 +13,5 @@ var (
 	ResourceService = service.ServiceGroupApp.HouseServiceGroup.ResourceService
 	FavoriteService = service.ServiceGroupApp.HouseServiceGroup.FavoriteService
 	userService     = service.ServiceGroupApp.SystemServiceGroup.UserService
+	StatisService   = service.ServiceGroupApp.HouseServiceGroup.StatisService
 )

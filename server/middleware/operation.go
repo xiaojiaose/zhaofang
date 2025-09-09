@@ -3,6 +3,7 @@ package middleware
 import (
 	"bytes"
 	"encoding/json"
+	"fmt"
 	"io"
 	"net/http"
 	"net/url"
@@ -71,6 +72,7 @@ func OperationRecord() gin.HandlerFunc {
 			Body:   "",
 			UserID: userId,
 		}
+		global.GVA_LOG.Info(fmt.Sprintf("backend request: Method:%s, Path:%s, Body:%s", c.Request.Method, c.Request.URL.Path, string(body)))
 
 		// 上传文件时候 中间件日志进行裁断操作
 		if strings.Contains(c.GetHeader("Content-Type"), "multipart/form-data") {

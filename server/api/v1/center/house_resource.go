@@ -24,10 +24,10 @@ var houseType = map[string]string{
 	"2居":  "2居",
 	"3居":  "3居",
 	"4居+": "4居+",
-	"开间": "开间",
-	"主卧": "主卧",
-	"次卧": "次卧",
-	"暗间": "暗间",
+	"开间":  "开间",
+	"主卧":  "主卧",
+	"次卧":  "次卧",
+	"暗间":  "暗间",
 }
 
 // View
@@ -76,6 +76,8 @@ func (h *HouseResourceApi) View(c *gin.Context) {
 	if err != nil {
 		global.GVA_LOG.Error("view add failed !", zap.Error(err))
 	}
+
+	StatisService.InsertRecord(uint(req.ID), "view")
 
 	response.OkWithDetailed(r, "获取成功", c)
 }
@@ -141,7 +143,7 @@ func (h *HouseResourceApi) GetMobile(c *gin.Context) {
 	if err != nil {
 		global.GVA_LOG.Error("view add failed !", zap.Error(err))
 	}
-
+	StatisService.InsertRecord(uint(req.ID), "click")
 	response.OkWithDetailed(map[string]string{"mobile": info.Phone}, "获取成功", c)
 }
 
@@ -712,6 +714,8 @@ func (h *HouseResourceApi) FavoriteAdd(c *gin.Context) {
 			global.GVA_LOG.Error("follow add failed !", zap.Error(err))
 		}
 	}
+	StatisService.InsertRecord(uint(req.ID), "follow")
+
 	response.Ok(c)
 	return
 }
@@ -743,6 +747,7 @@ func (h *HouseResourceApi) FavoriteDel(c *gin.Context) {
 			global.GVA_LOG.Error("follow sub failed !", zap.Error(err))
 		}
 	}
+	StatisService.InsertRecord(uint(req.ID), "follow", -1)
 	response.Ok(c)
 	return
 }
