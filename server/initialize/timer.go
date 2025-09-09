@@ -26,14 +26,25 @@ func Timer() {
 
 		// 其他定时任务定在这里 参考上方使用方法
 
-		_, err = global.GVA_Timer.AddTaskByFunc("StatistVisits", "0 0 14 * * *", func() {
+		_, err = global.GVA_Timer.AddTaskByFunc("StatistVisits", "0 0 2 * * *", func() {
 			err = task.StatisticVisits(global.GVA_DB) // 定时任务方法定在task文件包中
 			if err != nil {
-				fmt.Println("timer error:", err)
+				fmt.Println("timer StatistVisits error:", err)
 			}
 		}, "", option...)
 		if err != nil {
-			fmt.Println("add timer error:", err)
+			fmt.Println("add StatistVisits error:", err)
 		}
+
+		_, err = global.GVA_Timer.AddTaskByFunc("StatisticSalerVisit", "0 0 1 * * *", func() {
+			err = task.StatisticSalerVisit(global.GVA_DB) // 定时任务方法定在task文件包中
+			if err != nil {
+				fmt.Println("timer StatisticSalerVisit error:", err)
+			}
+		}, "", option...)
+		if err != nil {
+			fmt.Println("add StatisticSalerVisit error:", err)
+		}
+
 	}()
 }

@@ -8,6 +8,7 @@ import (
 	sysModel "github.com/flipped-aurora/gin-vue-admin/server/model/system"
 	"go.uber.org/zap"
 	"gorm.io/gorm"
+	"log"
 	"time"
 )
 
@@ -60,4 +61,81 @@ func StatisticVisits(db *gorm.DB) error {
 	fmt.Println("定时统计访问量 end")
 
 	return err
+}
+
+func StatisticSalerVisit(db *gorm.DB) error {
+
+	now := time.Now().UTC()
+	yesterdayStart := time.Date(now.Year(), now.Month(), now.Day()-1, 0, 0, 0, 0, time.UTC)
+	// 更精确地表示为23:59:59.999999999
+	yesterdayEndExact := yesterdayStart.Add(24*time.Hour - 1*time.Nanosecond)
+
+	//err := db.Raw("select user_id from sys_operation_records where created_at > ? and created_at < ? order by created_at desc ", yesterdayStart, yesterdayEndExact).Error
+	//if err != nil {
+	//	global.GVA_LOG.Error("统计sys_operation_records失败!", zap.Error(err))
+	//}
+
+	var lastID uint = 0
+	batchSize := 1000
+	var allUserIDs []uint
+
+	visitRecordMap := make(map[uint]search.VisitRecord)
+	for {
+		var records []struct {
+			CreatedAt time.Time `gorm:"column:created_at"`
+			UserID    uint      `gorm:"column:user_id"`
+			ID        uint      `gorm:"column:id"`
+		}
+
+		query := db.Table("sys_operation_records").
+			Select("id, user_id, created_at").
+			Where("created_at > ? AND created_at < ?", yesterdayStart, yesterdayEndExact).
+			Order("id DESC").
+			Limit(batchSize)
+
+		if lastID > 0 {
+			query = query.Where("id < ?", lastID)
+		}
+
+		err := query.Find(&records).Error
+		if err != nil {
+			log.Println("查询失败:", err)
+			return err
+		}
+
+		if len(records) == 0 {
+			break
+		}
+
+		// 提取用户ID
+		for _, record := range records {
+			if _, ok := visitRecordMap[record.UserID]; !ok {
+				visitRecordMap[record.UserID] = search.VisitRecord{
+					UserId: record.UserID,
+					Date:   record.CreatedAt,
+				}
+			}
+
+			lastID = record.ID // 更新最后一条记录的ID
+		}
+
+		fmt.Printf("已处理批次，获取 %d 条记录，总计: %d\n", len(records), len(allUserIDs))
+
+		if len(records) < batchSize {
+			break // 最后一页
+		}
+
+		time.Sleep(5 * time.Millisecond)
+	}
+
+	fmt.Printf("总共获取 %d 个用户ID\n", len(allUserIDs))
+
+	if len(visitRecordMap) > 0 {
+		for _, record := range visitRecordMap {
+			err := db.Model(&search.VisitRecord{}).Save(&record).Error
+			log.Println("visitRecord失败:", err)
+
+		}
+	}
+	return nil
 }
