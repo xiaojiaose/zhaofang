@@ -51,7 +51,7 @@ func (s *CenterRouter) InitCenterAuthRouter(Router *gin.RouterGroup, publicRoute
 		houseRouterRecord.GET("favorite/add", resourceApi.FavoriteAdd)
 		houseRouterRecord.GET("favorite/del", resourceApi.FavoriteDel)
 		houseRouterRecord.POST("favorite/list", resourceApi.FavoriteList)
-		houseRouterRecord.POST("state", resourceApi.States)
+		houseRouterRecord.POST("house/state", resourceApi.States)
 
 		//houseRouter.GET("incomeInfo", wxUserApi.GetIncomeInfo) //
 	}
