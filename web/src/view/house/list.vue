@@ -48,7 +48,7 @@
             <el-image
               :src="scope.row.attachments?.house[0]?.url"
               fit="cover"
-              style="width: 300px; height: 150px"
+              style="width: 250px; height: 150px"
             >
               <template #error>
                 <div class="image-slot">
@@ -217,8 +217,7 @@
             style="width: 240px"
           >
             <el-option
-              v-for="item in ['1', '2', '3', '4', '5', '6', '7', '8', '9', '10']"
-
+              v-for="item in ['1', '2', '3', '4', '5', '6', '7', '8']"
               :key="item"
               :label="item"
               :value="item"
@@ -291,6 +290,7 @@
             :on-preview="handlePictureCardPreview"
             :on-remove="handleRemove"
             :auto-upload="false"
+            :multiple="true"
           >
             <el-icon><Plus /></el-icon>
           </el-upload>
@@ -438,6 +438,7 @@
             :on-preview="handlePictureCardPreview"
             :on-remove="handleRemove"
             :auto-upload="false"
+            :multiple="true"
           >
             <el-icon><Plus /></el-icon>
           </el-upload>
@@ -559,6 +560,7 @@ const rules = ref({
   rent_type: [{ required: true, message: "请勾选出租类型", trigger: "change" }],
   xiaoqu_id: [{ required: true, message: "请选择小区", trigger: "change" }],
   door_no: [{ required: true, message: "请输入户室号", trigger: "change" }],
+  room_code: [{ required: true, message: "请输入房间号", trigger: "change" }],
   house_type: [{ required: true, message: "请选择户型", trigger: "change" }],
   area: [{ required: true, message: "请输入面积", trigger: "change" }],
   price: [{ required: true, message: "请输入月租金", trigger: "change" }],
