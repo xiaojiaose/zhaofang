@@ -193,5 +193,18 @@ const initPage = async () => {
 };
 
 initPage();
+
+
+// 分页
+const handleSizeChange = (val) => {
+  pageSize.value = val;
+  getSalerList();
+};
+
+const handleCurrentChange = (val) => {
+  page.value = val;
+  getSalerList();
+};
+
 </script>
 <style lang="scss" scoped></style>

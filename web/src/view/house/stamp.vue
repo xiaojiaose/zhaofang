@@ -58,7 +58,7 @@
             <el-image
               :src="scope.row.attachments?.house[0]?.url"
               fit="cover"
-              style="width: 300px; height: 150px"
+              style="width: 250px; height: 150px"
             >
               <template #error>
                 <div class="image-slot">
@@ -70,8 +70,11 @@
         </el-table-column>
         <el-table-column align="left" label="" min-width="150">
           <template #default="scope">
-            <el-text size="large" tag="b">{{ scope.row.xiaoqu }}</el-text>
-            <div>{{ scope.row.door_no }}</div>
+              <div style="text-align: left; cursor: pointer;" @click="handleCellClick(scope.row)">
+                <el-text size="large" tag="b">{{ scope.row.xiaoqu }}</el-text>
+                <br />
+                <div>{{ scope.row.door_no }}</div>
+              </div>
           </template>
         </el-table-column>
         <el-table-column align="left" label="出租类型" min-width="150">
@@ -85,8 +88,47 @@
             <el-text type="danger">{{ scope.row.price }}元/月</el-text>
           </template>
         </el-table-column>
-        <el-table-column align="left" label="状态" min-width="180">
+        <el-table-column align="left" label="审核状态" min-width="150">
           <template #default="scope">
+            <el-tag
+              type="danger"
+              v-if="scope.row.approval_status === ''"
+              size="large"
+              effect="dark"
+              >待审核</el-tag
+            >
+            <el-tag
+              type="success"
+              v-if="scope.row.approval_status === '通过'"
+              size="large"
+              effect="dark"
+              >{{ scope.row.status }}</el-tag
+            >
+            <el-tag
+              type="info"
+              v-if="scope.row.approval_status === '未通过'"
+              size="large"
+              effect="dark"
+              >未通过</el-tag
+            >
+          </template>
+        </el-table-column>
+        <el-table-column align="left" label="出租状态" min-width="150">
+          <template #default="scope">
+            <el-tag
+              type="danger"
+              v-if="scope.row.status === '待出租'"
+              size="large"
+              effect="dark"
+              >待出租</el-tag
+            >
+            <el-tag
+              type="success"
+              v-if="scope.row.status === '已出租'"
+              size="large"
+              effect="dark"
+              >已出租</el-tag
+            >
             <el-tag
               type="info"
               v-if="scope.row.status === '已下架'"
@@ -94,28 +136,6 @@
               effect="dark"
               >已下架</el-tag
             >
-            <div v-else>
-              <el-tag
-                type="danger"
-                v-if="scope.row.approval_status === ''"
-                size="large"
-                effect="dark"
-                >待审核</el-tag
-              >
-              <el-tag
-                type="success"
-                v-if="scope.row.approval_status === '通过'"
-                size="large"
-                effect="dark"
-                >通过</el-tag
-              >
-              <!-- <el-tag type="danger" v-else size="large" effect="dark">{{
-                scope.row.approval_status
-              }}</el-tag>
-              <el-tag type="success" v-if="scope.row.status === '已出租'" size="large"
-                >已出租</el-tag
-              > -->
-            </div>
           </template>
         </el-table-column>
         <el-table-column
@@ -165,49 +185,9 @@
         />
       </div>
     </div>
-    <!-- 重置密码对话框 -->
-    <el-dialog
-      v-model="resetPwdDialog"
-      title="重置密码"
-      width="500px"
-      :close-on-click-modal="false"
-      :close-on-press-escape="false"
-    >
-      <el-form :model="resetPwdInfo" ref="resetPwdForm" label-width="100px">
-        <el-form-item label="用户账号">
-          <el-input v-model="resetPwdInfo.userName" disabled />
-        </el-form-item>
-        <el-form-item label="用户昵称">
-          <el-input v-model="resetPwdInfo.nickName" disabled />
-        </el-form-item>
-        <el-form-item label="新密码">
-          <div class="flex w-full">
-            <el-input
-              class="flex-1"
-              v-model="resetPwdInfo.password"
-              placeholder="请输入新密码"
-              show-password
-            />
-            <el-button
-              type="primary"
-              @click="generateRandomPassword"
-              style="margin-left: 10px"
-            >
-              生成随机密码
-            </el-button>
-          </div>
-        </el-form-item>
-      </el-form>
-      <template #footer>
-        <div class="dialog-footer">
-          <el-button @click="closeResetPwdDialog">取 消</el-button>
-          <el-button type="primary" @click="confirmResetPassword">确 定</el-button>
-        </div>
-      </template>
-    </el-dialog>
 
-    <el-drawer
-      v-model="addUserDialog"
+   <el-drawer
+      v-model="houseDetailDialog"
       :size="appStore.drawerSize"
       :show-close="false"
       :close-on-press-escape="false"
@@ -215,57 +195,118 @@
     >
       <template #header>
         <div class="flex justify-between items-center">
-          <span class="text-lg">用户</span>
+          <span class="text-lg">房源</span>
           <div>
-            <el-button @click="closeAddUserDialog">取 消</el-button>
-            <el-button type="primary" @click="enterAddUserDialog">确 定</el-button>
+            <el-button @click="closeEditHouseDialog" type="primary">关 闭</el-button>
           </div>
         </div>
       </template>
 
-      <el-form ref="userForm" :rules="rules" :model="userInfo" label-width="80px">
-        <el-form-item v-if="dialogFlag === 'add'" label="用户名" prop="userName">
-          <el-input v-model="userInfo.userName" />
+      <el-form ref="houseFormRef" :rules="rules" :model="form" label-width="80px">
+        <el-form-item label="出租类型" prop="rent_type">
+          <el-radio-group
+            v-model="form.rent_type"
+            disabled
+          >
+            <el-radio
+              v-for="item in rentTypeOptions"
+              :key="item.value"
+              :label="item.label"
+            />
+          </el-radio-group>
         </el-form-item>
-        <el-form-item v-if="dialogFlag === 'add'" label="密码" prop="password">
-          <el-input v-model="userInfo.password" />
+        <el-form-item label="小区名称" prop="xiaoqu_id">
+          <el-input v-model="form.xiaoqu" disabled />
         </el-form-item>
-        <el-form-item label="昵称" prop="nickName">
-          <el-input v-model="userInfo.nickName" />
+        <el-form-item label="户室号" prop="door_no">
+          <el-input v-model="form.door_no" disabled />
+          <br />
+          <el-text class="mx-1" type="info">户室信息将不在用户端展示具体信息</el-text>
         </el-form-item>
-        <el-form-item label="手机号" prop="phone">
-          <el-input v-model="userInfo.phone" />
+        <!-- <el-form-item label="房间号" prop="house_id" v-if="form.rent_type === '合租'">
+          <el-select
+            v-model="form.house_id"
+            class="m-2"
+            placeholder="请选择房间号"
+            style="width: 240px"
+          >
+            <el-option
+              v-for="item in [1,2,3,4,5,6,7,8,9,10]"
+              :key="item"
+              :label="item"
+              :value="item"
+            />
+          </el-select>
+          <el-text class="mx-1" type="info">注：自进门右手起，逆时针数，不区分空间功能，第一间为1号，房间有门即算。</el-text>
+        </el-form-item> -->
+        <el-form-item label="户型" prop="house_type" v-if="form.rent_type !== '合租'">
+          <el-radio-group v-model="form.house_type" disabled>
+            <el-radio
+              v-for="item in houseTypeOptions[form.rent_type]"
+              :key="item.value"
+              :label="item.label"
+            />
+          </el-radio-group>
         </el-form-item>
-        <el-form-item label="邮箱" prop="email">
-          <el-input v-model="userInfo.email" />
+        <el-form-item label="户型" prop="house_type" v-else>
+          <el-radio-group v-model="form.house_type" disabled>
+            <el-radio
+              v-for="item in ['主卧', '次卧', '案间']"
+              :key="item"
+              :label="item"
+            />
+          </el-radio-group>
         </el-form-item>
-        <el-form-item label="用户角色" prop="authorityId">
-          <el-cascader
-            v-model="userInfo.authorityIds"
-            style="width: 100%"
-            :options="authOptions"
-            :show-all-levels="false"
-            :props="{
-              multiple: true,
-              checkStrictly: true,
-              label: 'authorityName',
-              value: 'authorityId',
-              disabled: 'disabled',
-              emitPath: false,
-            }"
-            :clearable="false"
+        <!-- <el-form-item label="面积" prop="area">
+          <el-input type="number" v-model="form.area" disabled>
+            <template #append>平方米</template>
+          </el-input>
+        </el-form-item> -->
+        <el-divider />
+        <el-form-item label="月租金" prop="price">
+          <el-input type="number" v-model="form.price" disabled>
+            <template #append>元/月</template>
+          </el-input>
+          <el-text class="mx-1" type="danger">年租月付的价格</el-text>
+        </el-form-item>
+        <el-form-item label="亮点" prop="feature">
+          <el-checkbox-group v-model="form.feature" disabled>
+            <el-checkbox
+              v-for="item in featureOptions[form.rent_type]"
+              :key="item.value"
+              :label="item.label"
+              name="feature"
+            />
+          </el-checkbox-group>
+        </el-form-item>
+        <el-divider />
+        <warning-bar
+          title="不能出现任意联系方式（包括但不限于QQ、微信、电话、网址、MSN、邮箱等）；请勿添加其他小区广告，请勿输入与出租房源无关内容或非法信息。"
+        />
+        <el-form-item label="备注" prop="remarks">
+          <el-input
+            v-model="form.remarks"
+            type="textarea"
+            :rows="4"
+            disabled
           />
         </el-form-item>
-        <el-form-item label="启用" prop="disabled">
-          <el-switch
-            v-model="userInfo.enable"
-            inline-prompt
-            :active-value="1"
-            :inactive-value="2"
+        <el-divider />
+        <warning-bar
+          title="引起99%房源下架的图片规则：1、不得违反经纪公司logo发布规则（限1个，白色半透明且尺寸在25%以内） 2、不得盗图（含58、赶集、安居客等logo）3、不得有任何装饰、图文"
+        />
+        <el-form-item label="房源图片" prop="fileList">
+          <el-image
+            v-for="item in form.fileList"
+            :key="item.url"
+            :src="item.url"
+            fit="contain"
+            :preview-src-list="form.fileList.map(item => item.url)"
+            style="width: 150px; height: 150px; margin-right: 10px"
           />
         </el-form-item>
-        <el-form-item label="头像" label-width="80px">
-          <SelectImage v-model="userInfo.headerImg" />
+        <el-form-item label="联系电话" prop="phone">
+          <el-input v-model="form.phone" disabled />
         </el-form-item>
       </el-form>
     </el-drawer>
@@ -274,7 +315,6 @@
 
 <script setup>
 import { setUserAuthorities, register, deleteUser } from "@/api/user";
-
 import { getHouseList, changeHouseState, batchPass } from "@/api/house";
 
 import { getAuthorityList } from "@/api/authority";
@@ -289,7 +329,7 @@ import SelectImage from "@/components/selectImage/selectImage.vue";
 import { useAppStore } from "@/pinia";
 import dayjs from "dayjs";
 
-import { searchXiaoqu } from "@/api/center";
+import { searchXiaoqu, getHouseOptions } from "@/api/center";
 
 defineOptions({
   name: "House",
@@ -363,112 +403,11 @@ const getTableData = async () => {
   }
 };
 
-watch(
-  () => tableData.value,
-  () => {
-    setAuthorityIds();
-  }
-);
-
 const initPage = async () => {
   getTableData();
 };
 
 initPage();
-
-// 重置密码对话框相关
-const resetPwdDialog = ref(false);
-const resetPwdForm = ref(null);
-const resetPwdInfo = ref({
-  ID: "",
-  userName: "",
-  nickName: "",
-  password: "",
-});
-
-// 生成随机密码
-const generateRandomPassword = () => {
-  const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#$%^&*";
-  let password = "";
-  for (let i = 0; i < 12; i++) {
-    password += chars.charAt(Math.floor(Math.random() * chars.length));
-  }
-  resetPwdInfo.value.password = password;
-  // 复制到剪贴板
-  navigator.clipboard
-    .writeText(password)
-    .then(() => {
-      ElMessage({
-        type: "success",
-        message: "密码已复制到剪贴板",
-      });
-    })
-    .catch(() => {
-      ElMessage({
-        type: "error",
-        message: "复制失败，请手动复制",
-      });
-    });
-};
-
-// 确认重置密码
-const confirmResetPassword = async () => {
-  if (!resetPwdInfo.value.password) {
-    ElMessage({
-      type: "warning",
-      message: "请输入或生成密码",
-    });
-    return;
-  }
-
-  const res = await resetPassword({
-    ID: resetPwdInfo.value.ID,
-    password: resetPwdInfo.value.password,
-  });
-
-  if (res.code === 0) {
-    ElMessage({
-      type: "success",
-      message: res.msg || "密码重置成功",
-    });
-    resetPwdDialog.value = false;
-  } else {
-    ElMessage({
-      type: "error",
-      message: res.msg || "密码重置失败",
-    });
-  }
-};
-
-// 关闭重置密码对话框
-const closeResetPwdDialog = () => {
-  resetPwdInfo.value.password = "";
-  resetPwdDialog.value = false;
-};
-const setAuthorityIds = () => {
-  tableData.value &&
-    tableData.value.forEach((user) => {
-      user.authorityIds =
-        user.authorities &&
-        user.authorities.map((i) => {
-          return i.authorityId;
-        });
-    });
-};
-
-const deleteUserFunc = async (row) => {
-  ElMessageBox.confirm("确定要删除吗?", "提示", {
-    confirmButtonText: "确定",
-    cancelButtonText: "取消",
-    type: "warning",
-  }).then(async () => {
-    const res = await deleteUser({ id: row.ID });
-    if (res.code === 0) {
-      ElMessage.success("删除成功");
-      await getTableData();
-    }
-  });
-};
 
 // 弹窗相关
 const userInfo = ref({
@@ -677,6 +616,105 @@ const remoteSearchXiaoqu = async (queryString, callback) => {
   } else {
     xiaoquOptions.value = [];
   }
+};
+
+
+
+//点击某个单元格时
+const houseFormRef = ref(null);
+const handleCellClick = (row) => {
+  handeleGetHouseOptions();
+  houseDetailDialog.value = true;
+  console.log(row)
+  for (const key in row) {
+    if (key === "feature") {
+      form.value[key] = row[key]?.split(",")
+    } else if (key === "attachments") {
+      form.value['fileList'] = row[key].house?.map((item) => {
+        return {
+          url: item.url,
+        }
+      })
+    } else {
+      form.value[key] = row[key];
+    }
+    
+  }
+};
+const houseDetailDialog = ref(false);
+const form = ref({
+  rent_type: "",
+  xiaoqu: "",
+  xiaoqu_id: "",
+  door_no: "",
+  house_type: "",
+  price: "",
+  feature: [],
+  remarks: "",
+  fileList: [],
+  attachments: {
+    house: [],
+  },
+  phone: "",
+  type: [],
+  house_id: "",
+});
+//房源选项回显
+const rentTypeOptions = ref([]);
+const houseTypeOptions = ref({});
+const featureOptions = ref({});
+const handeleGetHouseOptions = async () => {
+  const res = await getHouseOptions();
+  if (res.code === 0) {
+    const data = res.data.houseType;
+    rentTypeOptions.value = data
+      .map((d) => d.name)
+      .map((value) => {
+        houseTypeOptions.value[value] = data
+          .find((d) => d.name === value)
+          .houseType.map((h) => ({
+            value: h,
+            label: h,
+          }));
+
+        featureOptions.value[value] = data
+          .find((d) => d.name === value)
+          .feature.map((f) => {
+            return {
+              value: f,
+              label: f,
+            };
+          });
+
+        return {
+          value: value,
+          label: value,
+        };
+      });
+  }
+};
+//关闭详情房源弹框
+const closeEditHouseDialog = () => {
+  form.value = {
+    rent_type: "",
+    xiaoqu: "",
+    xiaoqu_id: "",
+    door_no: "",
+    house_type: "",
+    price: "",
+    feature: [],
+    remarks: "",
+    fileList: [],
+    attachments: {
+      house: [],
+    },
+    phone: "",
+    type: [],
+    house_id: "",
+  };
+
+  houseFormRef.value.resetFields();
+  houseDetailDialog.value = false;
 };
 </script>
 

@@ -15,3 +15,12 @@ export const getVisitList = (data) => {
     data
   })
 }
+
+// post /api/statis/list
+export const getPostList = (data) => {
+  return service({
+    url: '/house/statis/list',
+    method: 'post',
+    data
+  })
+}
