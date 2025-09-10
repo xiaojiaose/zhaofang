@@ -11686,7 +11686,7 @@ const docTemplate = `{
                 },
                 "hasPic": {
                     "description": "是否有图片",
-                    "type": "boolean"
+                    "type": "string"
                 },
                 "keyword": {
                     "description": "关键字",

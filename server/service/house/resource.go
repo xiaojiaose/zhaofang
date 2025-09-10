@@ -192,8 +192,12 @@ func (service *ResourceService) GetPage(xiaoquId, userId uint, appStatus string,
 		db = db.Where("phone = ?", Other.Phone)
 	}
 
-	if Other.HasPic {
+	if Other.HasPic != "" {
 		db = db.Where("has_pic = ?", Other.HasPic)
+	}
+
+	if Other.RentType != "" {
+		db = db.Where("rent_type = ?", Other.RentType)
 	}
 
 	if Other.UpdatedAtLast.IsZero() == false && Other.UpdatedAtStart.IsZero() == false {

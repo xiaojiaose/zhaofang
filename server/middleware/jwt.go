@@ -51,8 +51,13 @@ func JWTAuth() gin.HandlerFunc {
 		if user, err := userService.FindUserByUuid(claims.UUID.String()); err != nil || user.Enable == 2 {
 			jwtService := service.ServiceGroupApp.SystemServiceGroup.JwtService
 			_ = jwtService.JsonInBlacklist(system.JwtBlacklist{Jwt: token})
-			response.FailWithDetailed(gin.H{"reload": true}, err.Error(), c)
+			response.NoAuth("您的帐户已冻结或令牌失效", c)
+			utils.ClearToken(c)
 			c.Abort()
+			return
+			//
+			//response.FailWithDetailed(gin.H{"reload": true}, err.Error(), c)
+			//c.Abort()
 		}
 		c.Set("claims", claims)
 		if claims.ExpiresAt.Unix()-time.Now().Unix() < claims.BufferTime {

@@ -156,12 +156,14 @@ func (s *StatisDataApi) VisitHouse(c *gin.Context) {
 			userId = u.ID
 		}
 	}
+	req.PageInfo.Keyword = req.Keyword
 	list, total, err := ResourceService.GetPage(req.XiaoquId, userId, req.ApprovalStatus, "", req.PageInfo, req.OrderKey, req.Desc,
 		request.SearchOther{
 			Phone:          req.Phone,
 			UpdatedAtLast:  req.UpdatedAtLast,
 			UpdatedAtStart: req.UpdatedAtStart,
 			HasPic:         req.HasPic,
+			RentType:       req.RentType,
 		},
 	)
 	if err != nil {

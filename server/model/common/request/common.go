@@ -124,16 +124,17 @@ type SearchHouseResource struct {
 	Phone          string    `json:"phone"`          // 手机号
 	WxNo           string    `json:"wxNo"`           // 微信号
 	ApprovalStatus string    `json:"approvalStatus"` //  审核状态： 通过 未通过 待审批
-	HasPic         bool      `json:"hasPic"`         // 是否有图片
+	HasPic         string    `json:"hasPic"`         // 是否有图片
 	UpdatedAtLast  time.Time `json:"updatedAtLast"`  // 开始时间
 	UpdatedAtStart time.Time `json:"updatedAtStart"` // 结束时间
 }
 
 type SearchOther struct {
 	Phone          string    `json:"phone"`
-	HasPic         bool      `json:"hasPic"`         // 是否有图片
+	HasPic         string    `json:"hasPic"`         // 是否有图片
 	UpdatedAtLast  time.Time `json:"updatedAtLast"`  // 开始时间
 	UpdatedAtStart time.Time `json:"updatedAtStart"` // 结束时间
+	RentType       string    `json:"rentType"`       // 出租类型
 }
 
 type HouseStateReq struct {
