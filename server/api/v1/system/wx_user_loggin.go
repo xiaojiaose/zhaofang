@@ -85,6 +85,12 @@ func (wx *WxUserApi) GetWxMobile(c *gin.Context) {
 	if err != nil {
 		return
 	}
+	if h.Enable == 2 {
+		response.NoAuth("您的帐户已冻结", c)
+		utils.ClearToken(c)
+		c.Abort()
+		return
+	}
 	wx.TokenNext(c, h)
 	return
 
@@ -159,6 +165,12 @@ func (wx *WxUserApi) WxLogin(c *gin.Context) {
 		if err != nil {
 			return
 		}
+		if h.Enable == 2 {
+			response.NoAuth("您的帐户已冻结", c)
+			utils.ClearToken(c)
+			c.Abort()
+			return
+		}
 		wx.TokenNext(c, h)
 		return
 	}
@@ -211,6 +223,7 @@ func findUser(openID, mobile string, c *gin.Context) (h *system.SysUser, err err
 func (wx *WxUserApi) TokenNext(c *gin.Context, user *system.SysUser) {
 	j := &utils.JWT{SigningKey: []byte(global.GVA_CONFIG.JWT.SigningKey)} // 唯一签名
 	claims := j.CreateClaims(systemReq.BaseClaims{
+		UUID:   user.UUID,
 		ID:     user.ID,
 		Type:   "wx",
 		Openid: user.Openid,
