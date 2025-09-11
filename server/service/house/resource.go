@@ -149,7 +149,7 @@ func (service *ResourceService) FollowViewClickSub(id uint, field string) (err e
 
 func (service *ResourceService) SetState(ids []uint, value string) (err error) {
 	err = global.GVA_DB.Model(&house.Resource{}).Where("id in ? ", ids).Update("status", value).Error
-	if err != nil {
+	if err == nil {
 		for _, id := range ids {
 			info, e := service.GetInfo(id)
 			if e == nil {
@@ -161,7 +161,7 @@ func (service *ResourceService) SetState(ids []uint, value string) (err error) {
 }
 func (service *ResourceService) SetApprovalStatus(ids []uint, value string) (err error) {
 	err = global.GVA_DB.Model(&house.Resource{}).Where("id in ? ", ids).Updates(map[string]interface{}{"approval_status": value, "status": "待出租"}).Error
-	if err != nil {
+	if err == nil {
 		for _, id := range ids {
 			info, e := service.GetInfo(id)
 			if e == nil {
