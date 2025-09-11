@@ -191,7 +191,7 @@ func (s *StatisDataApi) VisitHouse(c *gin.Context) {
 		}
 		if u, ok := userMap[data.Owner]; ok {
 			r.WxNo = u.WxNo
-			r.Phone = u.Phone
+			//r.Phone = u.Phone
 		}
 		ll = append(ll, r)
 	}

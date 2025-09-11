@@ -46,6 +46,7 @@
   "/src/view/layout/tabs/index.vue": "HistoryComponent",
   "/src/view/login/index.vue": "Login",
   "/src/view/person/person.vue": "Person",
+  "/src/view/post/index.vue": "Index",
   "/src/view/routerHolder.vue": "RouterHolder",
   "/src/view/saler/index.vue": "Saler",
   "/src/view/statis/index.vue": "Index",
