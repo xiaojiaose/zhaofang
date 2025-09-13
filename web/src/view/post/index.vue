@@ -294,11 +294,11 @@ const approvalStatusOptions = ref([
 ])
 const hasImgOptions = ref([
     {
-        value: true,
+        value: "true",
         label: '有'
     },
     {
-        value: false,
+        value: "false",
         label: '无'
     }
 ])
