@@ -3,10 +3,10 @@
     <div class="gva-search-box">
       <el-form ref="searchForm" :inline="true" :model="searchInfo">
         <el-form-item label="经纪人手机号">
-          <el-input v-model="searchInfo.phone" placeholder="经纪人手机号" />
+          <el-input v-model="searchInfo.phone" placeholder="经纪人手机号" clearable/>
         </el-form-item>
         <el-form-item label="微信号">
-          <el-input v-model="searchInfo.wxNo" placeholder="微信号" />
+          <el-input v-model="searchInfo.wxNo" placeholder="微信号" clearable/>
         </el-form-item>
         <el-form-item>
           <el-button type="primary" icon="search" @click="onSearch"> 查询 </el-button>
@@ -58,6 +58,7 @@ const pageSize = ref(10);
 
 const onSearch = () => {
   console.log(searchInfo.value);
+  getTableData();
 };
 
 const onReset = () => {
