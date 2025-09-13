@@ -18,9 +18,9 @@
       <el-table :data="tableData" row-key="ID">
         <el-table-column align="left" label="访问手机号" min-width="150" prop="phone" />
         <el-table-column align="left" label="访问微信号" min-width="150" prop="wxNo" />
-        <el-table-column align="left" label="最近访问时间" min-width="150" prop="lastVisitTime">
+        <el-table-column align="left" label="最近访问时间" min-width="150" prop="date">
           <template #default="scope">
-            {{ dayjs(scope.row.lastVisitTime).format("YYYY-MM-DD HH:mm") }}
+            {{ dayjs(scope.row.date).format("YYYY-MM-DD HH:mm") }}
           </template>
         </el-table-column>
       </el-table>
