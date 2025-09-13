@@ -291,6 +291,7 @@
             :on-remove="handleRemove"
             :auto-upload="false"
             :multiple="true"
+            :limit="12"
           >
             <el-icon><Plus /></el-icon>
           </el-upload>
@@ -439,6 +440,7 @@
             :on-remove="handleRemove"
             :auto-upload="false"
             :multiple="true"
+            :limit="12"
           >
             <el-icon><Plus /></el-icon>
           </el-upload>
