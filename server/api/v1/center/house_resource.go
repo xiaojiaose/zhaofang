@@ -820,5 +820,8 @@ func (h *HouseResourceApi) Shared(c *gin.Context) {
 	if err != nil {
 		global.GVA_LOG.Error("shared failed!", zap.Error(err))
 	}
+
+	StatisService.InsertRecord(uint(req.ID), "shared")
+
 	response.Ok(c)
 }
