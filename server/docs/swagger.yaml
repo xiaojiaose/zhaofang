@@ -987,6 +987,9 @@ definitions:
       room_number:
         description: 房间数量
         type: integer
+      shared:
+        description: 分享次数
+        type: integer
       status:
         description: 状态 已出租，已下架，待出租
         type: string
@@ -2065,6 +2068,9 @@ definitions:
       room_number:
         description: 房间数量
         type: integer
+      shared:
+        description: 分享次数
+        type: integer
       status:
         description: 状态 已出租，已下架，待出租
         type: string
@@ -2164,6 +2170,9 @@ definitions:
         type: string
       room_number:
         description: 房间数量
+        type: integer
+      shared:
+        description: 分享次数
         type: integer
       status:
         description: 状态 已出租，已下架，待出租
@@ -5088,6 +5097,24 @@ paths:
                   type: string
               type: object
       summary: 我发的房源列表
+      tags:
+      - Center
+  /center/house/shared:
+    get:
+      parameters:
+      - description: id
+        in: query
+        name: data
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 结果 ok
+          schema:
+            $ref: '#/definitions/response.Response'
+      summary: 房源分享回调接口
       tags:
       - Center
   /center/house/state:

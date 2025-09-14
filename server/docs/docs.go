@@ -3875,6 +3875,34 @@ const docTemplate = `{
                 }
             }
         },
+        "/center/house/shared": {
+            "get": {
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Center"
+                ],
+                "summary": "房源分享回调接口",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "id",
+                        "name": "data",
+                        "in": "query",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "结果 ok",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    }
+                }
+            }
+        },
         "/center/house/state": {
             "post": {
                 "consumes": [
@@ -10772,6 +10800,10 @@ const docTemplate = `{
                     "description": "房间数量",
                     "type": "integer"
                 },
+                "shared": {
+                    "description": "分享次数",
+                    "type": "integer"
+                },
                 "status": {
                     "description": "状态 已出租，已下架，待出租",
                     "type": "string"
@@ -12287,6 +12319,10 @@ const docTemplate = `{
                     "description": "房间数量",
                     "type": "integer"
                 },
+                "shared": {
+                    "description": "分享次数",
+                    "type": "integer"
+                },
                 "status": {
                     "description": "状态 已出租，已下架，待出租",
                     "type": "string"
@@ -12422,6 +12458,10 @@ const docTemplate = `{
                 },
                 "room_number": {
                     "description": "房间数量",
+                    "type": "integer"
+                },
+                "shared": {
+                    "description": "分享次数",
                     "type": "integer"
                 },
                 "status": {

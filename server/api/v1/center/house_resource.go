@@ -24,10 +24,10 @@ var houseType = map[string]string{
 	"2居":  "2居",
 	"3居":  "3居",
 	"4居+": "4居+",
-	"开间":  "开间",
-	"主卧":  "主卧",
-	"次卧":  "次卧",
-	"暗间":  "暗间",
+	"开间": "开间",
+	"主卧": "主卧",
+	"次卧": "次卧",
+	"暗间": "暗间",
 }
 
 // View
@@ -800,4 +800,25 @@ func (h *HouseResourceApi) FavoriteList(c *gin.Context) {
 		PageSize: pageInfo.PageSize,
 	}, "获取成功", c)
 	return
+}
+
+// @Tags     Center
+// @Summary  房源分享回调接口
+// @Produce  application/json
+// @Param    data  query    string  true  "id"
+// @Success  200   {object}  response.Response{}  "结果 ok"
+// @Router   /center/house/shared [get]
+func (h *HouseResourceApi) Shared(c *gin.Context) {
+	var req request.GetById
+	err := c.ShouldBindQuery(&req)
+	if err != nil {
+		response.FailWithMessage(err.Error(), c)
+		return
+	}
+
+	err = ResourceService.FollowViewClickSub(uint(req.ID), "shared")
+	if err != nil {
+		global.GVA_LOG.Error("shared failed!", zap.Error(err))
+	}
+	response.Ok(c)
 }
