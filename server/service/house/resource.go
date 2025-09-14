@@ -38,7 +38,7 @@ func (service *ResourceService) FilterOptions1() (list []request.RentType, err e
 		},
 		request.RentType{
 			Name:      "合租",
-			HouseType: []string{"主卧", "次卧", "暗间"},
+			HouseType: []string{"2居", "3居", "4居+"},
 			Feature:   []string{"带阳台", "包物业", "包水暖", "朝南", "可做饭", "密码看房"},
 		},
 	)
@@ -207,9 +207,11 @@ func (service *ResourceService) GetPage(xiaoquId, userId uint, appStatus string,
 	if Other.Phone != "" {
 		db = db.Where("phone = ?", Other.Phone)
 	}
-
-	if Other.HasPic != "" {
-		db = db.Where("has_pic = ?", Other.HasPic)
+	switch Other.HasPic {
+	case "true":
+		db = db.Where("has_pic = ?", true)
+	case "false":
+		db = db.Where("has_pic = ?", false)
 	}
 
 	if Other.RentType != "" {

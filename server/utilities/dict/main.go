@@ -63,22 +63,22 @@ func processLine(line string, lineNumber int) {
 		//	global.GVA_LOG.Error("插入失败", zap.Error(err))
 		//}
 	} else if strings.Contains(line, "encryptUnitName") {
-		arr := strings.Split(strings.Replace(line, " ", "", -1), ",")
-		unitName := strings.Split(arr[3], ":")[1]
-		unitId := strings.Split(arr[2], ":")[1]
-		buildingId := strings.Split(arr[1], ":")[1]
-		err := global.GVA_DB.Exec("insert into dict_unit (building_open_id, unit_open_id, encrypt_unit_name) values (?, ?, ?)", buildingId, unitId, unitName).Error
-		if err != nil {
-			global.GVA_LOG.Error("插入失败", zap.Error(err))
-		}
+		//arr := strings.Split(strings.Replace(line, " ", "", -1), ",")
+		//unitName := strings.Split(arr[3], ":")[1]
+		//unitId := strings.Split(arr[2], ":")[1]
+		//buildingId := strings.Split(arr[1], ":")[1]
+		//err := global.GVA_DB.Exec("insert into dict_unit (building_open_id, unit_open_id, encrypt_unit_name) values (?, ?, ?)", buildingId, unitId, unitName).Error
+		//if err != nil {
+		//	global.GVA_LOG.Error("插入失败", zap.Error(err))
+		//}
 	} else if strings.Contains(line, "encryptBuildingName") {
-		arr := strings.Split(strings.Replace(line, " ", "", -1), ",")
-		buildingName := strings.Split(arr[2], ":")[1]
-		buildingId := strings.Split(arr[1], ":")[1]
-		xiaoquId := strings.Split(arr[0], ":")[1]
-		err := global.GVA_DB.Exec("insert into dict_building (community_id, building_open_id, encrypt_building_name) values (?, ?, ?)", xiaoquId, buildingId, buildingName).Error
-		if err != nil {
-			global.GVA_LOG.Error("插入失败", zap.Error(err))
-		}
+		//arr := strings.Split(strings.Replace(line, " ", "", -1), ",")
+		//buildingName := strings.Split(arr[2], ":")[1]
+		//buildingId := strings.Split(arr[1], ":")[1]
+		//xiaoquId := strings.Split(arr[0], ":")[1]
+		//err := global.GVA_DB.Exec("insert into dict_building (community_id, building_open_id, encrypt_building_name) values (?, ?, ?)", xiaoquId, buildingId, buildingName).Error
+		//if err != nil {
+		//	global.GVA_LOG.Error("插入失败", zap.Error(err))
+		//}
 	}
 }
