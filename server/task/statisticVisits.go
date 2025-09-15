@@ -16,7 +16,7 @@ func StatisticVisits(db *gorm.DB) error {
 	fmt.Println("定时统计访问量 start")
 
 	now := time.Now().UTC()
-	yesterdayStart := time.Date(now.Year(), now.Month(), now.Day()-1, 0, 0, 0, 0, time.UTC)
+	yesterdayStart := time.Date(now.Year(), now.Month(), now.Day()-1, 0, 0, 0, 0, time.Local)
 	// 更精确地表示为23:59:59.999999999
 	yesterdayEndExact := yesterdayStart.Add(24*time.Hour - 1*time.Nanosecond)
 
@@ -128,13 +128,17 @@ func StatisticSalerVisit(db *gorm.DB) error {
 		time.Sleep(5 * time.Millisecond)
 	}
 
-	fmt.Printf("总共获取 %d 个用户ID\n", len(allUserIDs))
+	fmt.Printf("总共获取 %d 个用户\n", len(visitRecordMap))
 
 	if len(visitRecordMap) > 0 {
 		for _, record := range visitRecordMap {
-			err := db.Model(&search.VisitRecord{}).Save(&record).Error
-			log.Println("visitRecord失败:", err)
-
+			record.CreatedAt = time.Now()
+			err := db.Model(&search.VisitRecord{}).Create(&record).Error
+			if err == nil {
+				log.Println("visitRecord失败:", err)
+			} else {
+				log.Println(fmt.Sprintf("visitRecord info: %v :", record))
+			}
 		}
 	}
 	return nil
