@@ -19,6 +19,6 @@ func (d DictService) GetUnit(buildingId string) (resources []house.DictUnit, err
 }
 
 func (d DictService) GetHouse(unitId string) (resources []house.DictHouse, err error) {
-	err = global.GVA_DB.Model(&house.DictHouse{}).Where("unit_open_id = ? ", unitId).Find(&resources).Error
+	err = global.GVA_DB.Model(&house.DictHouse{}).Where("unit_open_id = ? ", unitId).Order("id asc").Find(&resources).Error
 	return
 }
