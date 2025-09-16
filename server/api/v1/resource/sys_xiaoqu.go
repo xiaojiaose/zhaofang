@@ -7,7 +7,9 @@ import (
 	response2 "github.com/flipped-aurora/gin-vue-admin/server/model/house/response"
 	"github.com/gin-gonic/gin"
 	"go.uber.org/zap"
+	"sort"
 	"strconv"
+	"strings"
 )
 
 type XiaoQuApi struct{}
@@ -170,13 +172,19 @@ func (receiver *XiaoQuApi) GetHouse(c *gin.Context) {
 		return
 	}
 
-	qu, err2 := DictService.GetHouse(api.ID)
+	houses, err2 := DictService.GetHouse(api.ID)
 	if err2 != nil {
 		response.FailWithMessage(err2.Error(), c)
 		return
 	}
+
+	// 使用自然排序
+	sort.Slice(houses, func(i, j int) bool {
+		return parseRoomNumber(houses[i].EncryptHouseName) < parseRoomNumber(houses[j].EncryptHouseName)
+	})
+
 	var ll []response2.DictBuildingResponse
-	for _, building := range qu {
+	for _, building := range houses {
 		ll = append(ll, response2.DictBuildingResponse{
 			Id:   building.HouseOpenId,
 			Name: building.EncryptHouseName,
@@ -184,4 +192,13 @@ func (receiver *XiaoQuApi) GetHouse(c *gin.Context) {
 	}
 	response.OkWithDetailed(ll, "获取成功", c)
 	return
+}
+
+func parseRoomNumber(name string) int {
+	num := strings.TrimSuffix(name, "室")
+	n, err := strconv.Atoi(num)
+	if err != nil {
+		return 0 // 错误时返回0
+	}
+	return n
 }
