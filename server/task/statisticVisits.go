@@ -15,7 +15,7 @@ import (
 func StatisticVisits(db *gorm.DB) error {
 	fmt.Println("定时统计访问量 start")
 
-	now := time.Now().UTC()
+	now := time.Now().Local()
 	yesterdayStart := time.Date(now.Year(), now.Month(), now.Day()-1, 0, 0, 0, 0, time.Local)
 	// 更精确地表示为23:59:59.999999999
 	yesterdayEndExact := yesterdayStart.Add(24*time.Hour - 1*time.Nanosecond)
@@ -65,7 +65,7 @@ func StatisticVisits(db *gorm.DB) error {
 
 func StatisticSalerVisit(db *gorm.DB) error {
 
-	now := time.Now().UTC()
+	now := time.Now().Local()
 	yesterdayStart := time.Date(now.Year(), now.Month(), now.Day()-1, 0, 0, 0, 0, time.Local)
 	// 更精确地表示为23:59:59.999999999
 	yesterdayEndExact := yesterdayStart.Add(24*time.Hour - 1*time.Nanosecond)
