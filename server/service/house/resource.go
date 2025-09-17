@@ -28,18 +28,18 @@ func (service *ResourceService) FilterOptions1() (list []request.RentType, err e
 	list = append(list,
 		request.RentType{
 			Name:      "整租",
-			HouseType: []string{"1居", "2居", "3居", "4居+", "开间"},
-			Feature:   []string{"可短租", "包物业", "南北通透", "包取暖", "密码看房", "可办公注册"},
+			HouseType: []string{"1居", "2居", "3居", "4居+", "开间"}, // 可短租，有电梯，可注册办公，密码看房、包物业
+			Feature:   []string{"可短租", "包物业", "有电梯", "密码看房", "可办公注册"},
 		},
 		request.RentType{
 			Name:      "分整租",
-			HouseType: []string{"1居", "2居", "3居", "4居+"},
-			Feature:   []string{"带阳台", "包物业", "包水暖", "朝南", "可做饭", "密码看房"},
+			HouseType: []string{"1居", "2居", "3居", "4居+"}, // 可短租，有电梯、有原卫、有阳台，有燃气，朝南
+			Feature:   []string{"带阳台", "有电梯", "有原卫", "朝南", "有燃气"},
 		},
 		request.RentType{
 			Name:      "合租",
-			HouseType: []string{"2居", "3居", "4居+"},
-			Feature:   []string{"带阳台", "包物业", "包水暖", "朝南", "可做饭", "密码看房"},
+			HouseType: []string{"2居", "3居", "4居+"}, // 可短租、有电梯，有独卫，有阳台，可做饭、纯女生
+			Feature:   []string{"带阳台", "可短租", "有电梯", "有独卫", "可做饭", "纯女生"},
 		},
 	)
 
