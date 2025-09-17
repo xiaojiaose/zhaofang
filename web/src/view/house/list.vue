@@ -6,10 +6,26 @@
     <div class="gva-search-box">
       <el-form ref="searchForm" :inline="true" :model="searchInfo">
         <el-form-item label="小区名称">
-          <el-input v-model="searchInfo.xiaoquName" placeholder="小区名称" />
+          <el-select
+            v-model="searchInfo.xiaoquId"
+            filterable
+            remote
+            reserve-keyword
+            placeholder="小区名称"
+            :remote-method="remoteSearchXiaoqu"
+            :loading="searchXiaoquLoading"
+            style="width: 240px"
+          >
+            <el-option
+              v-for="item in xiaoquOptions"
+              :key="item.value"
+              :label="item.label"
+              :value="item.value"
+            />
+          </el-select>
         </el-form-item>
         <el-form-item label="户室号">
-          <el-input v-model="searchInfo.houseNo" placeholder="户室号" />
+          <el-input v-model="searchInfo.keyword" placeholder="户室号" />
         </el-form-item>
         <el-form-item label="出租类型">
           <el-select v-model="searchInfo.rent_type" placeholder="出租类型">
@@ -21,8 +37,8 @@
             />
           </el-select>
         </el-form-item>
-        <el-form-item label="状态">
-          <el-select v-model="searchInfo.status" placeholder="状态">
+        <el-form-item label="审核状态">
+          <el-select v-model="searchInfo.approvalStatus" placeholder="请选择审核状态">
             <el-option
               v-for="item in approvalStatusOptions"
               :key="item.value"
@@ -209,7 +225,7 @@
           <br />
           <el-text class="mx-1" type="info">户室信息将不在用户端展示具体信息</el-text>
         </el-form-item>
-        <el-form-item label="房间号" prop="room_code" v-if="form.rent_type === '合租'">
+        <el-form-item label="房间号" prop="room_code" v-if="form.rent_type !== '整租'">
           <el-select
             v-model="form.room_code"
             class="m-2"
@@ -239,9 +255,9 @@
         <el-form-item label="户型" prop="house_type" v-else>
           <el-radio-group v-model="form.house_type" @change="handleHouseTypeChange">
             <el-radio
-              v-for="item in ['主卧', '次卧', '案间']"
-              :key="item"
-              :label="item"
+              v-for="item in houseTypeOptions[form.rent_type]"
+              :key="item.value"
+              :label="item.label"
             />
           </el-radio-group>
         </el-form-item>
@@ -388,7 +404,7 @@
         <el-form-item label="户型" prop="house_type" v-else>
           <el-radio-group v-model="form.house_type" disabled>
             <el-radio
-              v-for="item in ['主卧', '次卧', '案间']"
+              v-for="item in houseTypeOptions[form.rent_type]"
               :key="item"
               :label="item"
             />
@@ -489,24 +505,17 @@ defineOptions({
 
 const appStore = useAppStore();
 
-const searchInfo = ref({
-  xiaoquName: "",
-  houseNo: "",
-  rent_type: "",
-  status: "",
-});
-
 const approvalStatusOptions = [
   {
-    value: 1,
+    value: "通过",
     label: "通过",
   },
   {
-    value: 2,
+    value: "未通过",
     label: "未通过",
   },
   {
-    value: 3,
+    value: "待审批",
     label: "待审批",
   },
 ];
@@ -528,9 +537,25 @@ const handleCurrentChange = (val) => {
 };
 
 // 查询列表相关
-const onSearch = () => {};
-const onReset = () => {};
+const searchInfo = ref({
+  keyword: "",
+  rent_type: "",
+  approvalStatus: "",
+});
+const onSearch = () => {
+  page.value = 1;
+  getTableData();
+};
+const onReset = () => {
+  searchInfo.value = {
+    keyword: "",
+    rent_type: "",
+    approvalStatus: "",
+  };
+  getTableData();
+};
 
+//列表相关
 const getTableData = async () => {
   const table = await getHouseListMy({
     page: page.value,
@@ -548,9 +573,8 @@ const getTableData = async () => {
 
 const initPage = async () => {
   getTableData();
+  handeleGetHouseOptions();
 };
-
-initPage();
 
 // 新增房源相关
 const dialogFlag = ref("add");
@@ -848,7 +872,7 @@ const enterAddHouseDialog = async (formEl) => {
 };
 //打开新增房源弹框
 const addHouse = () => {
-  handeleGetHouseOptions();
+  // handeleGetHouseOptions();
   dialogFlag.value = "add";
   addHouseDialog.value = true;
 };
@@ -861,7 +885,7 @@ const closeAddHouseDialog = () => {
 //编辑房源相关
 const editHouseDialog = ref(false);
 const handleEditHouse = (row) => {
-  handeleGetHouseOptions();
+  // handeleGetHouseOptions();
   dialogFlag.value = "edit";
   editHouseDialog.value = true;
   xiaoquOptions.value = [
@@ -986,5 +1010,7 @@ const changeState = async (row, status) => {
       break;
   }
 };
+
+initPage();
 </script>
 <style lang="scss" scoped></style>
