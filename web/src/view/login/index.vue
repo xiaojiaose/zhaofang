@@ -24,7 +24,7 @@
               </p> -->
             </div>
             <el-tabs v-model="activeName" @tab-click="handleClick">
-              <el-tab-pane label="密码登录" name="password">
+              <!-- <el-tab-pane label="密码登录" name="password"> -->
                 <br />
                 <el-form
                   ref="loginForm"
@@ -92,8 +92,8 @@
                 >
               </el-form-item> -->
                 </el-form>
-              </el-tab-pane>
-              <el-tab-pane label="验证码登录" name="mobile">
+              <!-- </el-tab-pane> -->
+              <!-- <el-tab-pane label="验证码登录" name="mobile">
                 <br />
                 <el-form
                   :model="phoneForm"
@@ -140,7 +140,7 @@
                     >
                   </el-form-item>
                 </el-form>
-              </el-tab-pane>
+              </el-tab-pane> -->
             </el-tabs>
           </div>
         </div>
