@@ -34,7 +34,7 @@ func (service *ResourceService) FilterOptions1() (list []request.RentType, err e
 		request.RentType{
 			Name:      "分整租",
 			HouseType: []string{"1居", "2居", "3居", "4居+"}, // 可短租，有电梯、有原卫、有阳台，有燃气，朝南
-			Feature:   []string{"带阳台", "有电梯", "有原卫", "朝南", "有燃气"},
+			Feature:   []string{"带阳台", "有电梯", "有原卫", "朝南", "有燃气", "可短租"},
 		},
 		request.RentType{
 			Name:      "合租",
