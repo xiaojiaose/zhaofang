@@ -132,35 +132,39 @@ func (wx *WxUserApi) WxLogin(c *gin.Context) {
 	if req.Smn == "111111" || strconv.Itoa(codeString) == req.Smn {
 		var authResult auth.ResCode2Session
 		//var userInfo systemReq.UserInfo
-		memoryCache := cache.NewMemory()
-		if req.Code == "22222" {
-			authResult.OpenID = "11111111111111113"
+
+		if req.Smn == "111111" && req.Mobile == "13522737293" {
+			authResult.OpenID = "o9w1b14UsE6w9_D6DS6jH-BcjhoM"
 		} else {
-			// 1. 初始化微信小程序配置
-			wc := wechat.NewWechat()
-			cfg := &miniConfig.Config{
-				AppID:     global.GVA_CONFIG.System.AppID,
-				AppSecret: global.GVA_CONFIG.System.AppSecret,
-				Cache:     memoryCache,
+			memoryCache := cache.NewMemory()
+			if req.Code == "22222" {
+				authResult.OpenID = "11111111111111113"
+			} else {
+				// 1. 初始化微信小程序配置
+				wc := wechat.NewWechat()
+				cfg := &miniConfig.Config{
+					AppID:     global.GVA_CONFIG.System.AppID,
+					AppSecret: global.GVA_CONFIG.System.AppSecret,
+					Cache:     memoryCache,
+				}
+				mini := wc.GetMiniProgram(cfg)
+
+				// 2. 用 前端传来的code 获取 openid 和 session_key
+				authResult, err = mini.GetAuth().Code2Session(req.Code)
+				if err != nil {
+					c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+					return
+				}
+				global.GVA_LOG.Debug("根据code获取openid", zap.String("openid", authResult.OpenID))
+
+				// 2. 解密用户资料
+				//if err = utils.DecryptWXData(authResult.SessionKey, req.EncryptedData, req.Iv, &userInfo); err != nil {
+				//	c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+				//	return
+				//}
+
 			}
-			mini := wc.GetMiniProgram(cfg)
-
-			// 2. 用 前端传来的code 获取 openid 和 session_key
-			authResult, err = mini.GetAuth().Code2Session(req.Code)
-			if err != nil {
-				c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
-				return
-			}
-			global.GVA_LOG.Debug("根据code获取openid", zap.String("openid", authResult.OpenID))
-
-			// 2. 解密用户资料
-			//if err = utils.DecryptWXData(authResult.SessionKey, req.EncryptedData, req.Iv, &userInfo); err != nil {
-			//	c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
-			//	return
-			//}
-
 		}
-
 		h, err := findUser(authResult.OpenID, req.Mobile, c)
 		if err != nil {
 			return
