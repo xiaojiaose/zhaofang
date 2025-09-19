@@ -261,7 +261,7 @@ func (b *BaseApi) SalesRegister(c *gin.Context) {
 			AuthorityId: v,
 		})
 	}
-	r.Password = "autocity!@#123"
+	r.Password = global.GVA_CONFIG.System.Default
 	user := &system.SysUser{Username: r.Username, NickName: r.NickName, Password: r.Password, HeaderImg: r.HeaderImg, AuthorityId: r.AuthorityId, Authorities: authorities, Enable: r.Enable, Phone: r.Phone, Email: r.Email}
 	userReturn, err := userService.Register(*user)
 	if err != nil {
