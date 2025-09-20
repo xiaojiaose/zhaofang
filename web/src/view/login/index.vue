@@ -37,7 +37,7 @@
                     <el-input
                       v-model="loginFormData.username"
                       size="large"
-                      placeholder="请输入用户名"
+                      placeholder="请输入手机号/用户名"
                       suffix-icon="user"
                     />
                   </el-form-item>
