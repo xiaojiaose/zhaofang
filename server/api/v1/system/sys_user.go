@@ -58,7 +58,7 @@ func (b *BaseApi) Login(c *gin.Context) {
 	u := &system.SysUser{Username: l.Username, Password: l.Password}
 	if IsChineseMobileNumber(l.Username) {
 		u.Phone = l.Username
-		l.Username = ""
+		u.Username = ""
 	}
 
 	user, err := userService.Login(u)

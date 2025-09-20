@@ -10348,6 +10348,9 @@ const docTemplate = `{
                     "description": "数据库类型:mysql(默认)|sqlite|sqlserver|postgresql",
                     "type": "string"
                 },
+                "default": {
+                    "type": "string"
+                },
                 "iplimit-count": {
                     "type": "integer"
                 },
