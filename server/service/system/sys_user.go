@@ -79,7 +79,13 @@ func (userService *UserService) Login(u *system.SysUser) (userInter *system.SysU
 	}
 
 	var user system.SysUser
-	err = global.GVA_DB.Where("username = ?", u.Username).Preload("Authorities").Preload("Authority").First(&user).Error
+
+	if u.Username != "" {
+		err = global.GVA_DB.Where("username = ?", u.Username).Preload("Authorities").Preload("Authority").First(&user).Error
+	} else {
+		err = global.GVA_DB.Where("phone = ?", u.Phone).Preload("Authorities").Preload("Authority").First(&user).Error
+	}
+
 	if err == nil {
 		if ok := utils.BcryptCheck(u.Password, user.Password); !ok {
 			return nil, errors.New("密码错误")

@@ -1,6 +1,7 @@
 package system
 
 import (
+	"regexp"
 	"strconv"
 	"time"
 
@@ -55,6 +56,11 @@ func (b *BaseApi) Login(c *gin.Context) {
 	}
 
 	u := &system.SysUser{Username: l.Username, Password: l.Password}
+	if IsChineseMobileNumber(l.Username) {
+		u.Phone = l.Username
+		l.Username = ""
+	}
+
 	user, err := userService.Login(u)
 	if err != nil {
 		global.GVA_LOG.Error("登陆失败! 用户名不存在或者密码错误!", zap.Error(err))
@@ -643,4 +649,17 @@ func (b *BaseApi) ResetPassword(c *gin.Context) {
 		return
 	}
 	response.OkWithMessage("重置成功", c)
+}
+
+func IsChineseMobileNumber(number string) bool {
+	// 正则表达式说明：
+	// ^1[3-9]： 以 1 开头，第二位是 3-9（覆盖了所有当前有效的号段）
+	// \d{9}$： 后面是 9 个数字，总共 11 位
+	pattern := `^1[3-9]\d{9}$`
+
+	// 编译正则表达式
+	reg := regexp.MustCompile(pattern)
+
+	// 匹配字符串
+	return reg.MatchString(number)
 }
