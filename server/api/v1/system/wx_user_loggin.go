@@ -35,14 +35,19 @@ type WxUserApi struct{}
 func (wx *WxUserApi) GetWxMobile(c *gin.Context) {
 	var req systemReq.WxMobileLogin
 	err := c.ShouldBindJSON(&req)
+	global.GVA_LOG.Warn("wxMobileLogin1", zap.String("req", fmt.Sprintf("%+v", req)))
 	if req.MobileCode == "" || req.OpenidCode == "" {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "code required"})
 		return
 	}
+	global.GVA_LOG.Warn("wxMobileLogin2", zap.String("req", fmt.Sprintf("%+v", req)))
+
 	memoryCache := cache.NewMemory()
 	// 1. 获取access_token
 	accessToken, err := GetAccessToken(global.GVA_CONFIG.System.AppID, global.GVA_CONFIG.System.AppSecret)
 	if err != nil {
+		global.GVA_LOG.Warn("wxMobileLogin3", zap.String("err", err.Error()))
+
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "failed to get access token"})
 		return
 	}
@@ -50,10 +55,11 @@ func (wx *WxUserApi) GetWxMobile(c *gin.Context) {
 	// 2. 调用微信手机号接口
 	phoneInfo, err := GetPhoneNumber(accessToken, req.MobileCode)
 	if err != nil {
+		global.GVA_LOG.Warn("wxMobileLogin4", zap.String("err", err.Error()))
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
-	global.GVA_LOG.Warn("phoneInfo", zap.String("phoneInfo", phoneInfo))
+	global.GVA_LOG.Warn("phoneInfo 5", zap.String("phoneInfo", phoneInfo))
 
 	// 3. 初始化微信小程序配置
 	wc := wechat.NewWechat()

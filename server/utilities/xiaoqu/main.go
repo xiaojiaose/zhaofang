@@ -7,10 +7,10 @@ import (
 	"github.com/flipped-aurora/gin-vue-admin/server/global"
 	"github.com/flipped-aurora/gin-vue-admin/server/initialize"
 	"github.com/flipped-aurora/gin-vue-admin/server/model/house"
-	"github.com/flipped-aurora/gin-vue-admin/server/model/system"
 	"github.com/google/uuid"
 	"go.uber.org/zap"
 	"os"
+	"strconv"
 	"strings"
 	"time"
 )
@@ -59,30 +59,20 @@ func main() {
 
 func processLine(line string, lineNumber int) {
 	arr := strings.Split(strings.Replace(line, " ", "", -1), ",")
-	if len(arr) != 5 {
+	if len(arr) != 6 {
 		fmt.Errorf("lineNumber: %d, line: %s", lineNumber, line)
 		return
 	}
-	xqName := arr[1]
-	buildingName := arr[2]
-	unitName := arr[3]
-	houseName := arr[4]
-
-	var xq system.XiaoQu
-	tx := global.GVA_DB.Model(&system.XiaoQu{}).Where("name = ?", xqName).First(&xq)
-	if tx.Error != nil {
-		fmt.Printf("查询XiaoQu错误: %v\n", tx.Error)
-		return
-	}
-
-	xiaoquId := xq.CommunityId
-	//err := global.GVA_DB.Exec("insert into dict_building (community_id, building_open_id, encrypt_building_name) values (?, ?, ?)",
-	//	xiaoquId, uuid.New().String(), buildingName).Error
+	// 15c6fb9a9f3846e67f6e2a3b95512c4d373d92559a285014a1,建国食品城公寓,105030004,1,1,1307(租)
+	buildingName := arr[3]
+	unitName := arr[4]
+	houseName := arr[5]
+	xiaoquId, _ := strconv.Atoi(arr[2])
 
 	var building house.DictBuilding
 	err := global.GVA_DB.Model(&house.DictBuilding{}).Where("community_id = ? and encrypt_building_name = ?", xiaoquId, buildingName).Find(&building).Error
 	if err != nil {
-		fmt.Printf("find building 错误: %v\n", tx.Error)
+		fmt.Printf("find building 错误: %s\n", err.Error())
 		return
 	}
 	if building.ID == 0 {
@@ -98,7 +88,7 @@ func processLine(line string, lineNumber int) {
 	var unit house.DictUnit
 	err = global.GVA_DB.Model(&house.DictUnit{}).Where("building_open_id = ? and encrypt_unit_name = ?", building.BuildingOpenID, unitName).Find(&unit).Error
 	if err != nil {
-		fmt.Printf("find unit 错误: %v\n", tx.Error)
+		fmt.Printf("find unit 错误: %v\n", err.Error())
 		return
 	}
 	if unit.ID == 0 {
