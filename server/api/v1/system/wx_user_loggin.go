@@ -59,7 +59,7 @@ func (wx *WxUserApi) GetWxMobile(c *gin.Context) {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
-	global.GVA_LOG.Warn("phoneInfo 5", zap.String("phoneInfo", phoneInfo))
+	global.GVA_LOG.Warn("wxMobileLogin4 5", zap.String("phoneInfo", phoneInfo))
 
 	// 3. 初始化微信小程序配置
 	wc := wechat.NewWechat()

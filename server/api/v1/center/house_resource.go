@@ -77,7 +77,7 @@ func (h *HouseResourceApi) View(c *gin.Context) {
 		global.GVA_LOG.Error("view add failed !", zap.Error(err))
 	}
 
-	StatisService.InsertRecord(uint(req.ID), "view")
+	StatisService.InsertRecord(uint(req.ID), "view", utils.GetUserID(c))
 
 	response.OkWithDetailed(r, "获取成功", c)
 }
@@ -143,7 +143,7 @@ func (h *HouseResourceApi) GetMobile(c *gin.Context) {
 	if err != nil {
 		global.GVA_LOG.Error("view add failed !", zap.Error(err))
 	}
-	StatisService.InsertRecord(uint(req.ID), "click")
+	StatisService.InsertRecord(uint(req.ID), "click", utils.GetUserID(c))
 	response.OkWithDetailed(map[string]string{"mobile": info.Phone}, "获取成功", c)
 }
 
@@ -714,7 +714,7 @@ func (h *HouseResourceApi) FavoriteAdd(c *gin.Context) {
 			global.GVA_LOG.Error("follow add failed !", zap.Error(err))
 		}
 	}
-	StatisService.InsertRecord(uint(req.ID), "follow")
+	StatisService.InsertRecord(uint(req.ID), "follow", utils.GetUserID(c))
 
 	response.Ok(c)
 	return
@@ -747,7 +747,7 @@ func (h *HouseResourceApi) FavoriteDel(c *gin.Context) {
 			global.GVA_LOG.Error("follow sub failed !", zap.Error(err))
 		}
 	}
-	StatisService.InsertRecord(uint(req.ID), "follow", -1)
+	StatisService.InsertRecord(uint(req.ID), "follow", utils.GetUserID(c), -1)
 	response.Ok(c)
 	return
 }
@@ -821,7 +821,7 @@ func (h *HouseResourceApi) Shared(c *gin.Context) {
 		global.GVA_LOG.Error("shared failed!", zap.Error(err))
 	}
 
-	StatisService.InsertRecord(uint(req.ID), "shared")
+	StatisService.InsertRecord(uint(req.ID), "shared", utils.GetUserID(c))
 
 	response.Ok(c)
 }

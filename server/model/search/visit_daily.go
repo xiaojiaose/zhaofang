@@ -9,6 +9,7 @@ type VisitDaily struct {
 	View       int       `json:"view"`       // 浏览次数
 	Click      int       `json:"click"`      // 电话获取次数
 	Shared     int       `json:"shared"`     // 分享次数
+	UserId     uint      `json:"userId"`
 }
 
 func (VisitDaily) TableName() string {

@@ -48,10 +48,10 @@ func (s StatisService) VisitRecord(userId uint, info request.PageInfo, order str
 	return apiList, total, err
 }
 
-func (s StatisService) InsertRecord(houseId uint, field string, nums ...int) (err error) {
+func (s StatisService) InsertRecord(houseId uint, field string, userId uint, nums ...int) (err error) {
 	v := 1
 	if len(nums) > 0 {
 		v = nums[0]
 	}
-	return global.GVA_DB.Exec(fmt.Sprintf("insert into visit_daily (resource_id, %s, date) value (?, ?, ?)", field), houseId, v, time.Now()).Error
+	return global.GVA_DB.Exec(fmt.Sprintf("insert into visit_daily (resource_id, %s,user_id, date) value (?, ?, ?, ?)", field), houseId, v, userId, time.Now()).Error
 }
