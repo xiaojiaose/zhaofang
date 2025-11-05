@@ -13,7 +13,6 @@ require (
 	github.com/casbin/casbin/v2 v2.103.0
 	github.com/casbin/gorm-adapter/v3 v3.32.0
 	github.com/fsnotify/fsnotify v1.8.0
-	github.com/fvbommel/sortorder v1.1.0
 	github.com/gin-gonic/gin v1.10.0
 	github.com/glebarez/sqlite v1.11.0
 	github.com/go-sql-driver/mysql v1.8.1
@@ -45,6 +44,7 @@ require (
 	github.com/swaggo/swag v1.16.4
 	github.com/tencentyun/cos-go-sdk-v5 v0.7.60
 	github.com/unrolled/secure v1.17.0
+	github.com/wechatpay-apiv3/wechatpay-go v0.2.21
 	github.com/xuri/excelize/v2 v2.9.0
 	go.mongodb.org/mongo-driver v1.17.2
 	go.uber.org/automaxprocs v1.6.0

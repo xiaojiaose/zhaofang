@@ -24,6 +24,7 @@ type ServiceGroup struct {
 	SysParamsService
 	SysVersionService
 	XiaoQuService
+	WxPayService
 	house.DictService
 	AutoCodePlugin   autoCodePlugin
 	AutoCodePackage  autoCodePackage

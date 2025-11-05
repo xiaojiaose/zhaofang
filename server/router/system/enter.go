@@ -20,6 +20,7 @@ type RouterGroup struct {
 	SysExportTemplateRouter
 	SysParamsRouter
 	SysVersionRouter
+	WxPayRouter
 }
 
 var (

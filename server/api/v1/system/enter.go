@@ -26,6 +26,10 @@ type ApiGroup struct {
 	XiaoQuApi
 	CommonAPi
 	WxUserApi
+	WxPayApi
+	DictBuildingApi
+	DictHouseApi
+	DictUnitApi
 }
 
 var (
@@ -53,4 +57,5 @@ var (
 	xiaoQuService           = service.ServiceGroupApp.SystemServiceGroup.XiaoQuService
 	dictService             = service.ServiceGroupApp.SystemServiceGroup.DictService
 	aliSmsService           = service.ServiceGroupApp.SystemServiceGroup.AliSmsService
+	wxPayService            = service.ServiceGroupApp.SystemServiceGroup.WxPayService
 )
