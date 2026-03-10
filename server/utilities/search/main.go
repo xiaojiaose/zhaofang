@@ -23,7 +23,7 @@ func Init() {
 func main() {
 	Init()
 	houseService := service.ResourceService{}
-	list, _, err := houseService.GetPage(0, 0, "", "", request.PageInfo{Page: 1, PageSize: 1000}, "", false, request.SearchOther{})
+	list, _, err := houseService.GetPage(0, 0, "", "", request.PageInfo{Page: 1, PageSize: 10000}, "", false, request.SearchOther{})
 	if err != nil {
 		return
 	}
