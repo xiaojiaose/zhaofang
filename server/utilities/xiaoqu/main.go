@@ -21,7 +21,12 @@ func Init() {
 	global.GVA_LOG = core.Zap() // 初始化zap日志库
 	zap.ReplaceGlobals(global.GVA_LOG)
 	global.GVA_DB = initialize.Gorm() // gorm连接数据库
-	global.InitZincSearch(global.GVA_CONFIG.ZincSearch.Url, global.GVA_CONFIG.ZincSearch.Username, global.GVA_CONFIG.ZincSearch.Password)
+	global.InitZincSearch(
+		global.GVA_CONFIG.ZincSearch.Url,
+		global.GVA_CONFIG.ZincSearch.Username,
+		global.GVA_CONFIG.ZincSearch.Password,
+		global.GVA_CONFIG.ZincSearch.ResourceIndex,
+	)
 }
 
 // 增加小区 脚本，小区手动录入到数据库

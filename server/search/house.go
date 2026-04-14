@@ -2,6 +2,8 @@ package search
 
 import (
 	"context"
+	"strings"
+
 	"github.com/flipped-aurora/gin-vue-admin/server/model/search"
 	"github.com/linxdeep/linxdeep-framework/pkg/searchx"
 )
@@ -11,12 +13,15 @@ type ResourceSearch struct {
 	index  string
 }
 
-const IndexDevices = "house"
+const defaultResourceIndex = "resource"
 
-func NewResource(searcher searchx.Searcher) *ResourceSearch {
+func NewResource(searcher searchx.Searcher, indexName string) *ResourceSearch {
+	if strings.TrimSpace(indexName) == "" {
+		indexName = defaultResourceIndex
+	}
 	return &ResourceSearch{
 		engine: searcher,
-		index:  IndexDevices + "-resource",
+		index:  "house-" + indexName,
 	}
 }
 

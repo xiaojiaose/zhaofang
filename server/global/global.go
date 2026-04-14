@@ -64,8 +64,8 @@ func MustGetGlobalDBByDBName(dbname string) *gorm.DB {
 	return db
 }
 
-func InitZincSearch(url, username, password string) *search.ResourceSearch {
-	Gva_ResourceSearch = search.NewResource(searchx.New(url, username, password))
+func InitZincSearch(url, username, password, indexName string) *search.ResourceSearch {
+	Gva_ResourceSearch = search.NewResource(searchx.New(url, username, password), indexName)
 	return Gva_ResourceSearch
 }
 
