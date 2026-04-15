@@ -87,7 +87,7 @@ func (wx *WxUserApi) GetWxMobile(c *gin.Context) {
 	}
 	global.GVA_LOG.Warn("根据code获取openid", zap.String("userInfo", fmt.Sprintf("%+v", userInfo)))
 
-	h, err := findUser(authResult.OpenID, phoneInfo, c)
+	h, err := findUser(authResult.OpenID, phoneInfo, &userInfo, c)
 	if err != nil {
 		return
 	}
@@ -171,7 +171,7 @@ func (wx *WxUserApi) WxLogin(c *gin.Context) {
 
 			}
 		}
-		h, err := findUser(authResult.OpenID, req.Mobile, c)
+		h, err := findUser(authResult.OpenID, req.Mobile, nil, c)
 		if err != nil {
 			return
 		}
@@ -188,7 +188,7 @@ func (wx *WxUserApi) WxLogin(c *gin.Context) {
 	response.FailWithMessage("验证码不正确", c)
 }
 
-func findUser(openID, mobile string, c *gin.Context) (h *system.SysUser, err error) {
+func findUser(openID, mobile string, userInfo *systemReq.UserInfo, c *gin.Context) (h *system.SysUser, err error) {
 	h = userService.FindUserByOpenid(openID)
 	if h == nil {
 		global.GVA_LOG.Debug("1,通过openid查找用户，没找到", zap.String("openid", openID))
@@ -212,15 +212,34 @@ func findUser(openID, mobile string, c *gin.Context) (h *system.SysUser, err err
 		} else {
 			global.GVA_LOG.Debug("2,再通过手机号查找用户，找到了，需要更新用户的openid", zap.String("mobile", mobile), zap.String("openid", openID))
 			h.Openid = openID
-			//if userInfo.AvatarURL != "" {
-			//	h.HeaderImg = userInfo.AvatarURL
-			//}
-			//if userInfo.NickName != "" {
-			//	h.WxNickName = userInfo.NickName
-			//}
+			if userInfo != nil {
+				if userInfo.AvatarURL != "" {
+					h.HeaderImg = userInfo.AvatarURL
+				}
+				if userInfo.NickName != "" {
+					h.WxNickName = userInfo.NickName
+				}
+			}
 			err = userService.SetUserInfo(*h)
 			if err != nil {
 				global.GVA_LOG.Debug("2,再通过手机号查找用户，也没找到，需要更新用户的openid，结果更新失败..", zap.String("mobile", mobile), zap.String("openid", openID))
+				response.FailWithMessage(err.Error(), c)
+				return
+			}
+		}
+	} else if userInfo != nil && (userInfo.AvatarURL != "" || userInfo.NickName != "") {
+		updated := false
+		if userInfo.AvatarURL != "" && h.HeaderImg != userInfo.AvatarURL {
+			h.HeaderImg = userInfo.AvatarURL
+			updated = true
+		}
+		if userInfo.NickName != "" && h.WxNickName != userInfo.NickName {
+			h.WxNickName = userInfo.NickName
+			updated = true
+		}
+		if updated {
+			err = userService.SetUserInfo(*h)
+			if err != nil {
 				response.FailWithMessage(err.Error(), c)
 				return
 			}

@@ -56,6 +56,10 @@
     <div class="gva-table-box">
       <div class="gva-btn-list">
         <el-button type="primary" icon="plus" @click="addHouse"> 新增房源 </el-button>
+        <el-button type="success" @click="batchUploadDialog = true"> 批量上传 </el-button>
+        <el-tag type="info" v-if="tableData.length">
+          已上架 {{ tableData[0].publishQuotaUsed }} / {{ tableData[0].publishQuotaTotal }}，剩余 {{ tableData[0].publishQuotaRemain }}
+        </el-tag>
       </div>
       <el-table :data="tableData" row-key="ID" v-loading="false">
         <el-table-column type="selection" width="55" />
@@ -78,6 +82,10 @@
           <template #default="scope">
             <el-text size="large" tag="b">{{ scope.row.xiaoqu }}</el-text>
             <div>{{ scope.row.door_no }}</div>
+            <div class="mt-1">
+              <el-tag v-if="scope.row.house_type === '房东房源'" type="warning" size="small">房东房源</el-tag>
+              <el-tag v-if="scope.row.is_team_house" type="success" size="small" class="ml-1">团队房源</el-tag>
+            </div>
           </template>
         </el-table-column>
         <el-table-column align="left" label="出租类型" min-width="150">
@@ -89,6 +97,14 @@
         <el-table-column align="left" label="平台推广" min-width="150">
           <template #default="scope">
             <el-text type="danger">{{ scope.row.price }}元/月</el-text>
+            <div v-if="scope.row.commission_price">返佣 {{ scope.row.commission_price }} 元</div>
+          </template>
+        </el-table-column>
+        <el-table-column align="left" label="发布人信息" min-width="220">
+          <template #default="scope">
+            <el-avatar v-if="scope.row.headerImg" :src="scope.row.headerImg" :size="32" class="mb-2" />
+            <div>{{ scope.row.wxNickName || '-' }}</div>
+            <div>{{ scope.row.wxNo || '-' }}</div>
           </template>
         </el-table-column>
         <el-table-column align="left" label="状态" min-width="180">
@@ -273,6 +289,11 @@
           </el-input>
           <el-text class="mx-1" type="danger">年租月付的价格</el-text>
         </el-form-item>
+        <el-form-item label="返佣金额" prop="commission_price">
+          <el-input type="number" v-model="form.commission_price">
+            <template #append>元</template>
+          </el-input>
+        </el-form-item>
         <el-form-item label="亮点" prop="feature">
           <el-checkbox-group v-model="form.feature">
             <el-checkbox
@@ -422,6 +443,11 @@
           </el-input>
           <el-text class="mx-1" type="danger">年租月付的价格</el-text>
         </el-form-item>
+        <el-form-item label="返佣金额" prop="commission_price">
+          <el-input type="number" v-model="form.commission_price">
+            <template #append>元</template>
+          </el-input>
+        </el-form-item>
         <el-form-item label="亮点" prop="feature">
           <el-checkbox-group v-model="form.feature">
             <el-checkbox
@@ -474,11 +500,54 @@
         </el-form-item>
       </el-form>
     </el-drawer>
+
+    <el-dialog v-model="batchUploadDialog" title="批量上传房源" width="520px">
+      <el-alert
+        type="info"
+        :closable="false"
+        title="上传前会先把你当前已上架房源全部下架，再按本次 Excel 内容重新上架。"
+        class="mb-4"
+      />
+      <el-upload
+        drag
+        :auto-upload="false"
+        :limit="1"
+        accept=".xlsx,.xls"
+        :on-change="handleBatchFileChange"
+        :on-remove="handleBatchFileRemove"
+        :file-list="batchFileList"
+      >
+        <el-icon class="el-icon--upload"><Plus /></el-icon>
+        <div class="el-upload__text">拖拽 Excel 到这里，或 <em>点击上传</em></div>
+        <template #tip>
+          <div class="el-upload__tip">
+            支持 `.xlsx` / `.xls`，字段请按约定的楼盘名称、户室号、价格、返佣金额等模板填写。
+          </div>
+        </template>
+      </el-upload>
+      <el-alert
+        v-if="batchUploadResult"
+        class="mt-4"
+        type="success"
+        :closable="false"
+        :title="`共 ${batchUploadResult.totalCount} 条，成功 ${batchUploadResult.successCount} 条，失败 ${batchUploadResult.failedCount} 条`"
+      >
+        <template #default>
+          <div style="white-space: pre-wrap">{{ batchUploadResult.resultSummary || '本次导入没有失败记录' }}</div>
+        </template>
+      </el-alert>
+      <template #footer>
+        <div class="dialog-footer">
+          <el-button @click="closeBatchUploadDialog">取 消</el-button>
+          <el-button type="primary" :disabled="!batchFile" @click="submitBatchUpload">开始导入</el-button>
+        </div>
+      </template>
+    </el-dialog>
   </div>
 </template>
 
 <script setup>
-import { ref, watch } from "vue";
+import { ref } from "vue";
 import { useAppStore } from "@/pinia";
 import dayjs from "dayjs";
 
@@ -489,6 +558,7 @@ import WarningBar from "@/components/warningBar/warningBar.vue";
 
 import {
   getHouseListMy,
+  batchUploadHouse,
   changeHouseState,
   createHouse,
   deleteHouse,
@@ -496,8 +566,6 @@ import {
 } from "@/api/house";
 import { searchXiaoqu, getHouseOptions, uploadFile } from "@/api/center";
 import { getBuildings, getUnits, getHouse } from "@/api/base";
-
-import axios from "axios";
 
 defineOptions({
   name: "HouseList",
@@ -524,6 +592,10 @@ const page = ref(1);
 const total = ref(0);
 const pageSize = ref(10);
 const tableData = ref([]);
+const batchUploadDialog = ref(false);
+const batchFileList = ref([]);
+const batchFile = ref(null);
+const batchUploadResult = ref(null);
 
 // 分页
 const handleSizeChange = (val) => {
@@ -541,6 +613,7 @@ const searchInfo = ref({
   keyword: "",
   rent_type: "",
   approvalStatus: "",
+  xiaoquId: "",
 });
 const onSearch = () => {
   page.value = 1;
@@ -551,6 +624,7 @@ const onReset = () => {
     keyword: "",
     rent_type: "",
     approvalStatus: "",
+    xiaoquId: "",
   };
   getTableData();
 };
@@ -601,13 +675,14 @@ const rules = ref({
   type: [{ required: true, message: "请勾选同意发布规则", trigger: "change" }],
 });
 const userForm = ref(null);
-const form = ref({
+const defaultHouseForm = () => ({
   rent_type: "",
   xiaoqu: "",
   xiaoqu_id: "",
   door_no: "",
   house_type: "",
   price: "",
+  commission_price: 0,
   feature: [],
   remarks: "",
   fileList: [],
@@ -618,6 +693,7 @@ const form = ref({
   type: [],
   house_id: "",
 });
+const form = ref(defaultHouseForm());
 
 // 搜索小区
 const searchXiaoquLoading = ref(false);
@@ -728,6 +804,38 @@ const handlePictureCardPreview = (uploadFile) => {
   dialogVisible.value = true;
 };
 
+const handleBatchFileChange = (file, fileList) => {
+  batchFile.value = file.raw;
+  batchFileList.value = fileList.slice(-1);
+};
+
+const handleBatchFileRemove = () => {
+  batchFile.value = null;
+  batchFileList.value = [];
+};
+
+const closeBatchUploadDialog = () => {
+  batchUploadDialog.value = false;
+  batchFile.value = null;
+  batchFileList.value = [];
+  batchUploadResult.value = null;
+};
+
+const submitBatchUpload = async () => {
+  if (!batchFile.value) {
+    ElMessage.warning("请先选择 Excel 文件");
+    return;
+  }
+  const payload = new FormData();
+  payload.append("file", batchFile.value);
+  const res = await batchUploadHouse(payload);
+  if (res.code === 0) {
+    batchUploadResult.value = res.data;
+    ElMessage.success("批量上传完成");
+    getTableData();
+  }
+};
+
 //房源选项回显
 const rentTypeOptions = ref([]);
 const houseTypeOptions = ref({});
@@ -818,40 +926,12 @@ const enterAddHouseDialog = async (formEl) => {
       console.log(values);
       values.feature = values.feature.join(",");
       values.price = Number(values.price);
-
-      if (values.fileList.length) {
-        Promise.all(
-          values.fileList.map((file) => {
-            console.log(file);
-            const form = new FormData();
-            form.append("file", file.raw);
-            return uploadFile(form);
-          })
-        ).then((res) => {
-          if (res.find((item) => item.code !== 0)) {
-            ElMessage.error("上传失败");
-            return;
-          }
-
-          values.attachments.house = res.map((item) => ({
-            url: item.data.url,
-          }));
-
-          delete values.type;
-          delete values.fileList;
-          delete values.door_no;
-          createHouse(values).then((res) => {
-            if (res.code === 0) {
-              ElMessage.success("新增成功");
-              addHouseDialog.value = false;
-              getTableData();
-              houseFormRef.value.resetFields();
-            }
-          });
-        });
-
+      values.commission_price = Number(values.commission_price || 0);
+      const attachments = await buildAttachments(values.fileList || []);
+      if (attachments === null) {
         return;
       }
+      values.attachments.house = attachments;
 
       delete values.type;
       delete values.fileList;
@@ -874,11 +954,13 @@ const enterAddHouseDialog = async (formEl) => {
 const addHouse = () => {
   // handeleGetHouseOptions();
   dialogFlag.value = "add";
+  form.value = defaultHouseForm();
   addHouseDialog.value = true;
 };
 //关闭新增房源弹框
 const closeAddHouseDialog = () => {
-  houseFormRef.value.resetFields();
+  form.value = defaultHouseForm();
+  houseFormRef.value?.resetFields();
   addHouseDialog.value = false;
 };
 
@@ -904,25 +986,9 @@ const handleEditHouse = (row) => {
 };
 //关闭编辑房源弹框
 const closeEditHouseDialog = () => {
-  form.value = {
-    rent_type: "",
-    xiaoqu: "",
-    xiaoqu_id: "",
-    door_no: "",
-    house_type: "",
-    price: "",
-    feature: [],
-    remarks: "",
-    fileList: [],
-    attachments: {
-      house: [],
-    },
-    phone: "",
-    type: [],
-    house_id: "",
-  };
+  form.value = defaultHouseForm();
 
-  houseFormRef.value.resetFields();
+  houseFormRef.value?.resetFields();
   editHouseDialog.value = false;
 };
 //编辑房源提交
@@ -935,34 +1001,46 @@ const enterEditHouseDialog = async (formEl) => {
       console.log(values);
       values.feature = values.feature.join(",");
       values.price = Number(values.price);
-
-      if (values.fileList.length) {
-        Promise.all(
-          values.fileList.map((file) => {
-            console.log(file);
-            const form = new FormData();
-            form.append("file", file.raw);
-            return uploadFile(form);
-          })
-        ).then((res) => {
-          if (res.find((item) => item.code !== 0)) {
-            ElMessage.error("上传失败");
-            return;
-          }
-          values.attachments.house = res.map((item) => ({
-            url: item.data.url,
-          }));
-          editHouse(values).then((res) => {
-            if (res.code === 0) {
-              ElMessage.success("编辑成功");
-              editHouseDialog.value = false;
-              getTableData();
-            }
-          });
-        });
+      values.commission_price = Number(values.commission_price || 0);
+      const attachments = await buildAttachments(values.fileList || []);
+      if (attachments === null) {
+        return;
       }
+      values.attachments.house = attachments;
+      delete values.fileList;
+      editHouse(values).then((res) => {
+        if (res.code === 0) {
+          ElMessage.success("编辑成功");
+          editHouseDialog.value = false;
+          getTableData();
+        }
+      });
     }
   });
+};
+
+const buildAttachments = async (fileList) => {
+  const uploaded = [];
+  for (const file of fileList) {
+    if (!file.raw && file.url) {
+      uploaded.push({ url: file.url });
+      continue;
+    }
+    if (!file.raw) {
+      continue;
+    }
+    const payload = new FormData();
+    payload.append("file", file.raw);
+    const res = await uploadFile(payload);
+    if (res.code !== 0) {
+      ElMessage.error("上传失败");
+      return null;
+    }
+    uploaded.push({
+      url: res.data.url,
+    });
+  }
+  return uploaded;
 };
 
 const handleDeleteHouse = (row) => {

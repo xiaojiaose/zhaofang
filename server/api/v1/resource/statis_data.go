@@ -20,7 +20,7 @@ type StatisDataApi struct {
 // @Summary   数据中心
 // @Produce  application/json
 // @Param    data  query   request.GetStatis  true   "start, end"
-// @Success  200   {object}  response.Response{data=search.StatisData}  "结果"
+// @Success  200   {object}  response.Response{data=map[string]interface{}}  "结果"
 // @Router   /api/house/statis/view [get]
 func (s *StatisDataApi) View(c *gin.Context) {
 	var req request.GetStatis
@@ -45,7 +45,16 @@ func (s *StatisDataApi) View(c *gin.Context) {
 		re.Follow += data.Follow
 		re.Shared += data.Shared
 	}
-	response.OkWithData(re, c)
+	rewardCount, _ := RewardService.CountByDate(req.Start, req.End, req.Phone)
+	re.RewardApply = int(rewardCount)
+	payload := gin.H{
+		"summary": re,
+	}
+	if req.Phone != "" {
+		phoneSummary, _ := RewardService.BuildPhoneSummary(req.Phone)
+		payload["phoneSummary"] = phoneSummary
+	}
+	response.OkWithData(payload, c)
 	return
 }
 
@@ -191,7 +200,9 @@ func (s *StatisDataApi) VisitHouse(c *gin.Context) {
 		}
 		if u, ok := userMap[data.Owner]; ok {
 			r.WxNo = u.WxNo
-			//r.Phone = u.Phone
+			r.WxNickName = u.WxNickName
+			r.HeaderImg = u.HeaderImg
+			r.Phone = u.Phone
 		}
 		ll = append(ll, r)
 	}

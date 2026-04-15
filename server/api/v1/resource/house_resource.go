@@ -5,6 +5,8 @@ import (
 	"github.com/flipped-aurora/gin-vue-admin/server/model/common/request"
 	"github.com/flipped-aurora/gin-vue-admin/server/model/common/response"
 	"github.com/flipped-aurora/gin-vue-admin/server/model/house"
+	response2 "github.com/flipped-aurora/gin-vue-admin/server/model/house/response"
+	"github.com/flipped-aurora/gin-vue-admin/server/model/system"
 	"github.com/flipped-aurora/gin-vue-admin/server/utils"
 	"github.com/gin-gonic/gin"
 	"go.uber.org/zap"
@@ -140,8 +142,31 @@ func (h *HouseResourceApi) List(c *gin.Context) {
 		return
 	}
 
+	resourceList := list.([]house.Resource)
+	var userIds []uint
+	for _, item := range resourceList {
+		userIds = append(userIds, item.Owner)
+	}
+	userMap := make(map[uint]system.SysUser)
+	if len(userIds) > 0 {
+		users, _ := UserService.GetUsersByIds(userIds)
+		for _, user := range users {
+			userMap[user.ID] = user
+		}
+	}
+	var result []response2.ResourceVisitResponse
+	for _, item := range resourceList {
+		row := response2.ResourceVisitResponse{Resource: item}
+		if user, ok := userMap[item.Owner]; ok {
+			row.WxNo = user.WxNo
+			row.WxNickName = user.WxNickName
+			row.HeaderImg = user.HeaderImg
+			row.Phone = user.Phone
+		}
+		result = append(result, row)
+	}
 	response.OkWithDetailed(response.PageResult{
-		List:     list,
+		List:     result,
 		Total:    total,
 		Page:     pageInfo.Page,
 		PageSize: pageInfo.PageSize,
@@ -207,8 +232,23 @@ func (h *HouseResourceApi) ListByUserId(c *gin.Context) {
 		response.FailWithMessage("获取失败", c)
 		return
 	}
+	user, _ := UserService.FindUserById(int(userId))
+	resourceList := list.([]house.Resource)
+	count, _ := ResourceService.CountOnShelfByUser(userId)
+	var result []response2.MyResourceResponse
+	for _, item := range resourceList {
+		result = append(result, response2.MyResourceResponse{
+			Resource:           item,
+			WxNo:               user.WxNo,
+			WxNickName:         user.WxNickName,
+			HeaderImg:          user.HeaderImg,
+			PublishQuotaTotal:  user.PublishQuotaTotal,
+			PublishQuotaUsed:   int(count),
+			PublishQuotaRemain: maxInt(user.PublishQuotaTotal-int(count), 0),
+		})
+	}
 	response.OkWithDetailed(response.PageResult{
-		List:     list,
+		List:     result,
 		Total:    total,
 		Page:     pageInfo.Page,
 		PageSize: pageInfo.PageSize,
@@ -289,7 +329,12 @@ func (h *HouseResourceApi) Edit(c *gin.Context) {
 
 	origin.Feature = req.Feature
 	origin.Price = req.Price
+	origin.CommissionPrice = req.CommissionPrice
 	origin.Attachments = req.Attachments
+	origin.HouseType = req.HouseType
+	origin.RentType = req.RentType
+	origin.Remarks = req.Remarks
+	origin.RoomCode = req.RoomCode
 
 	err = ResourceService.CreateOrUpdate(origin)
 	if err != nil {
@@ -297,6 +342,39 @@ func (h *HouseResourceApi) Edit(c *gin.Context) {
 		return
 	}
 	response.Ok(c)
+}
+
+// BatchUpload
+// @Tags     Admin
+// @Summary  Excel批量上传房源
+// @Accept   multipart/form-data
+// @Produce  application/json
+// @Param    file  formData  file  true  "excel文件"
+// @Success  200   {object}  response.Response{data=house.BatchUploadRecord}  "结果"
+// @Router   /api/house/batchUpload [post]
+func (h *HouseResourceApi) BatchUpload(c *gin.Context) {
+	header, err := c.FormFile("file")
+	if err != nil {
+		response.FailWithMessage("请上传excel文件", c)
+		return
+	}
+
+	userID := utils.GetUserID(c)
+	record, err := ResourceService.BatchUpload(userID, header)
+	if err != nil {
+		global.GVA_LOG.Error("批量上传房源失败!", zap.Error(err))
+		response.FailWithMessage(err.Error(), c)
+		return
+	}
+
+	response.OkWithDetailed(record, "导入成功", c)
+}
+
+func maxInt(a, b int) int {
+	if a > b {
+		return a
+	}
+	return b
 }
 
 // FilterArea

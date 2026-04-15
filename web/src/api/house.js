@@ -65,5 +65,15 @@ export const editHouse = (data) => {
   })
 }
 
+export const batchUploadHouse = (data) => {
+  return service({
+    url: '/house/batchUpload',
+    method: 'post',
+    data,
+    headers: {
+      'Content-Type': 'multipart/form-data'
+    }
+  })
+}
 
 

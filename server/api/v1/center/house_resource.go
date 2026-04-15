@@ -20,14 +20,15 @@ type HouseResourceApi struct {
 }
 
 var houseType = map[string]string{
-	"1居":  "1居",
-	"2居":  "2居",
-	"3居":  "3居",
-	"4居+": "4居+",
-	"开间":  "开间",
-	"主卧":  "主卧",
-	"次卧":  "次卧",
-	"暗间":  "暗间",
+	"房东房源": "房东房源",
+	"1居":   "1居",
+	"2居":   "2居",
+	"3居":   "3居",
+	"4居+":  "4居+",
+	"开间":   "开间",
+	"主卧":   "主卧",
+	"次卧":   "次卧",
+	"暗间":   "暗间",
 }
 
 // View
@@ -60,6 +61,9 @@ func (h *HouseResourceApi) View(c *gin.Context) {
 		Resource:  *info,
 		Latitude:  xq.Latitude,
 		Longitude: xq.Longitude,
+	}
+	if info.HouseType == "房东房源" {
+		r.DoorNo = ""
 	}
 
 	flist, err := FavoriteService.GetByUserIdRIds(utils.GetUserID(c), []uint{uint(req.ID)})
@@ -139,6 +143,14 @@ func (h *HouseResourceApi) GetMobile(c *gin.Context) {
 		info.Phone = u.Phone
 	}
 
+	if info.HouseType == "房东房源" {
+		err = ContactQuotaService.Consume(utils.GetUserID(c), uint(req.ID), "查看房东房源联系方式")
+		if err != nil {
+			response.FailWithMessage(err.Error(), c)
+			return
+		}
+	}
+
 	err = ResourceService.FollowViewClickAdd(uint(req.ID), "click")
 	if err != nil {
 		global.GVA_LOG.Error("view add failed !", zap.Error(err))
@@ -198,6 +210,19 @@ func (h *HouseResourceApi) ListByXiaoquAgg(c *gin.Context) {
 
 	if len(req.RentType) > 0 {
 		condition.Terms = append(condition.Terms, searchx.Term{Field: "rent_type", Value: req.RentType + "*"})
+	}
+	if !userHasTeamPermission(utils.GetUserID(c)) {
+		condition.Terms = append(condition.Terms, searchx.Term{Field: "is_team_house", Value: "0"})
+	}
+	switch req.HouseSource {
+	case "commission":
+		condition.Ranges = append(condition.Ranges, searchx.Range{Field: "commission_price", GreatEqual: "1"})
+	case "landlord":
+		condition.Terms = append(condition.Terms, searchx.Term{Field: "house_type", Value: "房东房源"})
+	case "team":
+		if userHasTeamPermission(utils.GetUserID(c)) {
+			condition.Terms = append(condition.Terms, searchx.Term{Field: "is_team_house", Value: "1"})
+		}
 	}
 	if req.Price > 0 {
 		priceOption := ResourceService.GetPriceByOption(strconv.Itoa(req.Price))
@@ -288,6 +313,19 @@ func (h *HouseResourceApi) ListByXiaoquAggList(c *gin.Context) {
 	if len(req.RentType) > 0 {
 		condition.Terms = append(condition.Terms, searchx.Term{Field: "rent_type", Value: req.RentType + "*"})
 	}
+	if !userHasTeamPermission(utils.GetUserID(c)) {
+		condition.Terms = append(condition.Terms, searchx.Term{Field: "is_team_house", Value: "0"})
+	}
+	switch req.HouseSource {
+	case "commission":
+		condition.Ranges = append(condition.Ranges, searchx.Range{Field: "commission_price", GreatEqual: "1"})
+	case "landlord":
+		condition.Terms = append(condition.Terms, searchx.Term{Field: "house_type", Value: "房东房源"})
+	case "team":
+		if userHasTeamPermission(utils.GetUserID(c)) {
+			condition.Terms = append(condition.Terms, searchx.Term{Field: "is_team_house", Value: "1"})
+		}
+	}
 	if req.Price > 0 {
 		priceOption := ResourceService.GetPriceByOption(strconv.Itoa(req.Price))
 		g := priceOption[0]
@@ -358,7 +396,11 @@ func (h *HouseResourceApi) ListByXiaoquId(c *gin.Context) {
 		pageInfo.PageInfo.PageSize = 50
 	}
 
-	list, total, err := ResourceService.GetPage(pageInfo.XiaoquId, 0, "", "待出租", pageInfo.PageInfo, "updated_last_at", true, request.SearchOther{})
+	other := request.SearchOther{}
+	if !userHasTeamPermission(utils.GetUserID(c)) {
+		other.IsTeamHouse = "false"
+	}
+	list, total, err := ResourceService.GetPage(pageInfo.XiaoquId, 0, "", "待出租", pageInfo.PageInfo, "updated_last_at", true, other)
 	if err != nil {
 		global.GVA_LOG.Error("获取失败!", zap.Error(err))
 		response.FailWithMessage("获取失败", c)
@@ -425,8 +467,26 @@ func (h *HouseResourceApi) ListByUserId(c *gin.Context) {
 		response.FailWithMessage("获取失败", c)
 		return
 	}
+	user, _ := userService.FindUserById(int(userId))
+	var result []response2.MyResourceResponse
+	publishUsed := 0
+	if user != nil {
+		count, _ := ResourceService.CountOnShelfByUser(userId)
+		publishUsed = int(count)
+	}
+	for _, item := range list.([]house.Resource) {
+		result = append(result, response2.MyResourceResponse{
+			Resource:           item,
+			WxNo:               user.WxNo,
+			WxNickName:         user.WxNickName,
+			HeaderImg:          user.HeaderImg,
+			PublishQuotaTotal:  user.PublishQuotaTotal,
+			PublishQuotaUsed:   publishUsed,
+			PublishQuotaRemain: maxInt(user.PublishQuotaTotal-publishUsed, 0),
+		})
+	}
 	response.OkWithDetailed(response.PageResult{
-		List:     list,
+		List:     result,
 		Total:    total,
 		Page:     pageInfo.Page,
 		PageSize: pageInfo.PageSize,
@@ -537,7 +597,12 @@ func (h *HouseResourceApi) Edit(c *gin.Context) {
 
 	origin.Feature = req.Feature
 	origin.Price = req.Price
+	origin.CommissionPrice = req.CommissionPrice
 	origin.Attachments = req.Attachments
+	origin.HouseType = req.HouseType
+	origin.RentType = req.RentType
+	origin.Remarks = req.Remarks
+	origin.RoomCode = req.RoomCode
 
 	err = ResourceService.CreateOrUpdate(origin)
 	if err != nil {
@@ -661,8 +726,10 @@ func (h *HouseResourceApi) FilterOptions(c *gin.Context) {
 	}
 
 	response.OkWithDetailed(map[string]interface{}{
-		"houseType": options,
-		"price":     map[string]string{"1": "500以下", "2": "500-1000元", "3": "1000-1500元", "4": "1500-2000元", "5": "2000-2500元", "6": "2500-3000元", "7": "3000元以上"},
+		"houseType":        options,
+		"price":            map[string]string{"1": "500以下", "2": "500-1000元", "3": "1000-1500元", "4": "1500-2000元", "5": "2000-2500元", "6": "2500-3000元", "7": "3000元以上"},
+		"houseSource":      map[string]string{"1": "不限", "2": "有返佣", "3": "房东房源", "4": "团队房源"},
+		"canViewTeamHouse": userHasTeamPermission(utils.GetUserID(c)),
 	}, "获取成功", c)
 
 }
@@ -681,8 +748,10 @@ func (h *HouseResourceApi) FilterTypeOptions(c *gin.Context) {
 	}
 
 	response.OkWithDetailed(map[string]interface{}{
-		"houseType": options,
-		"price":     map[string]string{"1": "500以下", "2": "500-1000元", "3": "1000-1500元", "4": "1500-2000元", "5": "2000-2500元", "6": "2500-3000元", "7": "3000元以上"},
+		"houseType":        options,
+		"price":            map[string]string{"1": "500以下", "2": "500-1000元", "3": "1000-1500元", "4": "1500-2000元", "5": "2000-2500元", "6": "2500-3000元", "7": "3000元以上"},
+		"houseSource":      map[string]string{"1": "不限", "2": "有返佣", "3": "房东房源", "4": "团队房源"},
+		"canViewTeamHouse": userHasTeamPermission(utils.GetUserID(c)),
 	}, "获取成功", c)
 
 }
@@ -750,6 +819,24 @@ func (h *HouseResourceApi) FavoriteDel(c *gin.Context) {
 	StatisService.InsertRecord(uint(req.ID), "follow", utils.GetUserID(c), -1)
 	response.Ok(c)
 	return
+}
+
+func userHasTeamPermission(userID uint) bool {
+	if userID == 0 {
+		return false
+	}
+	user, err := userService.FindUserById(int(userID))
+	if err != nil || user == nil {
+		return false
+	}
+	return user.IsFindHouseSupermarket
+}
+
+func maxInt(a, b int) int {
+	if a > b {
+		return a
+	}
+	return b
 }
 
 // @Tags      Center

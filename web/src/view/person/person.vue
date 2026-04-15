@@ -118,6 +118,28 @@
             <div
               class="flex items-center gap-1 lg:gap-3 text-gray-600 dark:text-gray-300"
             >
+              <el-icon class="text-cyan-500"><chat-dot-round /></el-icon>
+              <span class="font-medium">微信号：</span>
+              <span>{{ userStore.userInfo.wxNo || "未设置" }}</span>
+              <el-button
+                link
+                type="primary"
+                class="ml-auto"
+                @click="changeWxFlag = true"
+              >
+                修改
+              </el-button>
+            </div>
+            <div
+              class="flex items-center gap-1 lg:gap-3 text-gray-600 dark:text-gray-300"
+            >
+              <el-icon class="text-emerald-500"><user /></el-icon>
+              <span class="font-medium">微信昵称：</span>
+              <span>{{ userStore.userInfo.wxNickName || "未同步" }}</span>
+            </div>
+            <div
+              class="flex items-center gap-1 lg:gap-3 text-gray-600 dark:text-gray-300"
+            >
               <el-icon class="text-purple-500"><lock /></el-icon>
               <span class="font-medium">账号密码：</span>
               <span>已设置</span>
@@ -337,6 +359,28 @@
         </div>
       </template>
     </el-dialog>
+
+    <el-dialog
+      v-model="changeWxFlag"
+      title="维护微信号"
+      width="400px"
+      class="custom-dialog"
+    >
+      <el-form :model="wxForm" label-width="90px" class="py-4">
+        <el-form-item label="微信号">
+          <el-input v-model="wxForm.wxNo" placeholder="请输入微信号" />
+        </el-form-item>
+        <el-form-item label="微信昵称">
+          <el-input :model-value="userStore.userInfo.wxNickName || '未同步'" disabled />
+        </el-form-item>
+      </el-form>
+      <template #footer>
+        <div class="dialog-footer">
+          <el-button @click="closeChangeWx">取 消</el-button>
+          <el-button type="primary" @click="changeWxNo">确 定</el-button>
+        </div>
+      </template>
+    </el-dialog>
   </div>
 </template>
 
@@ -463,10 +507,14 @@ const changePhone = async () => {
 };
 
 const changeEmailFlag = ref(false);
+const changeWxFlag = ref(false);
 const emailTime = ref(0);
 const emailForm = reactive({
   email: "",
   code: "",
+});
+const wxForm = reactive({
+  wxNo: ""
 });
 
 const getEmailCode = async () => {
@@ -495,6 +543,20 @@ const changeEmail = async () => {
   }
 };
 
+const closeChangeWx = () => {
+  changeWxFlag.value = false;
+  wxForm.wxNo = "";
+};
+
+const changeWxNo = async () => {
+  const res = await setSelfInfo({ wxNo: wxForm.wxNo });
+  if (res.code === 0) {
+    ElMessage.success("修改成功");
+    userStore.ResetUserInfo({ wxNo: wxForm.wxNo });
+    closeChangeWx();
+  }
+};
+
 watch(
   () => userStore.userInfo.headerImg,
   async (val) => {
@@ -505,6 +567,15 @@ watch(
         type: "success",
         message: "设置成功",
       });
+    }
+  }
+);
+
+watch(
+  () => changeWxFlag.value,
+  (val) => {
+    if (val) {
+      wxForm.wxNo = userStore.userInfo.wxNo || "";
     }
   }
 );

@@ -40,6 +40,7 @@ type GetByIdStr struct {
 type GetStatis struct {
 	Start time.Time `form:"start" binding:"required" time_format:"2006-01-02T15:04:05Z"`
 	End   time.Time `form:"end" binding:"required" time_format:"2006-01-02T15:04:05Z"`
+	Phone string    `form:"phone"`
 }
 
 type VisitReq struct {
@@ -72,6 +73,13 @@ type GetAuthorityId struct {
 type SearchArea struct {
 	CityId string `json:"cityId"` // 城市id
 }
+
+type WxProfileSync struct {
+	WxNickName string `json:"wxNickName"`
+	HeaderImg  string `json:"headerImg"`
+	WxNo       string `json:"wxNo"`
+}
+
 type SearchDistrict struct {
 	AreaId uint `json:"areaId"` // 区域id
 }
@@ -135,6 +143,9 @@ type SearchOther struct {
 	UpdatedAtLast  time.Time `json:"updatedAtLast"`  // 开始时间
 	UpdatedAtStart time.Time `json:"updatedAtStart"` // 结束时间
 	RentType       string    `json:"rentType"`       // 出租类型
+	IsTeamHouse    string    `json:"isTeamHouse"`
+	HouseType      string    `json:"houseType"`
+	HasCommission  string    `json:"hasCommission"`
 }
 
 type HouseStateReq struct {
@@ -149,12 +160,44 @@ type FavoriteSearch struct {
 }
 
 type ResourceSearch struct {
-	XiaoquId  []int  `json:"xiaoquIds"` // 商圈ids
-	HouseType string `json:"houseType"` // 1居室、2居室
-	RentType  string `json:"rentType"`  // 整租、合租、分整租
-	Price     int    `json:"price"`     // 价格 1580
-	Feature   string `json:"feature"`   // 有无电梯
+	XiaoquId    []int  `json:"xiaoquIds"`   // 商圈ids
+	HouseType   string `json:"houseType"`   // 1居室、2居室
+	RentType    string `json:"rentType"`    // 整租、合租、分整租
+	Price       int    `json:"price"`       // 价格 1580
+	Feature     string `json:"feature"`     // 有无电梯
+	HouseSource string `json:"houseSource"` // commission landlord team
 
 	Page     int `json:"page" form:"page"`         // 页码
 	PageSize int `json:"pageSize" form:"pageSize"` // 每页大小
+}
+
+type RewardApplicationCreate struct {
+	ResourceID uint   `json:"resourceId"`
+	Remark     string `json:"remark"`
+}
+
+type RewardApplicationSearch struct {
+	PageInfo
+	PublisherConfirmStatus string `json:"publisherConfirmStatus"`
+	AuditStatus            string `json:"auditStatus"`
+}
+
+type RewardApplicationAction struct {
+	ID     uint   `json:"id"`
+	Action string `json:"action"`
+}
+
+type ContactQuotaCreate struct {
+	UserPhone string `json:"userPhone"`
+	Amount    int    `json:"amount"`
+	Remark    string `json:"remark"`
+}
+
+type ContactQuotaSearch struct {
+	PageInfo
+	UserPhone string `json:"userPhone"`
+}
+
+type ResourceShareCreate struct {
+	ExpireDays int `json:"expireDays"`
 }

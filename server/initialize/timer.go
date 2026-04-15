@@ -46,5 +46,15 @@ func Timer() {
 			fmt.Println("add StatisticSalerVisit error:", err)
 		}
 
+		_, err = global.GVA_Timer.AddTaskByFunc("RewardAutoApprove", "0 0 * * * *", func() {
+			err = task.RewardAutoApprove(global.GVA_DB)
+			if err != nil {
+				fmt.Println("timer RewardAutoApprove error:", err)
+			}
+		}, "", option...)
+		if err != nil {
+			fmt.Println("add RewardAutoApprove error:", err)
+		}
+
 	}()
 }

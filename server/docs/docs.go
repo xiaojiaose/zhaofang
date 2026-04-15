@@ -592,6 +592,145 @@ const docTemplate = `{
                 }
             }
         },
+        "/api/house/batchUpload": {
+            "post": {
+                "consumes": [
+                    "multipart/form-data"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Admin"
+                ],
+                "summary": "Excel批量上传房源",
+                "parameters": [
+                    {
+                        "type": "file",
+                        "description": "excel文件",
+                        "name": "file",
+                        "in": "formData",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "结果",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/response.Response"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/house.BatchUploadRecord"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                }
+            }
+        },
+        "/api/house/contactQuota/grant": {
+            "post": {
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Admin"
+                ],
+                "summary": "增加经纪人联系方式查看次数",
+                "parameters": [
+                    {
+                        "description": "增加次数参数",
+                        "name": "data",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/request.ContactQuotaCreate"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "操作结果",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/response.Response"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "type": "string"
+                                        },
+                                        "msg": {
+                                            "type": "string"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                }
+            }
+        },
+        "/api/house/contactQuota/list": {
+            "post": {
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Admin"
+                ],
+                "summary": "查看联系方式次数流水",
+                "parameters": [
+                    {
+                        "description": "查询参数",
+                        "name": "data",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/request.ContactQuotaSearch"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "次数流水",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/response.Response"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/response.PageResult"
+                                        },
+                                        "msg": {
+                                            "type": "string"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                }
+            }
+        },
         "/api/house/create": {
             "post": {
                 "produces": [
@@ -882,6 +1021,102 @@ const docTemplate = `{
                 }
             }
         },
+        "/api/house/reward/action": {
+            "post": {
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Admin"
+                ],
+                "summary": "后台操作成交有礼审核状态",
+                "parameters": [
+                    {
+                        "description": "操作参数",
+                        "name": "data",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/request.RewardApplicationAction"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "操作结果",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/response.Response"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "type": "string"
+                                        },
+                                        "msg": {
+                                            "type": "string"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                }
+            }
+        },
+        "/api/house/reward/list": {
+            "post": {
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Admin"
+                ],
+                "summary": "后台成交有礼审核列表",
+                "parameters": [
+                    {
+                        "description": "查询参数",
+                        "name": "data",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/request.RewardApplicationSearch"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "审核列表",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/response.Response"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/response.PageResult"
+                                        },
+                                        "msg": {
+                                            "type": "string"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                }
+            }
+        },
         "/api/house/statis/view": {
             "get": {
                 "produces": [
@@ -897,6 +1132,11 @@ const docTemplate = `{
                         "name": "end",
                         "in": "query",
                         "required": true
+                    },
+                    {
+                        "type": "string",
+                        "name": "phone",
+                        "in": "query"
                     },
                     {
                         "type": "string",
@@ -917,7 +1157,8 @@ const docTemplate = `{
                                     "type": "object",
                                     "properties": {
                                         "data": {
-                                            "$ref": "#/definitions/search.StatisData"
+                                            "type": "object",
+                                            "additionalProperties": true
                                         }
                                     }
                                 }
@@ -3875,6 +4116,96 @@ const docTemplate = `{
                 }
             }
         },
+        "/center/house/share": {
+            "get": {
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Center"
+                ],
+                "summary": "通过分享token获取地图房源列表",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "分享token",
+                        "name": "token",
+                        "in": "query",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "分享房源列表",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/response.Response"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "type": "object",
+                                            "additionalProperties": true
+                                        },
+                                        "msg": {
+                                            "type": "string"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                }
+            },
+            "post": {
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Center"
+                ],
+                "summary": "创建我的房源地图分享链接",
+                "parameters": [
+                    {
+                        "description": "分享参数",
+                        "name": "data",
+                        "in": "body",
+                        "schema": {
+                            "$ref": "#/definitions/request.ResourceShareCreate"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "分享结果",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/response.Response"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "type": "object",
+                                            "additionalProperties": true
+                                        },
+                                        "msg": {
+                                            "type": "string"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                }
+            }
+        },
         "/center/house/shared": {
             "get": {
                 "produces": [
@@ -4182,7 +4513,236 @@ const docTemplate = `{
                                     "type": "object",
                                     "properties": {
                                         "data": {
+                                            "type": "object",
+                                            "additionalProperties": true
+                                        },
+                                        "msg": {
                                             "type": "string"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                }
+            },
+            "post": {
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Center"
+                ],
+                "summary": "小程序设置微信资料",
+                "parameters": [
+                    {
+                        "description": "微信昵称、头像、微信号",
+                        "name": "data",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/github_com_flipped-aurora_gin-vue-admin_server_model_system_request.WxProfileSync"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "设置微信资料",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/response.Response"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "type": "string"
+                                        },
+                                        "msg": {
+                                            "type": "string"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                }
+            }
+        },
+        "/center/reward/apply": {
+            "post": {
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Center"
+                ],
+                "summary": "发起出房有礼申请",
+                "parameters": [
+                    {
+                        "description": "申请参数",
+                        "name": "data",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/request.RewardApplicationCreate"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "申请结果",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/response.Response"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "type": "string"
+                                        },
+                                        "msg": {
+                                            "type": "string"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                }
+            }
+        },
+        "/center/reward/publisher/action": {
+            "post": {
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Center"
+                ],
+                "summary": "发布人确认或拒绝出房有礼申请",
+                "parameters": [
+                    {
+                        "description": "操作参数",
+                        "name": "data",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/request.RewardApplicationAction"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "操作结果",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/response.Response"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "type": "string"
+                                        },
+                                        "msg": {
+                                            "type": "string"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                }
+            }
+        },
+        "/center/reward/publisher/list": {
+            "post": {
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Center"
+                ],
+                "summary": "发布人查看出房有礼审核列表",
+                "parameters": [
+                    {
+                        "description": "查询参数",
+                        "name": "data",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/request.RewardApplicationSearch"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "审核列表",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/response.Response"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/response.PageResult"
+                                        },
+                                        "msg": {
+                                            "type": "string"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                }
+            }
+        },
+        "/center/reward/recent": {
+            "get": {
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Center"
+                ],
+                "summary": "获取最近联系过的房源发布人记录",
+                "responses": {
+                    "200": {
+                        "description": "最近联系记录",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/response.Response"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "type": "array",
+                                            "items": {
+                                                "type": "object",
+                                                "additionalProperties": true
+                                            }
                                         },
                                         "msg": {
                                             "type": "string"
@@ -4649,6 +5209,756 @@ const docTemplate = `{
                                         "data": {
                                             "$ref": "#/definitions/response.PageResult"
                                         },
+                                        "msg": {
+                                            "type": "string"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                }
+            }
+        },
+        "/dictBuilding/createDictBuilding": {
+            "post": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "DictBuilding"
+                ],
+                "summary": "创建楼栋字典",
+                "parameters": [
+                    {
+                        "description": "楼栋字典模型",
+                        "name": "data",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/house.DictBuilding"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "创建成功",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/response.Response"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "msg": {
+                                            "type": "string"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                }
+            }
+        },
+        "/dictBuilding/deleteDictBuilding": {
+            "delete": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "DictBuilding"
+                ],
+                "summary": "删除楼栋字典",
+                "parameters": [
+                    {
+                        "description": "楼栋字典模型",
+                        "name": "data",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/house.DictBuilding"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "删除成功",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/response.Response"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "msg": {
+                                            "type": "string"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                }
+            }
+        },
+        "/dictBuilding/findDictBuilding": {
+            "get": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "DictBuilding"
+                ],
+                "summary": "根据ID获取楼栋字典",
+                "parameters": [
+                    {
+                        "description": "楼栋字典模型",
+                        "name": "data",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/house.DictBuilding"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "查询成功",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/response.Response"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/house.DictBuilding"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                }
+            }
+        },
+        "/dictBuilding/getDictBuildingList": {
+            "post": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "DictBuilding"
+                ],
+                "summary": "分页获取楼栋字典列表",
+                "parameters": [
+                    {
+                        "description": "分页参数",
+                        "name": "data",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/request.PageInfo"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "获取成功",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/response.Response"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/response.PageResult"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                }
+            }
+        },
+        "/dictBuilding/updateDictBuilding": {
+            "put": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "DictBuilding"
+                ],
+                "summary": "更新楼栋字典",
+                "parameters": [
+                    {
+                        "description": "楼栋字典模型",
+                        "name": "data",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/house.DictBuilding"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "更新成功",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/response.Response"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "msg": {
+                                            "type": "string"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                }
+            }
+        },
+        "/dictHouse/createDictHouse": {
+            "post": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "DictHouse"
+                ],
+                "summary": "创建房屋字典",
+                "parameters": [
+                    {
+                        "description": "房屋字典模型",
+                        "name": "data",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/house.DictHouse"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "创建成功",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/response.Response"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "msg": {
+                                            "type": "string"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                }
+            }
+        },
+        "/dictHouse/deleteDictHouse": {
+            "delete": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "DictHouse"
+                ],
+                "summary": "删除房屋字典",
+                "parameters": [
+                    {
+                        "description": "房屋字典模型",
+                        "name": "data",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/house.DictHouse"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "删除成功",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/response.Response"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "msg": {
+                                            "type": "string"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                }
+            }
+        },
+        "/dictHouse/findDictHouse": {
+            "get": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "DictHouse"
+                ],
+                "summary": "根据ID获取房屋字典",
+                "parameters": [
+                    {
+                        "description": "房屋字典模型",
+                        "name": "data",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/house.DictHouse"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "查询成功",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/response.Response"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/house.DictHouse"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                }
+            }
+        },
+        "/dictHouse/getDictHouseList": {
+            "post": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "DictHouse"
+                ],
+                "summary": "分页获取房屋字典列表",
+                "parameters": [
+                    {
+                        "description": "分页参数",
+                        "name": "data",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/request.PageInfo"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "获取成功",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/response.Response"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/response.PageResult"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                }
+            }
+        },
+        "/dictHouse/updateDictHouse": {
+            "put": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "DictHouse"
+                ],
+                "summary": "更新房屋字典",
+                "parameters": [
+                    {
+                        "description": "房屋字典模型",
+                        "name": "data",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/house.DictHouse"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "更新成功",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/response.Response"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "msg": {
+                                            "type": "string"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                }
+            }
+        },
+        "/dictUnit/createDictUnit": {
+            "post": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "DictUnit"
+                ],
+                "summary": "创建单元字典",
+                "parameters": [
+                    {
+                        "description": "单元字典模型",
+                        "name": "data",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/house.DictUnit"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "创建成功",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/response.Response"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "msg": {
+                                            "type": "string"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                }
+            }
+        },
+        "/dictUnit/deleteDictUnit": {
+            "delete": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "DictUnit"
+                ],
+                "summary": "删除单元字典",
+                "parameters": [
+                    {
+                        "description": "单元字典模型",
+                        "name": "data",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/house.DictUnit"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "删除成功",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/response.Response"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "msg": {
+                                            "type": "string"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                }
+            }
+        },
+        "/dictUnit/findDictUnit": {
+            "get": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "DictUnit"
+                ],
+                "summary": "根据ID获取单元字典",
+                "parameters": [
+                    {
+                        "description": "单元字典模型",
+                        "name": "data",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/house.DictUnit"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "查询成功",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/response.Response"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/house.DictUnit"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                }
+            }
+        },
+        "/dictUnit/getDictUnitList": {
+            "post": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "DictUnit"
+                ],
+                "summary": "分页获取单元字典列表",
+                "parameters": [
+                    {
+                        "description": "分页参数",
+                        "name": "data",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/request.PageInfo"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "获取成功",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/response.Response"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/response.PageResult"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                }
+            }
+        },
+        "/dictUnit/updateDictUnit": {
+            "put": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "DictUnit"
+                ],
+                "summary": "更新单元字典",
+                "parameters": [
+                    {
+                        "description": "单元字典模型",
+                        "name": "data",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/house.DictUnit"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "更新成功",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/response.Response"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
                                         "msg": {
                                             "type": "string"
                                         }
@@ -9387,6 +10697,167 @@ const docTemplate = `{
                     }
                 }
             }
+        },
+        "/wxpay/createOrder": {
+            "post": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "WxPay"
+                ],
+                "summary": "创建支付订单",
+                "parameters": [
+                    {
+                        "description": "支付订单参数",
+                        "name": "data",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/system.CreatePayOrderReq"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "创建成功",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/response.Response"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/system.PayOrderResp"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                }
+            }
+        },
+        "/wxpay/notify": {
+            "post": {
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "WxPay"
+                ],
+                "summary": "支付回调",
+                "responses": {}
+            }
+        },
+        "/wxpay/queryOrder": {
+            "get": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "WxPay"
+                ],
+                "summary": "查询订单状态",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "订单号",
+                        "name": "orderNo",
+                        "in": "query",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "查询成功",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/response.Response"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/system.PayOrder"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                }
+            }
+        },
+        "/wxpay/queryWxOrder": {
+            "get": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "WxPay"
+                ],
+                "summary": "查询微信订单状态",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "商户订单号",
+                        "name": "outTradeNo",
+                        "in": "query",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "查询成功",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/response.Response"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "type": "object"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                }
+            }
         }
     },
     "definitions": {
@@ -10453,6 +11924,9 @@ const docTemplate = `{
                     "description": "URL前缀",
                     "type": "string"
                 },
+                "resource-index": {
+                    "type": "string"
+                },
                 "url": {
                     "type": "string"
                 },
@@ -10669,6 +12143,55 @@ const docTemplate = `{
                 }
             }
         },
+        "github_com_flipped-aurora_gin-vue-admin_server_model_system_request.WxProfileSync": {
+            "type": "object",
+            "properties": {
+                "headerImg": {
+                    "type": "string"
+                },
+                "wxNickName": {
+                    "type": "string"
+                },
+                "wxNo": {
+                    "type": "string"
+                }
+            }
+        },
+        "house.BatchUploadRecord": {
+            "type": "object",
+            "properties": {
+                "ID": {
+                    "type": "integer"
+                },
+                "batchNo": {
+                    "type": "string"
+                },
+                "createdAt": {
+                    "type": "string"
+                },
+                "failedCount": {
+                    "type": "integer"
+                },
+                "fileName": {
+                    "type": "string"
+                },
+                "resultSummary": {
+                    "type": "string"
+                },
+                "successCount": {
+                    "type": "integer"
+                },
+                "totalCount": {
+                    "type": "integer"
+                },
+                "updatedAt": {
+                    "type": "string"
+                },
+                "userId": {
+                    "type": "integer"
+                }
+            }
+        },
         "house.DictBuilding": {
             "type": "object",
             "properties": {
@@ -10688,6 +12211,60 @@ const docTemplate = `{
                 },
                 "createdAt": {
                     "description": "创建时间",
+                    "type": "string"
+                },
+                "updatedAt": {
+                    "description": "更新时间",
+                    "type": "string"
+                }
+            }
+        },
+        "house.DictHouse": {
+            "type": "object",
+            "properties": {
+                "ID": {
+                    "description": "主键ID",
+                    "type": "integer"
+                },
+                "createdAt": {
+                    "description": "创建时间",
+                    "type": "string"
+                },
+                "encryptHouseName": {
+                    "description": "包含 Unicode 转义序列",
+                    "type": "string"
+                },
+                "houseOpenId": {
+                    "type": "string"
+                },
+                "unitOpenId": {
+                    "type": "string"
+                },
+                "updatedAt": {
+                    "description": "更新时间",
+                    "type": "string"
+                }
+            }
+        },
+        "house.DictUnit": {
+            "type": "object",
+            "properties": {
+                "ID": {
+                    "description": "主键ID",
+                    "type": "integer"
+                },
+                "buildingOpenId": {
+                    "type": "string"
+                },
+                "createdAt": {
+                    "description": "创建时间",
+                    "type": "string"
+                },
+                "encryptUnitName": {
+                    "description": "包含 Unicode 转义序列",
+                    "type": "string"
+                },
+                "unitOpenId": {
                     "type": "string"
                 },
                 "updatedAt": {
@@ -10731,6 +12308,10 @@ const docTemplate = `{
                     "description": "电话获取次数",
                     "type": "integer"
                 },
+                "commission_price": {
+                    "description": "返佣金额",
+                    "type": "integer"
+                },
                 "createdAt": {
                     "description": "创建时间",
                     "type": "string"
@@ -10770,6 +12351,10 @@ const docTemplate = `{
                 "house_type": {
                     "description": "户型",
                     "type": "string"
+                },
+                "is_team_house": {
+                    "description": "是否团队房源",
+                    "type": "boolean"
                 },
                 "owner": {
                     "description": "业主",
@@ -11213,6 +12798,40 @@ const docTemplate = `{
                 }
             }
         },
+        "request.ContactQuotaCreate": {
+            "type": "object",
+            "properties": {
+                "amount": {
+                    "type": "integer"
+                },
+                "remark": {
+                    "type": "string"
+                },
+                "userPhone": {
+                    "type": "string"
+                }
+            }
+        },
+        "request.ContactQuotaSearch": {
+            "type": "object",
+            "properties": {
+                "keyword": {
+                    "description": "关键字",
+                    "type": "string"
+                },
+                "page": {
+                    "description": "页码",
+                    "type": "integer"
+                },
+                "pageSize": {
+                    "description": "每页大小",
+                    "type": "integer"
+                },
+                "userPhone": {
+                    "type": "string"
+                }
+            }
+        },
         "request.DataSource": {
             "type": "object",
             "properties": {
@@ -11585,6 +13204,9 @@ const docTemplate = `{
                     "type": "string",
                     "example": "[]uint 角色id"
                 },
+                "contactViewQuotaTotal": {
+                    "type": "integer"
+                },
                 "email": {
                     "type": "string",
                     "example": "电子邮箱"
@@ -11596,6 +13218,9 @@ const docTemplate = `{
                 "headerImg": {
                     "type": "string",
                     "example": "头像链接"
+                },
+                "isFindHouseSupermarket": {
+                    "type": "boolean"
                 },
                 "nickName": {
                     "type": "string",
@@ -11609,6 +13234,9 @@ const docTemplate = `{
                     "type": "string",
                     "example": "电话号码"
                 },
+                "publishQuotaTotal": {
+                    "type": "integer"
+                },
                 "userName": {
                     "type": "string",
                     "example": "用户名"
@@ -11620,6 +13248,10 @@ const docTemplate = `{
             "properties": {
                 "feature": {
                     "description": "有无电梯",
+                    "type": "string"
+                },
+                "houseSource": {
+                    "description": "commission landlord team",
                     "type": "string"
                 },
                 "houseType": {
@@ -11648,6 +13280,59 @@ const docTemplate = `{
                     "items": {
                         "type": "integer"
                     }
+                }
+            }
+        },
+        "request.ResourceShareCreate": {
+            "type": "object",
+            "properties": {
+                "expireDays": {
+                    "type": "integer"
+                }
+            }
+        },
+        "request.RewardApplicationAction": {
+            "type": "object",
+            "properties": {
+                "action": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "integer"
+                }
+            }
+        },
+        "request.RewardApplicationCreate": {
+            "type": "object",
+            "properties": {
+                "remark": {
+                    "type": "string"
+                },
+                "resourceId": {
+                    "type": "integer"
+                }
+            }
+        },
+        "request.RewardApplicationSearch": {
+            "type": "object",
+            "properties": {
+                "auditStatus": {
+                    "type": "string"
+                },
+                "keyword": {
+                    "description": "关键字",
+                    "type": "string"
+                },
+                "page": {
+                    "description": "页码",
+                    "type": "integer"
+                },
+                "pageSize": {
+                    "description": "每页大小",
+                    "type": "integer"
+                },
+                "publisherConfirmStatus": {
+                    "type": "string"
                 }
             }
         },
@@ -12242,6 +13927,10 @@ const docTemplate = `{
                     "description": "电话获取次数",
                     "type": "integer"
                 },
+                "commission_price": {
+                    "description": "返佣金额",
+                    "type": "integer"
+                },
                 "createdAt": {
                     "description": "创建时间",
                     "type": "string"
@@ -12281,6 +13970,10 @@ const docTemplate = `{
                 "house_type": {
                     "description": "户型",
                     "type": "string"
+                },
+                "is_team_house": {
+                    "description": "是否团队房源",
+                    "type": "boolean"
                 },
                 "latitude": {
                     "description": "latitude",
@@ -12391,6 +14084,10 @@ const docTemplate = `{
                     "description": "电话获取次数",
                     "type": "integer"
                 },
+                "commission_price": {
+                    "description": "返佣金额",
+                    "type": "integer"
+                },
                 "createdAt": {
                     "description": "创建时间",
                     "type": "string"
@@ -12423,6 +14120,9 @@ const docTemplate = `{
                     "description": "是否有照片",
                     "type": "boolean"
                 },
+                "headerImg": {
+                    "type": "string"
+                },
                 "house_id": {
                     "description": "房号",
                     "type": "string"
@@ -12431,12 +14131,15 @@ const docTemplate = `{
                     "description": "户型",
                     "type": "string"
                 },
+                "is_team_house": {
+                    "description": "是否团队房源",
+                    "type": "boolean"
+                },
                 "owner": {
                     "description": "业主",
                     "type": "integer"
                 },
                 "phone": {
-                    "description": "联系手机号",
                     "type": "string"
                 },
                 "price": {
@@ -12663,43 +14366,6 @@ const docTemplate = `{
                 }
             }
         },
-        "search.StatisData": {
-            "type": "object",
-            "properties": {
-                "ID": {
-                    "description": "主键ID",
-                    "type": "integer"
-                },
-                "add": {
-                    "description": "新增帖子",
-                    "type": "integer"
-                },
-                "add_saler": {
-                    "description": "新增经纪人",
-                    "type": "integer"
-                },
-                "click": {
-                    "description": "联系方式被点击数",
-                    "type": "integer"
-                },
-                "follow": {
-                    "description": "帖子关注数",
-                    "type": "integer"
-                },
-                "shared": {
-                    "description": "帖子分享数",
-                    "type": "integer"
-                },
-                "use_saler": {
-                    "description": "使用的经纪人",
-                    "type": "integer"
-                },
-                "view": {
-                    "description": "帖子浏览数",
-                    "type": "integer"
-                }
-            }
-        },
         "system.Condition": {
             "type": "object",
             "properties": {
@@ -12726,6 +14392,28 @@ const docTemplate = `{
                 "updatedAt": {
                     "description": "更新时间",
                     "type": "string"
+                }
+            }
+        },
+        "system.CreatePayOrderReq": {
+            "type": "object",
+            "required": [
+                "body",
+                "openId",
+                "totalFee"
+            ],
+            "properties": {
+                "body": {
+                    "description": "商品描述",
+                    "type": "string"
+                },
+                "openId": {
+                    "description": "用户openid",
+                    "type": "string"
+                },
+                "totalFee": {
+                    "description": "支付金额(分)",
+                    "type": "integer"
                 }
             }
         },
@@ -12787,6 +14475,66 @@ const docTemplate = `{
                 "transitionType": {
                     "description": "路由切换动画",
                     "type": "string"
+                }
+            }
+        },
+        "system.PayOrder": {
+            "type": "object",
+            "properties": {
+                "ID": {
+                    "type": "integer"
+                },
+                "body": {
+                    "description": "商品描述",
+                    "type": "string"
+                },
+                "createdAt": {
+                    "type": "string"
+                },
+                "openId": {
+                    "description": "用户openid",
+                    "type": "string"
+                },
+                "orderNo": {
+                    "description": "订单号",
+                    "type": "string"
+                },
+                "outTradeNo": {
+                    "description": "商户订单号",
+                    "type": "string"
+                },
+                "payTime": {
+                    "description": "支付时间",
+                    "type": "string"
+                },
+                "status": {
+                    "description": "订单状态 0:待支付 1:已支付 2:已取消",
+                    "type": "integer"
+                },
+                "totalFee": {
+                    "description": "支付金额(分)",
+                    "type": "integer"
+                },
+                "transactionId": {
+                    "description": "微信支付订单号",
+                    "type": "string"
+                },
+                "updatedAt": {
+                    "type": "string"
+                }
+            }
+        },
+        "system.PayOrderResp": {
+            "type": "object",
+            "properties": {
+                "orderNo": {
+                    "description": "订单号",
+                    "type": "string"
+                },
+                "payParams": {
+                    "description": "小程序支付参数",
+                    "type": "object",
+                    "additionalProperties": true
                 }
             }
         },
@@ -13345,6 +15093,9 @@ const docTemplate = `{
                     "description": "用户角色ID",
                     "type": "integer"
                 },
+                "contactViewQuotaTotal": {
+                    "type": "integer"
+                },
                 "createdAt": {
                     "description": "创建时间",
                     "type": "string"
@@ -13360,6 +15111,9 @@ const docTemplate = `{
                 "headerImg": {
                     "description": "用户头像",
                     "type": "string"
+                },
+                "isFindHouseSupermarket": {
+                    "type": "boolean"
                 },
                 "nickName": {
                     "type": "string"
@@ -13379,6 +15133,9 @@ const docTemplate = `{
                 "phone": {
                     "description": "用户手机号",
                     "type": "string"
+                },
+                "publishQuotaTotal": {
+                    "type": "integer"
                 },
                 "updatedAt": {
                     "description": "更新时间",

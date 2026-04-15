@@ -103,11 +103,14 @@ service.interceptors.request.use(
       showLoading(config.loadingOption)
     }
     const userStore = useUserStore()
+    const isFormData = typeof FormData !== 'undefined' && config.data instanceof FormData
     config.headers = {
-      'Content-Type': 'application/json',
       'x-token': userStore.token,
       'x-user-id': userStore.userInfo.ID,
       ...config.headers
+    }
+    if (!isFormData && !config.headers['Content-Type']) {
+      config.headers['Content-Type'] = 'application/json'
     }
     return config
   },

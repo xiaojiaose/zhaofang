@@ -58,4 +58,5 @@ var (
 	dictService             = service.ServiceGroupApp.SystemServiceGroup.DictService
 	aliSmsService           = service.ServiceGroupApp.SystemServiceGroup.AliSmsService
 	wxPayService            = service.ServiceGroupApp.SystemServiceGroup.WxPayService
+	ResourceService         = service.ServiceGroupApp.HouseServiceGroup.ResourceService
 )

@@ -15,6 +15,18 @@ type ResourceVisitResponse struct {
 	house.Resource
 	WxNo       string `json:"wxNo"` // 微信号
 	WxNickName string `json:"wxNickName"`
+	HeaderImg  string `json:"headerImg"`
+	Phone      string `json:"phone"`
+}
+
+type MyResourceResponse struct {
+	house.Resource
+	WxNo               string `json:"wxNo"`
+	WxNickName         string `json:"wxNickName"`
+	HeaderImg          string `json:"headerImg"`
+	PublishQuotaTotal  int    `json:"publishQuotaTotal"`
+	PublishQuotaUsed   int    `json:"publishQuotaUsed"`
+	PublishQuotaRemain int    `json:"publishQuotaRemain"`
 }
 
 type DictBuildingResponse struct {

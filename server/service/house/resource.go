@@ -2,11 +2,13 @@ package house
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"github.com/flipped-aurora/gin-vue-admin/server/global"
 	"github.com/flipped-aurora/gin-vue-admin/server/model/common/request"
 	"github.com/flipped-aurora/gin-vue-admin/server/model/house"
 	"github.com/flipped-aurora/gin-vue-admin/server/model/search"
+	"github.com/flipped-aurora/gin-vue-admin/server/model/system"
 	"gorm.io/gorm"
 	"strconv"
 	"time"
@@ -16,9 +18,9 @@ type ResourceService struct{}
 
 func (service *ResourceService) FilterOptions() (list map[string]map[string]string, err error) {
 	list = make(map[string]map[string]string)
-	list["rentType"] = map[string]string{"1": "整租", "2": "分整租", "3": "合租"}
-	list["houseType"] = map[string]string{"1": "1居", "2": "2居", "3": "3居", "4": "4居+", "5": "开间"}
-	list["feature"] = map[string]string{"1": "可短租", "2": "包物业", "3": "南北通透", "4": "全南项"}
+	list["rentType"] = map[string]string{"1": "整租", "2": "分整租", "3": "合租", "4": "房东房源"}
+	list["houseType"] = map[string]string{"1": "1居", "2": "2居", "3": "3居", "4": "4居+", "5": "开间", "6": "主卧", "7": "次卧", "8": "暗间", "9": "房东房源"}
+	list["feature"] = map[string]string{"1": "可短租", "2": "包物业", "3": "南北通透", "4": "全南项", "5": "协助对接房东", "6": "可带看分佣"}
 	list["price"] = map[string]string{"1": "500以下", "2": "500-1000元", "3": "1000-1500元", "4": "1500-2000元", "5": "2000-2500元", "6": "2500-3000元", "7": "3000元以上"}
 
 	return
@@ -29,17 +31,22 @@ func (service *ResourceService) FilterOptions1() (list []request.RentType, err e
 		request.RentType{
 			Name:      "整租",
 			HouseType: []string{"1居", "2居", "3居", "4居+", "开间"}, // 可短租，有电梯，可注册办公，密码看房、包物业
-			Feature:   []string{"可短租", "包物业", "有电梯", "密码看房", "可办公注册"},
+			Feature:   []string{"可短租", "包物业", "有电梯", "密码看房", "可办公注册", "协助对接房东", "可带看分佣"},
 		},
 		request.RentType{
 			Name:      "分整租",
 			HouseType: []string{"1居", "2居", "3居", "4居+"}, // 可短租，有电梯、有原卫、有阳台，有燃气，朝南
-			Feature:   []string{"带阳台", "有电梯", "有原卫", "朝南", "有燃气", "可短租"},
+			Feature:   []string{"带阳台", "有电梯", "有原卫", "朝南", "有燃气", "可短租", "协助对接房东", "可带看分佣"},
 		},
 		request.RentType{
 			Name:      "合租",
 			HouseType: []string{"2居", "3居", "4居+"}, // 可短租、有电梯，有独卫，有阳台，可做饭、纯女生
-			Feature:   []string{"带阳台", "可短租", "有电梯", "有独卫", "可做饭", "纯女生"},
+			Feature:   []string{"带阳台", "可短租", "有电梯", "有独卫", "可做饭", "纯女生", "协助对接房东", "可带看分佣"},
+		},
+		request.RentType{
+			Name:      "房东房源",
+			HouseType: []string{"房东房源"},
+			Feature:   []string{"协助对接房东", "可带看分佣"},
 		},
 	)
 
@@ -61,6 +68,9 @@ func (service *ResourceService) GetPriceByOption(key string) []int {
 }
 
 func (service *ResourceService) CreateOrUpdate(resource *house.Resource) (err error) {
+	if err = service.fillUserRelatedFields(resource); err != nil {
+		return err
+	}
 	var doorNo string
 	if resource.BuildingId != "" {
 		var building house.DictBuilding
@@ -105,6 +115,14 @@ func (service *ResourceService) CreateOrUpdate(resource *house.Resource) (err er
 	}
 
 	resource.UpdatedLastAt = time.Now()
+	if resource.Status == "" {
+		resource.Status = "待出租"
+	}
+	if resource.Status == "待出租" {
+		if err = service.ensurePublishQuota(resource.Owner, resource.ID); err != nil {
+			return err
+		}
+	}
 	err = global.GVA_DB.Where("id = ?", resource.ID).First(&house.Resource{}).Updates(&resource).Error
 	if err != nil && err.Error() == "record not found" {
 		err = global.GVA_DB.Create(resource).Error
@@ -148,6 +166,17 @@ func (service *ResourceService) FollowViewClickSub(id uint, field string) (err e
 }
 
 func (service *ResourceService) SetState(ids []uint, value string) (err error) {
+	if value == "待出租" {
+		for _, id := range ids {
+			info, e := service.GetInfo(id)
+			if e != nil {
+				return e
+			}
+			if err = service.ensurePublishQuota(info.Owner, info.ID); err != nil {
+				return err
+			}
+		}
+	}
 	err = global.GVA_DB.Model(&house.Resource{}).Where("id in ? ", ids).Update("status", value).Error
 	if err == nil {
 		for _, id := range ids {
@@ -207,6 +236,18 @@ func (service *ResourceService) GetPage(xiaoquId, userId uint, appStatus string,
 	if Other.Phone != "" {
 		db = db.Where("phone = ?", Other.Phone)
 	}
+	if Other.IsTeamHouse == "true" {
+		db = db.Where("is_team_house = ?", true)
+	}
+	if Other.IsTeamHouse == "false" {
+		db = db.Where("is_team_house = ?", false)
+	}
+	if Other.HouseType != "" {
+		db = db.Where("house_type = ?", Other.HouseType)
+	}
+	if Other.HasCommission == "true" {
+		db = db.Where("commission_price > 0")
+	}
 	switch Other.HasPic {
 	case "true":
 		db = db.Where("has_pic = ?", true)
@@ -240,6 +281,55 @@ func (service *ResourceService) GetPage(xiaoquId, userId uint, appStatus string,
 		}
 	}
 	return apiList, total, err
+}
+
+func (service *ResourceService) CountOnShelfByUser(userID uint, excludeIDs ...uint) (count int64, err error) {
+	db := global.GVA_DB.Model(&house.Resource{}).Where("owner = ? AND status = ?", userID, "待出租")
+	if len(excludeIDs) > 0 {
+		db = db.Where("id NOT IN ?", excludeIDs)
+	}
+	err = db.Count(&count).Error
+	return
+}
+
+func (service *ResourceService) RefreshUserTeamHouses(userID uint, isTeam bool) error {
+	return global.GVA_DB.Model(&house.Resource{}).Where("owner = ?", userID).Update("is_team_house", isTeam).Error
+}
+
+func (service *ResourceService) fillUserRelatedFields(resource *house.Resource) error {
+	if resource.Owner == 0 {
+		return nil
+	}
+	var user system.SysUser
+	if err := global.GVA_DB.Where("id = ?", resource.Owner).First(&user).Error; err != nil {
+		return err
+	}
+	resource.IsTeamHouse = user.IsFindHouseSupermarket
+	if resource.Phone == "" {
+		resource.Phone = user.Phone
+	}
+	return nil
+}
+
+func (service *ResourceService) ensurePublishQuota(userID uint, resourceID uint) error {
+	if userID == 0 {
+		return nil
+	}
+	var user system.SysUser
+	if err := global.GVA_DB.Where("id = ?", userID).First(&user).Error; err != nil {
+		return err
+	}
+	if user.PublishQuotaTotal <= 0 {
+		return errors.New("当前账号未开通上架权限")
+	}
+	count, err := service.CountOnShelfByUser(userID, resourceID)
+	if err != nil {
+		return err
+	}
+	if int(count) >= user.PublishQuotaTotal {
+		return fmt.Errorf("已达到最大上架数量：%d", user.PublishQuotaTotal)
+	}
+	return nil
 }
 
 func (service *ResourceService) GetApprovalPage(xiaoquId, userId uint, appStatus string, info request.PageInfo, order string, desc bool) (list interface{}, total int64, err error) {

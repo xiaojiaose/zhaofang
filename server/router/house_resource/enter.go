@@ -37,9 +37,14 @@ func (s *ApiRouter) InitApiAuthRouter(Router *gin.RouterGroup) {
 		houseRecordRouter.POST("del", resourceApi.DeleteByUserId)
 		houseRecordRouter.POST("my", resourceApi.ListByUserId)
 		houseRecordRouter.POST("edit", resourceApi.Edit)
+		houseRecordRouter.POST("batchUpload", resourceApi.BatchUpload)
 		houseRouter.POST("upload", fileUploadApi.UploadFile1)
 		houseRecordRouter.POST("approvalState", resourceApi.ApprovalStatus)
 		houseRecordRouter.POST("state", resourceApi.States)
+		houseRecordRouter.POST("reward/list", resourceApi.RewardAdminList)
+		houseRecordRouter.POST("reward/action", resourceApi.RewardAdminAction)
+		houseRecordRouter.POST("contactQuota/grant", resourceApi.ContactQuotaGrant)
+		houseRecordRouter.POST("contactQuota/list", resourceApi.ContactQuotaList)
 	}
 
 	{

@@ -280,17 +280,21 @@ func (userService *UserService) DeleteUser(id int) (err error) {
 
 func (userService *UserService) SetUserInfo(req system.SysUser) error {
 	return global.GVA_DB.Model(&system.SysUser{}).
-		Select("updated_at", "nick_name", "header_img", "phone", "email", "enable", "openid", "wx_nick_name").
+		Select("updated_at", "nick_name", "header_img", "phone", "email", "enable", "openid", "wx_nick_name", "wx_no", "is_find_house_supermarket", "publish_quota_total", "contact_view_quota_total").
 		Where("id=?", req.ID).
 		Updates(map[string]interface{}{
-			"updated_at":   time.Now(),
-			"nick_name":    req.NickName,
-			"header_img":   req.HeaderImg,
-			"phone":        req.Phone,
-			"email":        req.Email,
-			"enable":       req.Enable,
-			"openid":       req.Openid,
-			"wx_nick_name": req.WxNickName,
+			"updated_at":                time.Now(),
+			"nick_name":                 req.NickName,
+			"header_img":                req.HeaderImg,
+			"phone":                     req.Phone,
+			"email":                     req.Email,
+			"enable":                    req.Enable,
+			"openid":                    req.Openid,
+			"wx_nick_name":              req.WxNickName,
+			"wx_no":                     req.WxNo,
+			"is_find_house_supermarket": req.IsFindHouseSupermarket,
+			"publish_quota_total":       req.PublishQuotaTotal,
+			"contact_view_quota_total":  req.ContactViewQuotaTotal,
 		}).Error
 }
 
@@ -304,6 +308,23 @@ func (userService *UserService) SetSelfInfo(req system.SysUser) error {
 	return global.GVA_DB.Model(&system.SysUser{}).
 		Where("id=?", req.ID).
 		Updates(req).Error
+}
+
+func (userService *UserService) SetWxProfile(id uint, profile systemReq.WxProfileSync) error {
+	updates := map[string]interface{}{
+		"updated_at": time.Now(),
+	}
+	if profile.WxNickName != "" {
+		updates["wx_nick_name"] = profile.WxNickName
+	}
+	if profile.HeaderImg != "" {
+		updates["header_img"] = profile.HeaderImg
+	}
+	if profile.WxNo != "" {
+		updates["wx_no"] = profile.WxNo
+	}
+
+	return global.GVA_DB.Model(&system.SysUser{}).Where("id = ?", id).Updates(updates).Error
 }
 
 //@author: [piexlmax](https://github.com/piexlmax)

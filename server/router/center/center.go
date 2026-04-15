@@ -28,7 +28,9 @@ func (s *CenterRouter) InitCenterAuthRouter(Router *gin.RouterGroup, publicRoute
 	fileUploadApi := v1.ApiGroupApp.ExampleApiGroup.FileUploadAndDownloadApi
 
 	{
-		houseRouterRecord.GET("index", centerApi.WxProfile)   //
+		houseRouterRecord.GET("index", centerApi.WxProfile) //
+		houseRouterRecord.GET("profile", centerApi.WxProfile)
+		houseRouterRecord.POST("profile", centerApi.SetWxProfile)
 		houseRouterRecord.POST("xiaoqu/list", xiaoQuApi.List) //
 		houseRouterRecord.GET("xiaoqu/show", xiaoQuApi.Show)
 		houseRouter.GET("distance", xiaoQuApi.Distance)         //
@@ -43,6 +45,8 @@ func (s *CenterRouter) InitCenterAuthRouter(Router *gin.RouterGroup, publicRoute
 		public.GET("/house/view", resourceApi.View)
 		public.GET("/house/shared", resourceApi.Shared)
 		houseRouterRecord.GET("house/mobile", resourceApi.GetMobile)
+		public.GET("/house/share", resourceApi.SharedMap)
+		houseRouterRecord.POST("house/share", resourceApi.CreateShare)
 		houseRouter.POST("house/xiaoquAgg", resourceApi.ListByXiaoquAgg)
 		houseRouter.POST("house/xiaoquAggList", resourceApi.ListByXiaoquAggList)
 		houseRouterRecord.POST("house/listByXiaoqu", resourceApi.ListByXiaoquId)
@@ -53,6 +57,10 @@ func (s *CenterRouter) InitCenterAuthRouter(Router *gin.RouterGroup, publicRoute
 		houseRouterRecord.GET("favorite/del", resourceApi.FavoriteDel)
 		houseRouterRecord.POST("favorite/list", resourceApi.FavoriteList)
 		houseRouterRecord.POST("house/state", resourceApi.States)
+		houseRouterRecord.GET("reward/recent", resourceApi.RewardRecent)
+		houseRouterRecord.POST("reward/apply", resourceApi.RewardApply)
+		houseRouterRecord.POST("reward/publisher/list", resourceApi.RewardPublisherList)
+		houseRouterRecord.POST("reward/publisher/action", resourceApi.RewardPublisherAction)
 
 		//houseRouter.GET("incomeInfo", wxUserApi.GetIncomeInfo) //
 	}

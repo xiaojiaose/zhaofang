@@ -230,7 +230,20 @@ func (b *BaseApi) Register(c *gin.Context) {
 			AuthorityId: v,
 		})
 	}
-	user := &system.SysUser{Username: r.Username, NickName: r.NickName, Password: r.Password, HeaderImg: r.HeaderImg, AuthorityId: r.AuthorityId, Authorities: authorities, Enable: r.Enable, Phone: r.Phone, Email: r.Email}
+	user := &system.SysUser{
+		Username:               r.Username,
+		NickName:               r.NickName,
+		Password:               r.Password,
+		HeaderImg:              r.HeaderImg,
+		AuthorityId:            r.AuthorityId,
+		Authorities:            authorities,
+		Enable:                 r.Enable,
+		Phone:                  r.Phone,
+		Email:                  r.Email,
+		IsFindHouseSupermarket: r.IsFindHouseSupermarket,
+		PublishQuotaTotal:      r.PublishQuotaTotal,
+		ContactViewQuotaTotal:  r.ContactViewQuotaTotal,
+	}
 	userReturn, err := userService.Register(*user)
 	if err != nil {
 		global.GVA_LOG.Error("注册失败!", zap.Error(err))
@@ -268,7 +281,20 @@ func (b *BaseApi) SalesRegister(c *gin.Context) {
 		})
 	}
 	r.Password = global.GVA_CONFIG.System.Default
-	user := &system.SysUser{Username: r.Username, NickName: r.NickName, Password: r.Password, HeaderImg: r.HeaderImg, AuthorityId: r.AuthorityId, Authorities: authorities, Enable: r.Enable, Phone: r.Phone, Email: r.Email}
+	user := &system.SysUser{
+		Username:               r.Username,
+		NickName:               r.NickName,
+		Password:               r.Password,
+		HeaderImg:              r.HeaderImg,
+		AuthorityId:            r.AuthorityId,
+		Authorities:            authorities,
+		Enable:                 r.Enable,
+		Phone:                  r.Phone,
+		Email:                  r.Email,
+		IsFindHouseSupermarket: r.IsFindHouseSupermarket,
+		PublishQuotaTotal:      r.PublishQuotaTotal,
+		ContactViewQuotaTotal:  r.ContactViewQuotaTotal,
+	}
 	userReturn, err := userService.Register(*user)
 	if err != nil {
 		global.GVA_LOG.Error("注册失败!", zap.Error(err))
@@ -520,21 +546,34 @@ func (b *BaseApi) SetUserInfo(c *gin.Context) {
 		}
 	}
 	origin, _ := userService.FindUserById(int(user.ID))
+	teamChanged := origin.IsFindHouseSupermarket != user.IsFindHouseSupermarket
 	if user.Enable > 0 && origin.Enable != user.Enable {
 		origin.Enable = user.Enable
+		origin.IsFindHouseSupermarket = user.IsFindHouseSupermarket
+		origin.PublishQuotaTotal = user.PublishQuotaTotal
+		origin.ContactViewQuotaTotal = user.ContactViewQuotaTotal
+		origin.WxNo = user.WxNo
+		origin.WxNickName = user.WxNickName
 		err = userService.SetUserInfo(*origin)
 	} else {
 		u := system.SysUser{
 			GVA_MODEL: global.GVA_MODEL{
 				ID: user.ID,
 			},
-			NickName:   user.NickName,
-			HeaderImg:  user.HeaderImg,
-			Phone:      user.Phone,
-			Email:      user.Email,
-			Enable:     user.Enable,
-			WxNickName: origin.WxNickName,
-			Openid:     origin.Openid,
+			NickName:               user.NickName,
+			HeaderImg:              user.HeaderImg,
+			Phone:                  user.Phone,
+			Email:                  user.Email,
+			Enable:                 user.Enable,
+			WxNickName:             user.WxNickName,
+			WxNo:                   user.WxNo,
+			Openid:                 origin.Openid,
+			IsFindHouseSupermarket: user.IsFindHouseSupermarket,
+			PublishQuotaTotal:      user.PublishQuotaTotal,
+			ContactViewQuotaTotal:  user.ContactViewQuotaTotal,
+		}
+		if u.WxNickName == "" {
+			u.WxNickName = origin.WxNickName
 		}
 		err = userService.SetUserInfo(u)
 	}
@@ -543,6 +582,9 @@ func (b *BaseApi) SetUserInfo(c *gin.Context) {
 		global.GVA_LOG.Error("设置失败!", zap.Error(err))
 		response.FailWithMessage("设置失败", c)
 		return
+	}
+	if teamChanged {
+		_ = ResourceService.RefreshUserTeamHouses(user.ID, user.IsFindHouseSupermarket)
 	}
 	response.OkWithMessage("设置成功", c)
 }
@@ -568,11 +610,16 @@ func (b *BaseApi) SetSelfInfo(c *gin.Context) {
 		GVA_MODEL: global.GVA_MODEL{
 			ID: user.ID,
 		},
-		NickName:  user.NickName,
-		HeaderImg: user.HeaderImg,
-		Phone:     user.Phone,
-		Email:     user.Email,
-		Enable:    user.Enable,
+		NickName:               user.NickName,
+		HeaderImg:              user.HeaderImg,
+		Phone:                  user.Phone,
+		Email:                  user.Email,
+		WxNickName:             user.WxNickName,
+		WxNo:                   user.WxNo,
+		IsFindHouseSupermarket: user.IsFindHouseSupermarket,
+		PublishQuotaTotal:      user.PublishQuotaTotal,
+		ContactViewQuotaTotal:  user.ContactViewQuotaTotal,
+		Enable:                 user.Enable,
 	})
 	if err != nil {
 		global.GVA_LOG.Error("设置失败!", zap.Error(err))

@@ -2,8 +2,6 @@ module github.com/flipped-aurora/gin-vue-admin/server
 
 go 1.23.0
 
-toolchain go1.24.3
-
 require (
 	github.com/alibabacloud-go/darabonba-openapi v0.2.1
 	github.com/alibabacloud-go/dysmsapi-20170525/v2 v2.0.18

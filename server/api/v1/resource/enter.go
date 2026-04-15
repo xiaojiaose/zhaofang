@@ -9,9 +9,11 @@ type ApiGroup struct {
 }
 
 var (
-	XiaoQuService   = service.ServiceGroupApp.SystemServiceGroup.XiaoQuService
-	DictService     = service.ServiceGroupApp.SystemServiceGroup.DictService
-	ResourceService = service.ServiceGroupApp.HouseServiceGroup.ResourceService
-	UserService     = service.ServiceGroupApp.SystemServiceGroup.UserService
-	StatisService   = service.ServiceGroupApp.HouseServiceGroup.StatisService
+	XiaoQuService       = service.ServiceGroupApp.SystemServiceGroup.XiaoQuService
+	DictService         = service.ServiceGroupApp.SystemServiceGroup.DictService
+	ResourceService     = service.ServiceGroupApp.HouseServiceGroup.ResourceService
+	UserService         = service.ServiceGroupApp.SystemServiceGroup.UserService
+	StatisService       = service.ServiceGroupApp.HouseServiceGroup.StatisService
+	RewardService       = service.ServiceGroupApp.HouseServiceGroup.RewardService
+	ContactQuotaService = service.ServiceGroupApp.HouseServiceGroup.ContactQuotaService
 )

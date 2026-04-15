@@ -1,5 +1,6 @@
 {
   "/src/view/about/index.vue": "About",
+  "/src/view/contactQuota/index.vue": "ContactQuotaList",
   "/src/view/dashboard/components/banner.vue": "Banner",
   "/src/view/dashboard/components/card.vue": "Card",
   "/src/view/dashboard/components/charts-content-numbers.vue": "ChartsContentNumbers",
@@ -47,6 +48,7 @@
   "/src/view/login/index.vue": "Login",
   "/src/view/person/person.vue": "Person",
   "/src/view/post/index.vue": "Index",
+  "/src/view/reward/index.vue": "RewardList",
   "/src/view/routerHolder.vue": "RouterHolder",
   "/src/view/saler/index.vue": "Saler",
   "/src/view/statis/index.vue": "Index",

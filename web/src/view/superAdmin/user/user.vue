@@ -54,6 +54,15 @@
           min-width="180"
           prop="phone"
         />
+        <el-table-column align="left" label="微信号" min-width="180" prop="wxNo" />
+        <el-table-column align="left" label="微信昵称" min-width="180" prop="wxNickName" />
+        <el-table-column align="left" label="找房超市" min-width="120">
+          <template #default="scope">
+            {{ scope.row.isFindHouseSupermarket ? '是' : '否' }}
+          </template>
+        </el-table-column>
+        <el-table-column align="left" label="上架额度" min-width="120" prop="publishQuotaTotal" />
+        <el-table-column align="left" label="联系次数" min-width="120" prop="contactViewQuotaTotal" />
         <el-table-column
           align="left"
           label="邮箱"
@@ -216,6 +225,12 @@
         <el-form-item label="手机号" prop="phone">
           <el-input v-model="userInfo.phone" />
         </el-form-item>
+        <el-form-item label="微信号" prop="wxNo">
+          <el-input v-model="userInfo.wxNo" />
+        </el-form-item>
+        <el-form-item label="微信昵称" prop="wxNickName">
+          <el-input v-model="userInfo.wxNickName" />
+        </el-form-item>
         <el-form-item label="邮箱" prop="email">
           <el-input v-model="userInfo.email" />
         </el-form-item>
@@ -246,6 +261,15 @@
         </el-form-item>
         <el-form-item label="头像" label-width="80px">
           <SelectImage v-model="userInfo.headerImg" />
+        </el-form-item>
+        <el-form-item label="找房超市">
+          <el-switch v-model="userInfo.isFindHouseSupermarket" />
+        </el-form-item>
+        <el-form-item label="上架额度">
+          <el-input-number v-model="userInfo.publishQuotaTotal" :min="0" />
+        </el-form-item>
+        <el-form-item label="联系次数">
+          <el-input-number v-model="userInfo.contactViewQuotaTotal" :min="0" />
         </el-form-item>
       </el-form>
     </el-drawer>
@@ -476,6 +500,11 @@
     password: '',
     nickName: '',
     headerImg: '',
+    wxNo: '',
+    wxNickName: '',
+    isFindHouseSupermarket: false,
+    publishQuotaTotal: 30,
+    contactViewQuotaTotal: 0,
     authorityId: '',
     authorityIds: [],
     enable: 1
@@ -541,6 +570,11 @@
   const closeAddUserDialog = () => {
     userForm.value.resetFields()
     userInfo.value.headerImg = ''
+    userInfo.value.wxNo = ''
+    userInfo.value.wxNickName = ''
+    userInfo.value.isFindHouseSupermarket = false
+    userInfo.value.publishQuotaTotal = 30
+    userInfo.value.contactViewQuotaTotal = 0
     userInfo.value.authorityIds = []
     addUserDialog.value = false
   }

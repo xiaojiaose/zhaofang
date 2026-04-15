@@ -7,15 +7,18 @@ import (
 
 // Register User register structure
 type Register struct {
-	Username     string `json:"userName" example:"用户名"`
-	Password     string `json:"passWord" example:"密码"`
-	NickName     string `json:"nickName" example:"昵称"`
-	HeaderImg    string `json:"headerImg" example:"头像链接"`
-	AuthorityId  uint   `json:"authorityId" swaggertype:"string" example:"int 角色id"`
-	Enable       int    `json:"enable" swaggertype:"string" example:"int 是否启用"`
-	AuthorityIds []uint `json:"authorityIds" swaggertype:"string" example:"[]uint 角色id"`
-	Phone        string `json:"phone" example:"电话号码"`
-	Email        string `json:"email" example:"电子邮箱"`
+	Username               string `json:"userName" example:"用户名"`
+	Password               string `json:"passWord" example:"密码"`
+	NickName               string `json:"nickName" example:"昵称"`
+	HeaderImg              string `json:"headerImg" example:"头像链接"`
+	AuthorityId            uint   `json:"authorityId" swaggertype:"string" example:"int 角色id"`
+	Enable                 int    `json:"enable" swaggertype:"string" example:"int 是否启用"`
+	AuthorityIds           []uint `json:"authorityIds" swaggertype:"string" example:"[]uint 角色id"`
+	Phone                  string `json:"phone" example:"电话号码"`
+	Email                  string `json:"email" example:"电子邮箱"`
+	IsFindHouseSupermarket bool   `json:"isFindHouseSupermarket"`
+	PublishQuotaTotal      int    `json:"publishQuotaTotal"`
+	ContactViewQuotaTotal  int    `json:"contactViewQuotaTotal"`
 }
 
 // Login User login structure
@@ -58,14 +61,19 @@ type SetUserAuthorities struct {
 }
 
 type ChangeUserInfo struct {
-	ID           uint                  `gorm:"primarykey"`                                                                           // 主键ID
-	NickName     string                `json:"nickName" gorm:"default:系统用户;comment:用户昵称"`                                            // 用户昵称
-	Phone        string                `json:"phone"  gorm:"comment:用户手机号"`                                                          // 用户手机号
-	AuthorityIds []uint                `json:"authorityIds" gorm:"-"`                                                                // 角色ID
-	Email        string                `json:"email"  gorm:"comment:用户邮箱"`                                                           // 用户邮箱
-	HeaderImg    string                `json:"headerImg" gorm:"default:https://qmplusimg.henrongyi.top/gva_header.jpg;comment:用户头像"` // 用户头像
-	Enable       int                   `json:"enable" gorm:"comment:冻结用户"`                                                           //冻结用户
-	Authorities  []system.SysAuthority `json:"-" gorm:"many2many:sys_user_authority;"`
+	ID                     uint                  `gorm:"primarykey"`                                                                           // 主键ID
+	NickName               string                `json:"nickName" gorm:"default:系统用户;comment:用户昵称"`                                            // 用户昵称
+	Phone                  string                `json:"phone"  gorm:"comment:用户手机号"`                                                          // 用户手机号
+	AuthorityIds           []uint                `json:"authorityIds" gorm:"-"`                                                                // 角色ID
+	Email                  string                `json:"email"  gorm:"comment:用户邮箱"`                                                           // 用户邮箱
+	HeaderImg              string                `json:"headerImg" gorm:"default:https://qmplusimg.henrongyi.top/gva_header.jpg;comment:用户头像"` // 用户头像
+	WxNickName             string                `json:"wxNickName" gorm:"comment:用户微信昵称"`
+	WxNo                   string                `json:"wxNo" gorm:"comment:用户微信号"`
+	IsFindHouseSupermarket bool                  `json:"isFindHouseSupermarket"`
+	PublishQuotaTotal      int                   `json:"publishQuotaTotal"`
+	ContactViewQuotaTotal  int                   `json:"contactViewQuotaTotal"`
+	Enable                 int                   `json:"enable" gorm:"comment:冻结用户"` //冻结用户
+	Authorities            []system.SysAuthority `json:"-" gorm:"many2many:sys_user_authority;"`
 }
 
 type GetUserList struct {
@@ -105,4 +113,10 @@ type UserInfo struct {
 	City      string `json:"city"`
 	Country   string `json:"country"`
 	Province  string `json:"province"`
+}
+
+type WxProfileSync struct {
+	WxNickName string `json:"wxNickName"`
+	HeaderImg  string `json:"headerImg"`
+	WxNo       string `json:"wxNo"`
 }

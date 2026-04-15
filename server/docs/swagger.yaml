@@ -741,6 +741,8 @@ definitions:
       Password:
         description: URL前缀
         type: string
+      resource-index:
+        type: string
       url:
         type: string
       username:
@@ -892,6 +894,38 @@ definitions:
         description: 收件人:多个以英文逗号分隔 例：a@qq.com b@qq.com 正式开发中请把此项目作为参数使用
         type: string
     type: object
+  github_com_flipped-aurora_gin-vue-admin_server_model_system_request.WxProfileSync:
+    properties:
+      headerImg:
+        type: string
+      wxNickName:
+        type: string
+      wxNo:
+        type: string
+    type: object
+  house.BatchUploadRecord:
+    properties:
+      ID:
+        type: integer
+      batchNo:
+        type: string
+      createdAt:
+        type: string
+      failedCount:
+        type: integer
+      fileName:
+        type: string
+      resultSummary:
+        type: string
+      successCount:
+        type: integer
+      totalCount:
+        type: integer
+      updatedAt:
+        type: string
+      userId:
+        type: integer
+    type: object
   house.DictBuilding:
     properties:
       ID:
@@ -906,6 +940,44 @@ definitions:
         type: integer
       createdAt:
         description: 创建时间
+        type: string
+      updatedAt:
+        description: 更新时间
+        type: string
+    type: object
+  house.DictHouse:
+    properties:
+      ID:
+        description: 主键ID
+        type: integer
+      createdAt:
+        description: 创建时间
+        type: string
+      encryptHouseName:
+        description: 包含 Unicode 转义序列
+        type: string
+      houseOpenId:
+        type: string
+      unitOpenId:
+        type: string
+      updatedAt:
+        description: 更新时间
+        type: string
+    type: object
+  house.DictUnit:
+    properties:
+      ID:
+        description: 主键ID
+        type: integer
+      buildingOpenId:
+        type: string
+      createdAt:
+        description: 创建时间
+        type: string
+      encryptUnitName:
+        description: 包含 Unicode 转义序列
+        type: string
+      unitOpenId:
         type: string
       updatedAt:
         description: 更新时间
@@ -934,6 +1006,9 @@ definitions:
         type: string
       click:
         description: 电话获取次数
+        type: integer
+      commission_price:
+        description: 返佣金额
         type: integer
       createdAt:
         description: 创建时间
@@ -965,6 +1040,9 @@ definitions:
       house_type:
         description: 户型
         type: string
+      is_team_house:
+        description: 是否团队房源
+        type: boolean
       owner:
         description: 业主
         type: integer
@@ -1286,6 +1364,29 @@ definitions:
         description: 密码
         type: string
     type: object
+  request.ContactQuotaCreate:
+    properties:
+      amount:
+        type: integer
+      remark:
+        type: string
+      userPhone:
+        type: string
+    type: object
+  request.ContactQuotaSearch:
+    properties:
+      keyword:
+        description: 关键字
+        type: string
+      page:
+        description: 页码
+        type: integer
+      pageSize:
+        description: 每页大小
+        type: integer
+      userPhone:
+        type: string
+    type: object
   request.DataSource:
     properties:
       association:
@@ -1547,6 +1648,8 @@ definitions:
       authorityIds:
         example: '[]uint 角色id'
         type: string
+      contactViewQuotaTotal:
+        type: integer
       email:
         example: 电子邮箱
         type: string
@@ -1556,6 +1659,8 @@ definitions:
       headerImg:
         example: 头像链接
         type: string
+      isFindHouseSupermarket:
+        type: boolean
       nickName:
         example: 昵称
         type: string
@@ -1565,6 +1670,8 @@ definitions:
       phone:
         example: 电话号码
         type: string
+      publishQuotaTotal:
+        type: integer
       userName:
         example: 用户名
         type: string
@@ -1573,6 +1680,9 @@ definitions:
     properties:
       feature:
         description: 有无电梯
+        type: string
+      houseSource:
+        description: commission landlord team
         type: string
       houseType:
         description: 1居室、2居室
@@ -1594,6 +1704,41 @@ definitions:
         items:
           type: integer
         type: array
+    type: object
+  request.ResourceShareCreate:
+    properties:
+      expireDays:
+        type: integer
+    type: object
+  request.RewardApplicationAction:
+    properties:
+      action:
+        type: string
+      id:
+        type: integer
+    type: object
+  request.RewardApplicationCreate:
+    properties:
+      remark:
+        type: string
+      resourceId:
+        type: integer
+    type: object
+  request.RewardApplicationSearch:
+    properties:
+      auditStatus:
+        type: string
+      keyword:
+        description: 关键字
+        type: string
+      page:
+        description: 页码
+        type: integer
+      pageSize:
+        description: 每页大小
+        type: integer
+      publisherConfirmStatus:
+        type: string
     type: object
   request.SearchApiParams:
     properties:
@@ -2010,6 +2155,9 @@ definitions:
       click:
         description: 电话获取次数
         type: integer
+      commission_price:
+        description: 返佣金额
+        type: integer
       createdAt:
         description: 创建时间
         type: string
@@ -2040,6 +2188,9 @@ definitions:
       house_type:
         description: 户型
         type: string
+      is_team_house:
+        description: 是否团队房源
+        type: boolean
       latitude:
         description: latitude
         type: string
@@ -2119,6 +2270,9 @@ definitions:
       click:
         description: 电话获取次数
         type: integer
+      commission_price:
+        description: 返佣金额
+        type: integer
       createdAt:
         description: 创建时间
         type: string
@@ -2143,17 +2297,21 @@ definitions:
       hasPic:
         description: 是否有照片
         type: boolean
+      headerImg:
+        type: string
       house_id:
         description: 房号
         type: string
       house_type:
         description: 户型
         type: string
+      is_team_house:
+        description: 是否团队房源
+        type: boolean
       owner:
         description: 业主
         type: integer
       phone:
-        description: 联系手机号
         type: string
       price:
         description: 房源价格
@@ -2306,33 +2464,6 @@ definitions:
         description: 房源数量
         type: integer
     type: object
-  search.StatisData:
-    properties:
-      ID:
-        description: 主键ID
-        type: integer
-      add:
-        description: 新增帖子
-        type: integer
-      add_saler:
-        description: 新增经纪人
-        type: integer
-      click:
-        description: 联系方式被点击数
-        type: integer
-      follow:
-        description: 帖子关注数
-        type: integer
-      shared:
-        description: 帖子分享数
-        type: integer
-      use_saler:
-        description: 使用的经纪人
-        type: integer
-      view:
-        description: 帖子浏览数
-        type: integer
-    type: object
   system.Condition:
     properties:
       ID:
@@ -2352,6 +2483,22 @@ definitions:
       updatedAt:
         description: 更新时间
         type: string
+    type: object
+  system.CreatePayOrderReq:
+    properties:
+      body:
+        description: 商品描述
+        type: string
+      openId:
+        description: 用户openid
+        type: string
+      totalFee:
+        description: 支付金额(分)
+        type: integer
+    required:
+    - body
+    - openId
+    - totalFee
     type: object
   system.JoinTemplate:
     properties:
@@ -2395,6 +2542,49 @@ definitions:
       transitionType:
         description: 路由切换动画
         type: string
+    type: object
+  system.PayOrder:
+    properties:
+      ID:
+        type: integer
+      body:
+        description: 商品描述
+        type: string
+      createdAt:
+        type: string
+      openId:
+        description: 用户openid
+        type: string
+      orderNo:
+        description: 订单号
+        type: string
+      outTradeNo:
+        description: 商户订单号
+        type: string
+      payTime:
+        description: 支付时间
+        type: string
+      status:
+        description: 订单状态 0:待支付 1:已支付 2:已取消
+        type: integer
+      totalFee:
+        description: 支付金额(分)
+        type: integer
+      transactionId:
+        description: 微信支付订单号
+        type: string
+      updatedAt:
+        type: string
+    type: object
+  system.PayOrderResp:
+    properties:
+      orderNo:
+        description: 订单号
+        type: string
+      payParams:
+        additionalProperties: true
+        description: 小程序支付参数
+        type: object
     type: object
   system.SysApi:
     properties:
@@ -2788,6 +2978,8 @@ definitions:
       authorityId:
         description: 用户角色ID
         type: integer
+      contactViewQuotaTotal:
+        type: integer
       createdAt:
         description: 创建时间
         type: string
@@ -2800,6 +2992,8 @@ definitions:
       headerImg:
         description: 用户头像
         type: string
+      isFindHouseSupermarket:
+        type: boolean
       nickName:
         type: string
       openid:
@@ -2812,6 +3006,8 @@ definitions:
       phone:
         description: 用户手机号
         type: string
+      publishQuotaTotal:
+        type: integer
       updatedAt:
         description: 更新时间
         type: string
@@ -3235,6 +3431,87 @@ paths:
       summary: 获取区域列表（丰台区、朝阳区）
       tags:
       - Admin
+  /api/house/batchUpload:
+    post:
+      consumes:
+      - multipart/form-data
+      parameters:
+      - description: excel文件
+        in: formData
+        name: file
+        required: true
+        type: file
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 结果
+          schema:
+            allOf:
+            - $ref: '#/definitions/response.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/house.BatchUploadRecord'
+              type: object
+      summary: Excel批量上传房源
+      tags:
+      - Admin
+  /api/house/contactQuota/grant:
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: 增加次数参数
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/request.ContactQuotaCreate'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 操作结果
+          schema:
+            allOf:
+            - $ref: '#/definitions/response.Response'
+            - properties:
+                data:
+                  type: string
+                msg:
+                  type: string
+              type: object
+      summary: 增加经纪人联系方式查看次数
+      tags:
+      - Admin
+  /api/house/contactQuota/list:
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: 查询参数
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/request.ContactQuotaSearch'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 次数流水
+          schema:
+            allOf:
+            - $ref: '#/definitions/response.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/response.PageResult'
+                msg:
+                  type: string
+              type: object
+      summary: 查看联系方式次数流水
+      tags:
+      - Admin
   /api/house/create:
     post:
       parameters:
@@ -3399,12 +3676,71 @@ paths:
       summary: 筛选用到的选择项
       tags:
       - Admin
+  /api/house/reward/action:
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: 操作参数
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/request.RewardApplicationAction'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 操作结果
+          schema:
+            allOf:
+            - $ref: '#/definitions/response.Response'
+            - properties:
+                data:
+                  type: string
+                msg:
+                  type: string
+              type: object
+      summary: 后台操作成交有礼审核状态
+      tags:
+      - Admin
+  /api/house/reward/list:
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: 查询参数
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/request.RewardApplicationSearch'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 审核列表
+          schema:
+            allOf:
+            - $ref: '#/definitions/response.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/response.PageResult'
+                msg:
+                  type: string
+              type: object
+      summary: 后台成交有礼审核列表
+      tags:
+      - Admin
   /api/house/statis/view:
     get:
       parameters:
       - in: query
         name: end
         required: true
+        type: string
+      - in: query
+        name: phone
         type: string
       - in: query
         name: start
@@ -3420,7 +3756,8 @@ paths:
             - $ref: '#/definitions/response.Response'
             - properties:
                 data:
-                  $ref: '#/definitions/search.StatisData'
+                  additionalProperties: true
+                  type: object
               type: object
       summary: 数据中心
       tags:
@@ -5101,6 +5438,59 @@ paths:
       summary: 我发的房源列表
       tags:
       - Center
+  /center/house/share:
+    get:
+      parameters:
+      - description: 分享token
+        in: query
+        name: token
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 分享房源列表
+          schema:
+            allOf:
+            - $ref: '#/definitions/response.Response'
+            - properties:
+                data:
+                  additionalProperties: true
+                  type: object
+                msg:
+                  type: string
+              type: object
+      summary: 通过分享token获取地图房源列表
+      tags:
+      - Center
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: 分享参数
+        in: body
+        name: data
+        schema:
+          $ref: '#/definitions/request.ResourceShareCreate'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 分享结果
+          schema:
+            allOf:
+            - $ref: '#/definitions/response.Response'
+            - properties:
+                data:
+                  additionalProperties: true
+                  type: object
+                msg:
+                  type: string
+              type: object
+      summary: 创建我的房源地图分享链接
+      tags:
+      - Center
   /center/house/shared:
     get:
       parameters:
@@ -5280,11 +5670,145 @@ paths:
             - $ref: '#/definitions/response.Response'
             - properties:
                 data:
-                  type: string
+                  additionalProperties: true
+                  type: object
                 msg:
                   type: string
               type: object
       summary: 个人中心接口
+      tags:
+      - Center
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: 微信昵称、头像、微信号
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/github_com_flipped-aurora_gin-vue-admin_server_model_system_request.WxProfileSync'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 设置微信资料
+          schema:
+            allOf:
+            - $ref: '#/definitions/response.Response'
+            - properties:
+                data:
+                  type: string
+                msg:
+                  type: string
+              type: object
+      summary: 小程序设置微信资料
+      tags:
+      - Center
+  /center/reward/apply:
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: 申请参数
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/request.RewardApplicationCreate'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 申请结果
+          schema:
+            allOf:
+            - $ref: '#/definitions/response.Response'
+            - properties:
+                data:
+                  type: string
+                msg:
+                  type: string
+              type: object
+      summary: 发起出房有礼申请
+      tags:
+      - Center
+  /center/reward/publisher/action:
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: 操作参数
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/request.RewardApplicationAction'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 操作结果
+          schema:
+            allOf:
+            - $ref: '#/definitions/response.Response'
+            - properties:
+                data:
+                  type: string
+                msg:
+                  type: string
+              type: object
+      summary: 发布人确认或拒绝出房有礼申请
+      tags:
+      - Center
+  /center/reward/publisher/list:
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: 查询参数
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/request.RewardApplicationSearch'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 审核列表
+          schema:
+            allOf:
+            - $ref: '#/definitions/response.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/response.PageResult'
+                msg:
+                  type: string
+              type: object
+      summary: 发布人查看出房有礼审核列表
+      tags:
+      - Center
+  /center/reward/recent:
+    get:
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 最近联系记录
+          schema:
+            allOf:
+            - $ref: '#/definitions/response.Response'
+            - properties:
+                data:
+                  items:
+                    additionalProperties: true
+                    type: object
+                  type: array
+                msg:
+                  type: string
+              type: object
+      summary: 获取最近联系过的房源发布人记录
       tags:
       - Center
   /center/type/options:
@@ -5555,6 +6079,426 @@ paths:
       summary: 分页获取权限客户列表
       tags:
       - ExaCustomer
+  /dictBuilding/createDictBuilding:
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: 楼栋字典模型
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/house.DictBuilding'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 创建成功
+          schema:
+            allOf:
+            - $ref: '#/definitions/response.Response'
+            - properties:
+                msg:
+                  type: string
+              type: object
+      security:
+      - ApiKeyAuth: []
+      summary: 创建楼栋字典
+      tags:
+      - DictBuilding
+  /dictBuilding/deleteDictBuilding:
+    delete:
+      consumes:
+      - application/json
+      parameters:
+      - description: 楼栋字典模型
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/house.DictBuilding'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 删除成功
+          schema:
+            allOf:
+            - $ref: '#/definitions/response.Response'
+            - properties:
+                msg:
+                  type: string
+              type: object
+      security:
+      - ApiKeyAuth: []
+      summary: 删除楼栋字典
+      tags:
+      - DictBuilding
+  /dictBuilding/findDictBuilding:
+    get:
+      consumes:
+      - application/json
+      parameters:
+      - description: 楼栋字典模型
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/house.DictBuilding'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 查询成功
+          schema:
+            allOf:
+            - $ref: '#/definitions/response.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/house.DictBuilding'
+              type: object
+      security:
+      - ApiKeyAuth: []
+      summary: 根据ID获取楼栋字典
+      tags:
+      - DictBuilding
+  /dictBuilding/getDictBuildingList:
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: 分页参数
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/request.PageInfo'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 获取成功
+          schema:
+            allOf:
+            - $ref: '#/definitions/response.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/response.PageResult'
+              type: object
+      security:
+      - ApiKeyAuth: []
+      summary: 分页获取楼栋字典列表
+      tags:
+      - DictBuilding
+  /dictBuilding/updateDictBuilding:
+    put:
+      consumes:
+      - application/json
+      parameters:
+      - description: 楼栋字典模型
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/house.DictBuilding'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 更新成功
+          schema:
+            allOf:
+            - $ref: '#/definitions/response.Response'
+            - properties:
+                msg:
+                  type: string
+              type: object
+      security:
+      - ApiKeyAuth: []
+      summary: 更新楼栋字典
+      tags:
+      - DictBuilding
+  /dictHouse/createDictHouse:
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: 房屋字典模型
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/house.DictHouse'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 创建成功
+          schema:
+            allOf:
+            - $ref: '#/definitions/response.Response'
+            - properties:
+                msg:
+                  type: string
+              type: object
+      security:
+      - ApiKeyAuth: []
+      summary: 创建房屋字典
+      tags:
+      - DictHouse
+  /dictHouse/deleteDictHouse:
+    delete:
+      consumes:
+      - application/json
+      parameters:
+      - description: 房屋字典模型
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/house.DictHouse'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 删除成功
+          schema:
+            allOf:
+            - $ref: '#/definitions/response.Response'
+            - properties:
+                msg:
+                  type: string
+              type: object
+      security:
+      - ApiKeyAuth: []
+      summary: 删除房屋字典
+      tags:
+      - DictHouse
+  /dictHouse/findDictHouse:
+    get:
+      consumes:
+      - application/json
+      parameters:
+      - description: 房屋字典模型
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/house.DictHouse'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 查询成功
+          schema:
+            allOf:
+            - $ref: '#/definitions/response.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/house.DictHouse'
+              type: object
+      security:
+      - ApiKeyAuth: []
+      summary: 根据ID获取房屋字典
+      tags:
+      - DictHouse
+  /dictHouse/getDictHouseList:
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: 分页参数
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/request.PageInfo'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 获取成功
+          schema:
+            allOf:
+            - $ref: '#/definitions/response.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/response.PageResult'
+              type: object
+      security:
+      - ApiKeyAuth: []
+      summary: 分页获取房屋字典列表
+      tags:
+      - DictHouse
+  /dictHouse/updateDictHouse:
+    put:
+      consumes:
+      - application/json
+      parameters:
+      - description: 房屋字典模型
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/house.DictHouse'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 更新成功
+          schema:
+            allOf:
+            - $ref: '#/definitions/response.Response'
+            - properties:
+                msg:
+                  type: string
+              type: object
+      security:
+      - ApiKeyAuth: []
+      summary: 更新房屋字典
+      tags:
+      - DictHouse
+  /dictUnit/createDictUnit:
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: 单元字典模型
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/house.DictUnit'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 创建成功
+          schema:
+            allOf:
+            - $ref: '#/definitions/response.Response'
+            - properties:
+                msg:
+                  type: string
+              type: object
+      security:
+      - ApiKeyAuth: []
+      summary: 创建单元字典
+      tags:
+      - DictUnit
+  /dictUnit/deleteDictUnit:
+    delete:
+      consumes:
+      - application/json
+      parameters:
+      - description: 单元字典模型
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/house.DictUnit'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 删除成功
+          schema:
+            allOf:
+            - $ref: '#/definitions/response.Response'
+            - properties:
+                msg:
+                  type: string
+              type: object
+      security:
+      - ApiKeyAuth: []
+      summary: 删除单元字典
+      tags:
+      - DictUnit
+  /dictUnit/findDictUnit:
+    get:
+      consumes:
+      - application/json
+      parameters:
+      - description: 单元字典模型
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/house.DictUnit'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 查询成功
+          schema:
+            allOf:
+            - $ref: '#/definitions/response.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/house.DictUnit'
+              type: object
+      security:
+      - ApiKeyAuth: []
+      summary: 根据ID获取单元字典
+      tags:
+      - DictUnit
+  /dictUnit/getDictUnitList:
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: 分页参数
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/request.PageInfo'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 获取成功
+          schema:
+            allOf:
+            - $ref: '#/definitions/response.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/response.PageResult'
+              type: object
+      security:
+      - ApiKeyAuth: []
+      summary: 分页获取单元字典列表
+      tags:
+      - DictUnit
+  /dictUnit/updateDictUnit:
+    put:
+      consumes:
+      - application/json
+      parameters:
+      - description: 单元字典模型
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/house.DictUnit'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 更新成功
+          schema:
+            allOf:
+            - $ref: '#/definitions/response.Response'
+            - properties:
+                msg:
+                  type: string
+              type: object
+      security:
+      - ApiKeyAuth: []
+      summary: 更新单元字典
+      tags:
+      - DictUnit
   /email/emailTest:
     post:
       produces:
@@ -8290,6 +9234,98 @@ paths:
       summary: 用户登录
       tags:
       - Center
+  /wxpay/createOrder:
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: 支付订单参数
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/system.CreatePayOrderReq'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 创建成功
+          schema:
+            allOf:
+            - $ref: '#/definitions/response.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/system.PayOrderResp'
+              type: object
+      security:
+      - ApiKeyAuth: []
+      summary: 创建支付订单
+      tags:
+      - WxPay
+  /wxpay/notify:
+    post:
+      consumes:
+      - application/json
+      produces:
+      - application/json
+      responses: {}
+      summary: 支付回调
+      tags:
+      - WxPay
+  /wxpay/queryOrder:
+    get:
+      consumes:
+      - application/json
+      parameters:
+      - description: 订单号
+        in: query
+        name: orderNo
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 查询成功
+          schema:
+            allOf:
+            - $ref: '#/definitions/response.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/system.PayOrder'
+              type: object
+      security:
+      - ApiKeyAuth: []
+      summary: 查询订单状态
+      tags:
+      - WxPay
+  /wxpay/queryWxOrder:
+    get:
+      consumes:
+      - application/json
+      parameters:
+      - description: 商户订单号
+        in: query
+        name: outTradeNo
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 查询成功
+          schema:
+            allOf:
+            - $ref: '#/definitions/response.Response'
+            - properties:
+                data:
+                  type: object
+              type: object
+      security:
+      - ApiKeyAuth: []
+      summary: 查询微信订单状态
+      tags:
+      - WxPay
 securityDefinitions:
   ApiKeyAuth:
     in: header
