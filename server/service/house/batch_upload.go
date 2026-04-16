@@ -14,6 +14,9 @@ import (
 )
 
 func (service *ResourceService) BatchUpload(userID uint, header *multipart.FileHeader) (record *house.BatchUploadRecord, err error) {
+	// 批量上传按“同步当前账号房源”的语义实现：
+	// 上传前先把当前账号已上架房源统一下架，
+	// 再把 Excel 里解析出来的房源重新更新/创建为上架状态。
 	file, err := header.Open()
 	if err != nil {
 		return nil, err
@@ -47,6 +50,7 @@ func (service *ResourceService) BatchUpload(userID uint, header *multipart.FileH
 		return nil, err
 	}
 
+	// 这里先统一下架，最终以上传文件中的内容为准。
 	_ = global.GVA_DB.Model(&house.Resource{}).Where("owner = ? AND status = ?", userID, "待出租").Update("status", "已下架").Error
 
 	var failures []string
@@ -92,6 +96,8 @@ func (service *ResourceService) BatchUpload(userID uint, header *multipart.FileH
 		var entity house.Resource
 		findErr := global.GVA_DB.Where("owner = ? AND xiaoqu_id = ? AND door_no = ? AND room_code = ?", userID, xq.ID, doorNo, roomCode).First(&entity).Error
 		if findErr != nil {
+			// 首次导入的新房源优先尝试复用同账号、同地址/房号的历史图片，
+			// 避免每次批量同步都要求重新传图。
 			entity = house.Resource{
 				Owner:       userID,
 				XiaoquId:    xq.ID,
@@ -115,6 +121,7 @@ func (service *ResourceService) BatchUpload(userID uint, header *multipart.FileH
 		entity.Status = "待出租"
 		entity.UpdatedLastAt = time.Now()
 
+		// 继续复用统一的 CreateOrUpdate，确保团队房源、联系方式、上架额度等规则保持一致。
 		if err = service.CreateOrUpdate(&entity); err != nil {
 			record.FailedCount++
 			failures = append(failures, fmt.Sprintf("第%d行导入失败:%s", idx+2, err.Error()))
@@ -128,6 +135,7 @@ func (service *ResourceService) BatchUpload(userID uint, header *multipart.FileH
 }
 
 func normalizeHeaders(headers []string) []string {
+	// Excel 表头允许存在多余空格，先统一 trim，减少模板格式带来的干扰。
 	result := make([]string, 0, len(headers))
 	for _, header := range headers {
 		result = append(result, strings.TrimSpace(header))
@@ -136,6 +144,7 @@ func normalizeHeaders(headers []string) []string {
 }
 
 func mapRow(headers []string, row []string) map[string]string {
+	// 通过表头名转 map，后续读取字段时不依赖固定列序，Excel 模板更容易兼容。
 	result := make(map[string]string, len(headers))
 	for idx, header := range headers {
 		if idx >= len(row) {
@@ -170,6 +179,8 @@ func defaultString(v, fallback string) string {
 }
 
 func findHistoricalAttachments(userID, xiaoquID uint, doorNo, roomCode string) common.AttachmentMap {
+	// 图片复用只在“同账号 + 同小区 + 同户室 + 同房间号”范围内查找，
+	// 避免把其他账号的历史图片错误带入当前导入结果。
 	var resource house.Resource
 	if err := global.GVA_DB.Where("owner = ? AND xiaoqu_id = ? AND door_no = ? AND room_code = ?", userID, xiaoquID, doorNo, roomCode).Order("id desc").First(&resource).Error; err == nil {
 		return resource.Attachments

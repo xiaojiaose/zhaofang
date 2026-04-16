@@ -207,7 +207,8 @@ func (b *BaseApi) TokenNext(c *gin.Context, user system.SysUser) {
 
 // Register
 // @Tags     SysUser
-// @Summary  用户注册账号
+// @Summary  [变更] 用户注册账号
+// @Description [变更接口] 新增找房超市标识、上架额度和联系方式查看次数字段。
 // @Produce   application/json
 // @Param    data  body      systemReq.Register                                            true  "用户名, 昵称, 密码, 角色ID"
 // @Success  200   {object}  response.Response{data=systemRes.SysUserResponse,msg=string}  "用户注册账号,返回包括用户信息"
@@ -255,7 +256,8 @@ func (b *BaseApi) Register(c *gin.Context) {
 
 // Register
 // @Tags     Admin
-// @Summary  经纪人用户注册
+// @Summary  [变更] 经纪人用户注册
+// @Description [变更接口] 新增找房超市标识、上架额度和联系方式查看次数字段。
 // @Produce   application/json
 // @Param    data  body      systemReq.Register                                            true  "用户名, 昵称, 密码, 角色ID"
 // @Success  200   {object}  response.Response{data=systemRes.SysUserResponse,msg=string}  "用户注册账号,返回包括用户信息"
@@ -517,7 +519,8 @@ func (b *BaseApi) DeleteUser(c *gin.Context) {
 
 // SetUserInfo
 // @Tags      Admin
-// @Summary   设置经纪人用户信息
+// @Summary   [变更] 设置经纪人用户信息
+// @Description [变更接口] 支持编辑微信资料、找房超市标识、上架额度和联系方式查看次数。
 // @Security  ApiKeyAuth
 // @accept    application/json
 // @Produce   application/json
@@ -591,7 +594,8 @@ func (b *BaseApi) SetUserInfo(c *gin.Context) {
 
 // SetSelfInfo
 // @Tags      SysUser
-// @Summary   设置用户信息
+// @Summary   [变更] 设置用户信息
+// @Description [变更接口] 支持编辑微信资料、找房超市标识、上架额度和联系方式查看次数。
 // @Security  ApiKeyAuth
 // @accept    application/json
 // @Produce   application/json

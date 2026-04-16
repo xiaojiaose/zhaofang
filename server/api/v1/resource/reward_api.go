@@ -9,13 +9,15 @@ import (
 
 // RewardAdminList
 // @Tags     Admin
-// @Summary  后台成交有礼审核列表
+// @Summary  [新增] 后台成交有礼审核列表
+// @Description [新增接口] 后台只展示“发布人已确认”的成交有礼申请单。
 // @Accept   application/json
 // @Produce  application/json
 // @Param    data  body      request.RewardApplicationSearch  true  "查询参数"
 // @Success  200   {object}  response.Response{data=response.PageResult,msg=string}  "审核列表"
 // @Router   /api/house/reward/list [post]
 func (h *HouseResourceApi) RewardAdminList(c *gin.Context) {
+	// 后台列表只接“发布人已确认”的数据，具体过滤逻辑放在 service 层统一处理。
 	var req request.RewardApplicationSearch
 	if err := c.ShouldBindJSON(&req); err != nil {
 		response.FailWithMessage(err.Error(), c)
@@ -37,13 +39,16 @@ func (h *HouseResourceApi) RewardAdminList(c *gin.Context) {
 
 // RewardAdminAction
 // @Tags     Admin
-// @Summary  后台操作成交有礼审核状态
+// @Summary  [新增] 后台操作成交有礼审核状态
+// @Description [新增接口] 支持审核中、审通过待发放、已发放、未通过等后台状态流转。
 // @Accept   application/json
 // @Produce  application/json
 // @Param    data  body      request.RewardApplicationAction  true  "操作参数"
 // @Success  200   {object}  response.Response{data=string,msg=string}  "操作结果"
 // @Router   /api/house/reward/action [post]
 func (h *HouseResourceApi) RewardAdminAction(c *gin.Context) {
+	// handler 只负责参数接收和响应，状态映射统一收口到 service，
+	// 这样后台按钮文案和数据库状态之间的映射不会散落多处。
 	var req request.RewardApplicationAction
 	if err := c.ShouldBindJSON(&req); err != nil {
 		response.FailWithMessage(err.Error(), c)
@@ -58,13 +63,15 @@ func (h *HouseResourceApi) RewardAdminAction(c *gin.Context) {
 
 // ContactQuotaGrant
 // @Tags     Admin
-// @Summary  增加经纪人联系方式查看次数
+// @Summary  [新增] 增加经纪人联系方式查看次数
+// @Description [新增接口] 按经纪人手机号给账号充值房东房源联系方式查看次数。
 // @Accept   application/json
 // @Produce  application/json
 // @Param    data  body      request.ContactQuotaCreate  true  "增加次数参数"
 // @Success  200   {object}  response.Response{data=string,msg=string}  "操作结果"
 // @Router   /api/house/contactQuota/grant [post]
 func (h *HouseResourceApi) ContactQuotaGrant(c *gin.Context) {
+	// 次数充值按手机号查目标账号，便于后台运营按经纪人手机号直接操作。
 	var req request.ContactQuotaCreate
 	if err := c.ShouldBindJSON(&req); err != nil {
 		response.FailWithMessage(err.Error(), c)
@@ -79,13 +86,15 @@ func (h *HouseResourceApi) ContactQuotaGrant(c *gin.Context) {
 
 // ContactQuotaList
 // @Tags     Admin
-// @Summary  查看联系方式次数流水
+// @Summary  [新增] 查看联系方式次数流水
+// @Description [新增接口] 返回充值和消耗流水，便于后台核对剩余次数和使用情况。
 // @Accept   application/json
 // @Produce  application/json
 // @Param    data  body      request.ContactQuotaSearch  true  "查询参数"
 // @Success  200   {object}  response.Response{data=response.PageResult,msg=string}  "次数流水"
 // @Router   /api/house/contactQuota/list [post]
 func (h *HouseResourceApi) ContactQuotaList(c *gin.Context) {
+	// 这里返回流水而不是汇总，便于后台同时查看充值记录和消耗记录。
 	var req request.ContactQuotaSearch
 	if err := c.ShouldBindJSON(&req); err != nil {
 		response.FailWithMessage(err.Error(), c)

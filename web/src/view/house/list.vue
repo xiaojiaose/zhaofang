@@ -805,6 +805,8 @@ const handlePictureCardPreview = (uploadFile) => {
 };
 
 const handleBatchFileChange = (file, fileList) => {
+  // 业务上一次只允许导入一个 Excel，
+  // 这里保留最后一个文件，避免用户连续选择后状态混乱。
   batchFile.value = file.raw;
   batchFileList.value = fileList.slice(-1);
 };
@@ -815,6 +817,8 @@ const handleBatchFileRemove = () => {
 };
 
 const closeBatchUploadDialog = () => {
+  // 关闭弹窗时把这次导入的临时状态一并清掉，
+  // 避免下次打开还显示旧文件和旧结果。
   batchUploadDialog.value = false;
   batchFile.value = null;
   batchFileList.value = [];
@@ -826,6 +830,7 @@ const submitBatchUpload = async () => {
     ElMessage.warning("请先选择 Excel 文件");
     return;
   }
+  // 走 FormData 上传，直接对接后端的 /house/batchUpload。
   const payload = new FormData();
   payload.append("file", batchFile.value);
   const res = await batchUploadHouse(payload);
@@ -1020,6 +1025,9 @@ const enterEditHouseDialog = async (formEl) => {
 };
 
 const buildAttachments = async (fileList) => {
+  // 编辑房源时 fileList 里会同时存在“已上传的旧图”和“本次新增的新图”：
+  // - 旧图只有 url，没有 raw，直接复用
+  // - 新图带 raw，需要先上传再回填 url
   const uploaded = [];
   for (const file of fileList) {
     if (!file.raw && file.url) {

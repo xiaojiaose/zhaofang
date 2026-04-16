@@ -594,6 +594,7 @@ const docTemplate = `{
         },
         "/api/house/batchUpload": {
             "post": {
+                "description": "[新增接口] 按“本次 Excel 为准”同步当前用户房源：先下架旧上架房源，再把本次导入结果置为上架。",
                 "consumes": [
                     "multipart/form-data"
                 ],
@@ -603,7 +604,7 @@ const docTemplate = `{
                 "tags": [
                     "Admin"
                 ],
-                "summary": "Excel批量上传房源",
+                "summary": "[新增] Excel批量上传房源",
                 "parameters": [
                     {
                         "type": "file",
@@ -637,6 +638,7 @@ const docTemplate = `{
         },
         "/api/house/contactQuota/grant": {
             "post": {
+                "description": "[新增接口] 按经纪人手机号给账号充值房东房源联系方式查看次数。",
                 "consumes": [
                     "application/json"
                 ],
@@ -646,7 +648,7 @@ const docTemplate = `{
                 "tags": [
                     "Admin"
                 ],
-                "summary": "增加经纪人联系方式查看次数",
+                "summary": "[新增] 增加经纪人联系方式查看次数",
                 "parameters": [
                     {
                         "description": "增加次数参数",
@@ -685,6 +687,7 @@ const docTemplate = `{
         },
         "/api/house/contactQuota/list": {
             "post": {
+                "description": "[新增接口] 返回充值和消耗流水，便于后台核对剩余次数和使用情况。",
                 "consumes": [
                     "application/json"
                 ],
@@ -694,7 +697,7 @@ const docTemplate = `{
                 "tags": [
                     "Admin"
                 ],
-                "summary": "查看联系方式次数流水",
+                "summary": "[新增] 查看联系方式次数流水",
                 "parameters": [
                     {
                         "description": "查询参数",
@@ -733,13 +736,14 @@ const docTemplate = `{
         },
         "/api/house/create": {
             "post": {
+                "description": "[变更接口] 支持房东房源类型、返佣金额，并自动联动团队房源标识和发布人手机号。",
                 "produces": [
                     "application/json"
                 ],
                 "tags": [
                     "Admin"
                 ],
-                "summary": "创建房源",
+                "summary": "[变更] 后台创建房源",
                 "parameters": [
                     {
                         "description": "初始化内容",
@@ -818,13 +822,14 @@ const docTemplate = `{
         },
         "/api/house/edit": {
             "post": {
+                "description": "[变更接口] 支持修改房东房源类型、返佣金额和房源补充字段。",
                 "produces": [
                     "application/json"
                 ],
                 "tags": [
                     "Admin"
                 ],
-                "summary": "编辑 房源",
+                "summary": "[变更] 后台编辑房源",
                 "parameters": [
                     {
                         "description": "初始化内容",
@@ -860,6 +865,7 @@ const docTemplate = `{
         },
         "/api/house/list": {
             "post": {
+                "description": "[变更接口] 列表新增发布人微信资料和返佣、团队房源相关数据。",
                 "consumes": [
                     "application/json"
                 ],
@@ -869,7 +875,7 @@ const docTemplate = `{
                 "tags": [
                     "Admin"
                 ],
-                "summary": "房源审核列表",
+                "summary": "[变更] 后台房源审核列表",
                 "parameters": [
                     {
                         "description": "分页获取API列表",
@@ -923,6 +929,7 @@ const docTemplate = `{
         },
         "/api/house/my": {
             "post": {
+                "description": "[变更接口] 返回微信资料、返佣金额、已上架数量和剩余可上架数量。",
                 "consumes": [
                     "application/json"
                 ],
@@ -932,7 +939,7 @@ const docTemplate = `{
                 "tags": [
                     "Admin"
                 ],
-                "summary": "我发的房源列表",
+                "summary": "[变更] 后台我的房源列表",
                 "parameters": [
                     {
                         "description": "分页获取API列表",
@@ -986,13 +993,14 @@ const docTemplate = `{
         },
         "/api/house/options": {
             "get": {
+                "description": "[变更接口] 增加房东房源、返佣和团队房源相关筛选项。",
                 "produces": [
                     "application/json"
                 ],
                 "tags": [
                     "Admin"
                 ],
-                "summary": "筛选用到的选择项",
+                "summary": "[变更] 后台获取房源筛选选项",
                 "responses": {
                     "200": {
                         "description": "结果",
@@ -1023,6 +1031,7 @@ const docTemplate = `{
         },
         "/api/house/reward/action": {
             "post": {
+                "description": "[新增接口] 支持审核中、审通过待发放、已发放、未通过等后台状态流转。",
                 "consumes": [
                     "application/json"
                 ],
@@ -1032,7 +1041,7 @@ const docTemplate = `{
                 "tags": [
                     "Admin"
                 ],
-                "summary": "后台操作成交有礼审核状态",
+                "summary": "[新增] 后台操作成交有礼审核状态",
                 "parameters": [
                     {
                         "description": "操作参数",
@@ -1071,6 +1080,7 @@ const docTemplate = `{
         },
         "/api/house/reward/list": {
             "post": {
+                "description": "[新增接口] 后台只展示“发布人已确认”的成交有礼申请单。",
                 "consumes": [
                     "application/json"
                 ],
@@ -1080,7 +1090,7 @@ const docTemplate = `{
                 "tags": [
                     "Admin"
                 ],
-                "summary": "后台成交有礼审核列表",
+                "summary": "[新增] 后台成交有礼审核列表",
                 "parameters": [
                     {
                         "description": "查询参数",
@@ -1119,13 +1129,14 @@ const docTemplate = `{
         },
         "/api/house/statis/view": {
             "get": {
+                "description": "[变更接口] 增加出房有礼申请统计，并支持按手机号汇总房源相关数据。",
                 "produces": [
                     "application/json"
                 ],
                 "tags": [
                     "Admin"
                 ],
-                "summary": "数据中心",
+                "summary": "[变更] 数据中心",
                 "parameters": [
                     {
                         "type": "string",
@@ -1170,13 +1181,14 @@ const docTemplate = `{
         },
         "/api/house/type/options": {
             "get": {
+                "description": "[变更接口] 增加房东房源类型，以及协助对接房东、可带看分佣等亮点选项。",
                 "produces": [
                     "application/json"
                 ],
                 "tags": [
                     "Admin"
                 ],
-                "summary": "new 房型筛选用到的选择项",
+                "summary": "[变更] 后台获取新版房型筛选选项",
                 "responses": {
                     "200": {
                         "description": "结果",
@@ -1281,13 +1293,14 @@ const docTemplate = `{
         },
         "/api/statis/list": {
             "post": {
+                "description": "[变更接口] 返回房源发布人的微信资料，并支持新的筛选维度。",
                 "produces": [
                     "application/json"
                 ],
                 "tags": [
                     "Admin"
                 ],
-                "summary": "帖子数据",
+                "summary": "[变更] 帖子数据",
                 "parameters": [
                     {
                         "description": "分页获取API列表",
@@ -3822,13 +3835,14 @@ const docTemplate = `{
         },
         "/center/house/create": {
             "post": {
+                "description": "[变更接口] 支持房东房源类型、返佣金额，并自动联动团队房源标识和发布人手机号。",
                 "produces": [
                     "application/json"
                 ],
                 "tags": [
                     "Center"
                 ],
-                "summary": "创建|编辑 房源",
+                "summary": "[变更] 创建房源",
                 "parameters": [
                     {
                         "description": "初始化内容",
@@ -3907,13 +3921,14 @@ const docTemplate = `{
         },
         "/center/house/edit": {
             "post": {
+                "description": "[变更接口] 支持修改房东房源类型、返佣金额和房源补充字段。",
                 "produces": [
                     "application/json"
                 ],
                 "tags": [
                     "Center"
                 ],
-                "summary": "创建|编辑 房源",
+                "summary": "[变更] 编辑房源",
                 "parameters": [
                     {
                         "description": "初始化内容",
@@ -3949,6 +3964,7 @@ const docTemplate = `{
         },
         "/center/house/listByXiaoqu": {
             "post": {
+                "description": "[变更接口] 普通用户查询时默认排除团队房源，保持与地图筛选口径一致。",
                 "consumes": [
                     "application/json"
                 ],
@@ -3958,7 +3974,7 @@ const docTemplate = `{
                 "tags": [
                     "Center"
                 ],
-                "summary": "指定小区id 分页获取房源列表",
+                "summary": "[变更] 分页获取指定小区房源列表",
                 "parameters": [
                     {
                         "description": "分页获取API列表",
@@ -4012,13 +4028,14 @@ const docTemplate = `{
         },
         "/center/house/mobile": {
             "get": {
+                "description": "[变更接口] 房东房源查看联系方式前，会先校验并扣减当前登录用户的可用查看次数。",
                 "produces": [
                     "application/json"
                 ],
                 "tags": [
                     "Center"
                 ],
-                "summary": "获取 房源手机号",
+                "summary": "[变更] 获取房源手机号（房东房源扣查看次数）",
                 "parameters": [
                     {
                         "type": "string",
@@ -4055,6 +4072,7 @@ const docTemplate = `{
         },
         "/center/house/my": {
             "post": {
+                "description": "[变更接口] 返回微信资料、返佣金额、已上架数量和剩余可上架数量。",
                 "consumes": [
                     "application/json"
                 ],
@@ -4064,7 +4082,7 @@ const docTemplate = `{
                 "tags": [
                     "Center"
                 ],
-                "summary": "我发的房源列表",
+                "summary": "[变更] 我的房源列表",
                 "parameters": [
                     {
                         "description": "分页获取API列表",
@@ -4118,13 +4136,14 @@ const docTemplate = `{
         },
         "/center/house/share": {
             "get": {
+                "description": "[新增接口] 未登录也可访问；token 失效后前端应跳回首页。",
                 "produces": [
                     "application/json"
                 ],
                 "tags": [
                     "Center"
                 ],
-                "summary": "通过分享token获取地图房源列表",
+                "summary": "[新增] 通过分享token获取地图房源列表",
                 "parameters": [
                     {
                         "type": "string",
@@ -4160,6 +4179,7 @@ const docTemplate = `{
                 }
             },
             "post": {
+                "description": "[新增接口] 为当前登录用户生成 7 天有效的房源地图分享 token。",
                 "consumes": [
                     "application/json"
                 ],
@@ -4169,7 +4189,7 @@ const docTemplate = `{
                 "tags": [
                     "Center"
                 ],
-                "summary": "创建我的房源地图分享链接",
+                "summary": "[新增] 创建我的房源地图分享链接",
                 "parameters": [
                     {
                         "description": "分享参数",
@@ -4266,13 +4286,14 @@ const docTemplate = `{
         },
         "/center/house/view": {
             "get": {
+                "description": "[变更接口] 房东房源详情页不再返回门牌号，避免地址暴露过细。",
                 "produces": [
                     "application/json"
                 ],
                 "tags": [
                     "Center"
                 ],
-                "summary": "查看 房源",
+                "summary": "[变更] 查看房源详情（房东房源隐藏门牌号）",
                 "parameters": [
                     {
                         "type": "string",
@@ -4306,6 +4327,7 @@ const docTemplate = `{
         },
         "/center/house/xiaoquAgg": {
             "post": {
+                "description": "[变更接口] 支持返佣、房东房源、团队房源筛选；普通用户后端默认过滤团队房源。",
                 "consumes": [
                     "application/json"
                 ],
@@ -4315,7 +4337,7 @@ const docTemplate = `{
                 "tags": [
                     "Center"
                 ],
-                "summary": "指定查询条件  返回小区列表 包含每个小区的房源数量（聚合）",
+                "summary": "[变更] 地图聚合查询房源小区列表",
                 "parameters": [
                     {
                         "description": "查询条件",
@@ -4354,6 +4376,7 @@ const docTemplate = `{
         },
         "/center/house/xiaoquAggList": {
             "post": {
+                "description": "[变更接口] 支持返佣、房东房源、团队房源筛选；普通用户后端默认过滤团队房源。",
                 "consumes": [
                     "application/json"
                 ],
@@ -4363,7 +4386,7 @@ const docTemplate = `{
                 "tags": [
                     "Center"
                 ],
-                "summary": "指定查询条件  返回指定小区房源列表",
+                "summary": "[变更] 地图查询指定条件房源列表",
                 "parameters": [
                     {
                         "description": "查询条件",
@@ -4454,13 +4477,14 @@ const docTemplate = `{
         },
         "/center/options": {
             "get": {
+                "description": "[变更接口] 增加房东房源、返佣和团队房源相关筛选项。",
                 "produces": [
                     "application/json"
                 ],
                 "tags": [
                     "Center"
                 ],
-                "summary": "筛选用到的选择项",
+                "summary": "[变更] 获取房源筛选选项",
                 "responses": {
                     "200": {
                         "description": "结果",
@@ -4527,6 +4551,7 @@ const docTemplate = `{
                 }
             },
             "post": {
+                "description": "[新增接口] 小程序前端回传微信昵称、头像和用户补录的微信号，统一写入 sys_users。",
                 "consumes": [
                     "application/json"
                 ],
@@ -4536,7 +4561,7 @@ const docTemplate = `{
                 "tags": [
                     "Center"
                 ],
-                "summary": "小程序设置微信资料",
+                "summary": "[新增] 小程序设置微信资料",
                 "parameters": [
                     {
                         "description": "微信昵称、头像、微信号",
@@ -4575,6 +4600,7 @@ const docTemplate = `{
         },
         "/center/reward/apply": {
             "post": {
+                "description": "[新增接口] 申请人提交房源和备注后，后端会自动补齐申请人/发布人的手机号和微信号快照。",
                 "consumes": [
                     "application/json"
                 ],
@@ -4584,7 +4610,7 @@ const docTemplate = `{
                 "tags": [
                     "Center"
                 ],
-                "summary": "发起出房有礼申请",
+                "summary": "[新增] 发起出房有礼申请",
                 "parameters": [
                     {
                         "description": "申请参数",
@@ -4623,6 +4649,7 @@ const docTemplate = `{
         },
         "/center/reward/publisher/action": {
             "post": {
+                "description": "[新增接口] 发布人确认后，申请单才会进入后台审核状态。",
                 "consumes": [
                     "application/json"
                 ],
@@ -4632,7 +4659,7 @@ const docTemplate = `{
                 "tags": [
                     "Center"
                 ],
-                "summary": "发布人确认或拒绝出房有礼申请",
+                "summary": "[新增] 发布人确认或拒绝出房有礼申请",
                 "parameters": [
                     {
                         "description": "操作参数",
@@ -4671,6 +4698,7 @@ const docTemplate = `{
         },
         "/center/reward/publisher/list": {
             "post": {
+                "description": "[新增接口] 房源发布人查看自己的申请单列表，不等同于后台总审核池。",
                 "consumes": [
                     "application/json"
                 ],
@@ -4680,7 +4708,7 @@ const docTemplate = `{
                 "tags": [
                     "Center"
                 ],
-                "summary": "发布人查看出房有礼审核列表",
+                "summary": "[新增] 发布人查看出房有礼审核列表",
                 "parameters": [
                     {
                         "description": "查询参数",
@@ -4719,13 +4747,14 @@ const docTemplate = `{
         },
         "/center/reward/recent": {
             "get": {
+                "description": "[新增接口] 基于 /center/house/mobile 的联系方式点击记录，返回当前登录用户最近联系过的房源发布人。",
                 "produces": [
                     "application/json"
                 ],
                 "tags": [
                     "Center"
                 ],
-                "summary": "获取最近联系过的房源发布人记录",
+                "summary": "[新增] 获取最近联系过的房源发布人记录",
                 "responses": {
                     "200": {
                         "description": "最近联系记录",
@@ -4757,13 +4786,14 @@ const docTemplate = `{
         },
         "/center/type/options": {
             "get": {
+                "description": "[变更接口] 增加房东房源类型，以及协助对接房东、可带看分佣等亮点选项。",
                 "produces": [
                     "application/json"
                 ],
                 "tags": [
                     "Center"
                 ],
-                "summary": "new 房型筛选用到的选择项",
+                "summary": "[变更] 获取新版房型筛选选项",
                 "responses": {
                     "200": {
                         "description": "结果",
@@ -9954,6 +9984,7 @@ const docTemplate = `{
                         "ApiKeyAuth": []
                     }
                 ],
+                "description": "[变更接口] 支持编辑微信资料、找房超市标识、上架额度和联系方式查看次数。",
                 "consumes": [
                     "application/json"
                 ],
@@ -9963,7 +9994,7 @@ const docTemplate = `{
                 "tags": [
                     "SysUser"
                 ],
-                "summary": "设置用户信息",
+                "summary": "[变更] 设置用户信息",
                 "parameters": [
                     {
                         "description": "ID, 用户名, 昵称, 头像链接",
@@ -10058,13 +10089,14 @@ const docTemplate = `{
         },
         "/user/admin_register": {
             "post": {
+                "description": "[变更接口] 新增找房超市标识、上架额度和联系方式查看次数字段。",
                 "produces": [
                     "application/json"
                 ],
                 "tags": [
                     "SysUser"
                 ],
-                "summary": "用户注册账号",
+                "summary": "[变更] 用户注册账号",
                 "parameters": [
                     {
                         "description": "用户名, 昵称, 密码, 角色ID",
@@ -10411,13 +10443,14 @@ const docTemplate = `{
         },
         "/user/saler_register": {
             "post": {
+                "description": "[变更接口] 新增找房超市标识、上架额度和联系方式查看次数字段。",
                 "produces": [
                     "application/json"
                 ],
                 "tags": [
                     "Admin"
                 ],
-                "summary": "经纪人用户注册",
+                "summary": "[变更] 经纪人用户注册",
                 "parameters": [
                     {
                         "description": "用户名, 昵称, 密码, 角色ID",
@@ -10561,6 +10594,7 @@ const docTemplate = `{
                         "ApiKeyAuth": []
                     }
                 ],
+                "description": "[变更接口] 支持编辑微信资料、找房超市标识、上架额度和联系方式查看次数。",
                 "consumes": [
                     "application/json"
                 ],
@@ -10570,7 +10604,7 @@ const docTemplate = `{
                 "tags": [
                     "Admin"
                 ],
-                "summary": "设置经纪人用户信息",
+                "summary": "[变更] 设置经纪人用户信息",
                 "parameters": [
                     {
                         "description": "ID, 用户名, 昵称, 头像链接",
@@ -15094,6 +15128,7 @@ const docTemplate = `{
                     "type": "integer"
                 },
                 "contactViewQuotaTotal": {
+                    "description": "该次数用于房东房源联系方式查看扣减。",
                     "type": "integer"
                 },
                 "createdAt": {
@@ -15113,6 +15148,7 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "isFindHouseSupermarket": {
+                    "description": "找房超市标识决定两件事：\n1. 该用户发布的房源会被标记为团队房源\n2. 该用户可以看到团队房源筛选和团队房源数据",
                     "type": "boolean"
                 },
                 "nickName": {
@@ -15135,6 +15171,7 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "publishQuotaTotal": {
+                    "description": "上架额度限制的是“同时处于待出租状态的房源数量”。",
                     "type": "integer"
                 },
                 "updatedAt": {

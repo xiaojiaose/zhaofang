@@ -98,7 +98,8 @@ func (h *HouseResourceApi) ApprovalStatus(c *gin.Context) {
 }
 
 // @Tags      Admin
-// @Summary   房源审核列表
+// @Summary   [变更] 后台房源审核列表
+// @Description [变更接口] 列表新增发布人微信资料和返佣、团队房源相关数据。
 // @accept    application/json
 // @Produce   application/json
 // @Param     data  body      request.SearchNameResource   true  "分页获取API列表"
@@ -203,7 +204,8 @@ func (h *HouseResourceApi) DeleteByUserId(c *gin.Context) {
 }
 
 // @Tags      Admin
-// @Summary   我发的房源列表
+// @Summary   [变更] 后台我的房源列表
+// @Description [变更接口] 返回微信资料、返佣金额、已上架数量和剩余可上架数量。
 // @accept    application/json
 // @Produce   application/json
 // @Param     data  body      request.MySearchResource   true  "分页获取API列表"
@@ -258,7 +260,8 @@ func (h *HouseResourceApi) ListByUserId(c *gin.Context) {
 
 // Create
 // @Tags     Admin
-// @Summary  创建房源
+// @Summary  [变更] 后台创建房源
+// @Description [变更接口] 支持房东房源类型、返佣金额，并自动联动团队房源标识和发布人手机号。
 // @Produce  application/json
 // @Param    data  body      house.Resource  true  "初始化内容"
 // @Success  200   {object}  response.Response{data=string}  "结果"
@@ -309,7 +312,8 @@ func (h *HouseResourceApi) Create(c *gin.Context) {
 
 // Edit
 // @Tags     Admin
-// @Summary  编辑 房源
+// @Summary  [变更] 后台编辑房源
+// @Description [变更接口] 支持修改房东房源类型、返佣金额和房源补充字段。
 // @Produce  application/json
 // @Param    data  body      house.Resource  true  "初始化内容"
 // @Success  200   {object}  response.Response{data=string}  "结果"
@@ -346,7 +350,8 @@ func (h *HouseResourceApi) Edit(c *gin.Context) {
 
 // BatchUpload
 // @Tags     Admin
-// @Summary  Excel批量上传房源
+// @Summary  [新增] Excel批量上传房源
+// @Description [新增接口] 按“本次 Excel 为准”同步当前用户房源：先下架旧上架房源，再把本次导入结果置为上架。
 // @Accept   multipart/form-data
 // @Produce  application/json
 // @Param    file  formData  file  true  "excel文件"
@@ -422,7 +427,8 @@ func (h *HouseResourceApi) FilterArea(c *gin.Context) {
 
 // FilterOptions
 // @Tags     Admin
-// @Summary  筛选用到的选择项
+// @Summary  [变更] 后台获取房源筛选选项
+// @Description [变更接口] 增加房东房源、返佣和团队房源相关筛选项。
 // @Produce  application/json
 // @Success  200   {object}  response.Response{data=map[string]map[string]string}  "结果"
 // @Router   /api/house/options [get]
@@ -439,7 +445,8 @@ func (h *HouseResourceApi) FilterOptions(c *gin.Context) {
 
 // FilterTypeOptions
 // @Tags     Admin
-// @Summary  new 房型筛选用到的选择项
+// @Summary  [变更] 后台获取新版房型筛选选项
+// @Description [变更接口] 增加房东房源类型，以及协助对接房东、可带看分佣等亮点选项。
 // @Produce  application/json
 // @Success  200   {object}  response.Response{data=map[string]interface{}}  "结果"
 // @Router   /api/house/type/options [get]

@@ -68,11 +68,15 @@ func (service *ResourceService) GetPriceByOption(key string) []int {
 }
 
 func (service *ResourceService) CreateOrUpdate(resource *house.Resource) (err error) {
+	// 房源的“团队房源标识”和默认联系方式都依赖发布人资料，
+	// 每次保存前都重新补齐，避免前端漏传或传了旧值。
 	if err = service.fillUserRelatedFields(resource); err != nil {
 		return err
 	}
 	var doorNo string
 	if resource.BuildingId != "" {
+		// 如果接的是字典式楼栋/单元/房号，就在保存前拼出可展示的 DoorNo；
+		// 这样前台和搜索索引都能直接复用统一的门牌字段。
 		var building house.DictBuilding
 		err = global.GVA_DB.Model(&house.DictBuilding{}).Where("building_open_id = ? ", resource.BuildingId).First(&building).Error
 		if err != nil {
@@ -119,6 +123,7 @@ func (service *ResourceService) CreateOrUpdate(resource *house.Resource) (err er
 		resource.Status = "待出租"
 	}
 	if resource.Status == "待出租" {
+		// 只有真正要上架时才校验额度，草稿/下架状态允许先保存。
 		if err = service.ensurePublishQuota(resource.Owner, resource.ID); err != nil {
 			return err
 		}
@@ -128,6 +133,7 @@ func (service *ResourceService) CreateOrUpdate(resource *house.Resource) (err er
 		err = global.GVA_DB.Create(resource).Error
 	}
 	if err == nil {
+		// 房源库和地图检索都依赖 ES/Zinc 索引，所以每次保存成功后都立即同步搜索索引。
 		err = global.Gva_ResourceSearch.Add(context.Background(), *search.FromDeviceDB(resource))
 		if err != nil {
 			return err
@@ -167,6 +173,8 @@ func (service *ResourceService) FollowViewClickSub(id uint, field string) (err e
 
 func (service *ResourceService) SetState(ids []uint, value string) (err error) {
 	if value == "待出租" {
+		// 批量上架时逐条校验额度，
+		// 这样可以复用和单条保存一致的限制逻辑。
 		for _, id := range ids {
 			info, e := service.GetInfo(id)
 			if e != nil {
@@ -189,6 +197,7 @@ func (service *ResourceService) SetState(ids []uint, value string) (err error) {
 	return
 }
 func (service *ResourceService) SetApprovalStatus(ids []uint, value string) (err error) {
+	// 现有审核通过逻辑会顺带把状态切回“待出租”，保持和原有后台审核行为一致。
 	err = global.GVA_DB.Model(&house.Resource{}).Where("id in ? ", ids).Updates(map[string]interface{}{"approval_status": value, "status": "待出租"}).Error
 	if err == nil {
 		for _, id := range ids {
@@ -207,7 +216,8 @@ func (service *ResourceService) GetListByIds(ids []uint) (resources []*house.Res
 }
 
 func (service *ResourceService) GetPage(xiaoquId, userId uint, appStatus string, status string, info request.PageInfo, order string, desc bool, Other request.SearchOther) (list interface{}, total int64, err error) {
-
+	// 这里是后台和若干业务列表共用的数据库查询入口；
+	// ES 地图检索走另一条链路，但“我的房源”“后台审核列表”等仍然依赖这里的条件拼装。
 	limit := info.PageSize
 	offset := info.PageSize * (info.Page - 1)
 	db := global.GVA_DB.Model(&house.Resource{})
@@ -236,6 +246,8 @@ func (service *ResourceService) GetPage(xiaoquId, userId uint, appStatus string,
 	if Other.Phone != "" {
 		db = db.Where("phone = ?", Other.Phone)
 	}
+	// 团队房源字段虽然来源于用户标识，但已经冗余到房源表，
+	// 所以这里可以直接按房源维度过滤，不需要联表查用户。
 	if Other.IsTeamHouse == "true" {
 		db = db.Where("is_team_house = ?", true)
 	}
@@ -293,6 +305,8 @@ func (service *ResourceService) CountOnShelfByUser(userID uint, excludeIDs ...ui
 }
 
 func (service *ResourceService) RefreshUserTeamHouses(userID uint, isTeam bool) error {
+	// 团队房源虽然来源于用户的找房超市标识，
+	// 但最终在房源表上做了冗余存储，方便地图、ES 和后台列表直接查询。
 	return global.GVA_DB.Model(&house.Resource{}).Where("owner = ?", userID).Update("is_team_house", isTeam).Error
 }
 
@@ -304,7 +318,9 @@ func (service *ResourceService) fillUserRelatedFields(resource *house.Resource) 
 	if err := global.GVA_DB.Where("id = ?", resource.Owner).First(&user).Error; err != nil {
 		return err
 	}
+	// 团队房源标识始终以用户资料为准，不信任前端直接传的值。
 	resource.IsTeamHouse = user.IsFindHouseSupermarket
+	// 联系手机号默认跟随发布人账号，除非业务侧明确覆盖。
 	if resource.Phone == "" {
 		resource.Phone = user.Phone
 	}
@@ -322,6 +338,7 @@ func (service *ResourceService) ensurePublishQuota(userID uint, resourceID uint)
 	if user.PublishQuotaTotal <= 0 {
 		return errors.New("当前账号未开通上架权限")
 	}
+	// 编辑已上架房源时需要把自己排除掉，否则会把“保存已有房源”误判成超额。
 	count, err := service.CountOnShelfByUser(userID, resourceID)
 	if err != nil {
 		return err

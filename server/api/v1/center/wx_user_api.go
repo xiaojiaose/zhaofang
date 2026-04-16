@@ -56,7 +56,8 @@ func (wx *WxUserApi) WxProfile(c *gin.Context) {
 
 // SetWxProfile
 // @Tags     Center
-// @Summary  小程序设置微信资料
+// @Summary  [新增] 小程序设置微信资料
+// @Description [新增接口] 小程序前端回传微信昵称、头像和用户补录的微信号，统一写入 sys_users。
 // @accept    application/json
 // @Produce   application/json
 // @Param    data  body      systemReq.WxProfileSync  true  "微信昵称、头像、微信号"

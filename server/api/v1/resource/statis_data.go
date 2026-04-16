@@ -17,7 +17,8 @@ type StatisDataApi struct {
 
 // View
 // @Tags     Admin
-// @Summary   数据中心
+// @Summary   [变更] 数据中心
+// @Description [变更接口] 增加出房有礼申请统计，并支持按手机号汇总房源相关数据。
 // @Produce  application/json
 // @Param    data  query   request.GetStatis  true   "start, end"
 // @Success  200   {object}  response.Response{data=map[string]interface{}}  "结果"
@@ -138,7 +139,8 @@ func (s *StatisDataApi) VisitRecord(c *gin.Context) {
 
 // View
 // @Tags     Admin
-// @Summary   帖子数据
+// @Summary   [变更] 帖子数据
+// @Description [变更接口] 返回房源发布人的微信资料，并支持新的筛选维度。
 // @Produce  application/json
 // @Param     data  body      request.SearchHouseResource   true  "分页获取API列表"
 // @Success   200   {object}  response.Response{data=response.PageResult{list=[]response2.ResourceVisitResponse},msg=string}  "分页获取API列表,返回包括列表,总数,页码,每页数量"

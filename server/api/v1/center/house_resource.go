@@ -33,7 +33,8 @@ var houseType = map[string]string{
 
 // View
 // @Tags     Center
-// @Summary  查看 房源
+// @Summary  [变更] 查看房源详情（房东房源隐藏门牌号）
+// @Description [变更接口] 房东房源详情页不再返回门牌号，避免地址暴露过细。
 // @Produce  application/json
 // @Param    data  query    string  true  "id"
 // @Success  200   {object}  response.Response{data=response2.ResourceResponse}  "结果"
@@ -63,6 +64,7 @@ func (h *HouseResourceApi) View(c *gin.Context) {
 		Longitude: xq.Longitude,
 	}
 	if info.HouseType == "房东房源" {
+		// 房东房源详情页不展示门牌号，避免把地址暴露得过细。
 		r.DoorNo = ""
 	}
 
@@ -117,7 +119,8 @@ func (h *HouseResourceApi) States(c *gin.Context) {
 
 // View
 // @Tags     Center
-// @Summary  获取 房源手机号
+// @Summary  [变更] 获取房源手机号（房东房源扣查看次数）
+// @Description [变更接口] 房东房源查看联系方式前，会先校验并扣减当前登录用户的可用查看次数。
 // @Produce  application/json
 // @Param    data  query    string  true  "id"
 // @Success  200   {object}  response.Response{data=map[string]string}  "结果 {'mobile': '13222222222'}"
@@ -144,6 +147,8 @@ func (h *HouseResourceApi) GetMobile(c *gin.Context) {
 	}
 
 	if info.HouseType == "房东房源" {
+		// 房东房源联系方式需要消耗当前登录用户的可用查看次数，
+		// 普通房源保持原有直接查看逻辑。
 		err = ContactQuotaService.Consume(utils.GetUserID(c), uint(req.ID), "查看房东房源联系方式")
 		if err != nil {
 			response.FailWithMessage(err.Error(), c)
@@ -160,7 +165,8 @@ func (h *HouseResourceApi) GetMobile(c *gin.Context) {
 }
 
 // @Tags      Center
-// @Summary   指定查询条件  返回小区列表 包含每个小区的房源数量（聚合）
+// @Summary   [变更] 地图聚合查询房源小区列表
+// @Description [变更接口] 支持返佣、房东房源、团队房源筛选；普通用户后端默认过滤团队房源。
 // @accept    application/json
 // @Produce   application/json
 // @Param     data  body      request.ResourceSearch   true  "查询条件"
@@ -212,6 +218,7 @@ func (h *HouseResourceApi) ListByXiaoquAgg(c *gin.Context) {
 		condition.Terms = append(condition.Terms, searchx.Term{Field: "rent_type", Value: req.RentType + "*"})
 	}
 	if !userHasTeamPermission(utils.GetUserID(c)) {
+		// 普通用户即使前端手工构造参数，也不能看到团队房源，这里做后端兜底过滤。
 		condition.Terms = append(condition.Terms, searchx.Term{Field: "is_team_house", Value: "0"})
 	}
 	switch req.HouseSource {
@@ -221,6 +228,7 @@ func (h *HouseResourceApi) ListByXiaoquAgg(c *gin.Context) {
 		condition.Terms = append(condition.Terms, searchx.Term{Field: "house_type", Value: "房东房源"})
 	case "team":
 		if userHasTeamPermission(utils.GetUserID(c)) {
+			// 只有带找房超市标识的用户，才允许主动筛团队房源。
 			condition.Terms = append(condition.Terms, searchx.Term{Field: "is_team_house", Value: "1"})
 		}
 	}
@@ -262,7 +270,8 @@ func (h *HouseResourceApi) ListByXiaoquAgg(c *gin.Context) {
 }
 
 // @Tags      Center
-// @Summary   指定查询条件  返回指定小区房源列表
+// @Summary   [变更] 地图查询指定条件房源列表
+// @Description [变更接口] 支持返佣、房东房源、团队房源筛选；普通用户后端默认过滤团队房源。
 // @accept    application/json
 // @Produce   application/json
 // @Param     data  body      request.ResourceSearch   true  "查询条件"
@@ -314,6 +323,7 @@ func (h *HouseResourceApi) ListByXiaoquAggList(c *gin.Context) {
 		condition.Terms = append(condition.Terms, searchx.Term{Field: "rent_type", Value: req.RentType + "*"})
 	}
 	if !userHasTeamPermission(utils.GetUserID(c)) {
+		// 聚合接口和列表接口都需要做同样的权限兜底，避免两边数据口径不一致。
 		condition.Terms = append(condition.Terms, searchx.Term{Field: "is_team_house", Value: "0"})
 	}
 	switch req.HouseSource {
@@ -374,7 +384,8 @@ func (h *HouseResourceApi) ListByXiaoquAggList(c *gin.Context) {
 }
 
 // @Tags      Center
-// @Summary   指定小区id 分页获取房源列表
+// @Summary   [变更] 分页获取指定小区房源列表
+// @Description [变更接口] 普通用户查询时默认排除团队房源，保持与地图筛选口径一致。
 // @accept    application/json
 // @Produce   application/json
 // @Param     data  body      request.SearchResource   true  "分页获取API列表"
@@ -398,6 +409,7 @@ func (h *HouseResourceApi) ListByXiaoquId(c *gin.Context) {
 
 	other := request.SearchOther{}
 	if !userHasTeamPermission(utils.GetUserID(c)) {
+		// 走数据库分页的接口同样排除团队房源，保持与 ES 检索结果一致。
 		other.IsTeamHouse = "false"
 	}
 	list, total, err := ResourceService.GetPage(pageInfo.XiaoquId, 0, "", "待出租", pageInfo.PageInfo, "updated_last_at", true, other)
@@ -439,7 +451,8 @@ func (h *HouseResourceApi) ListByXiaoquId(c *gin.Context) {
 }
 
 // @Tags      Center
-// @Summary   我发的房源列表
+// @Summary   [变更] 我的房源列表
+// @Description [变更接口] 返回微信资料、返佣金额、已上架数量和剩余可上架数量。
 // @accept    application/json
 // @Produce   application/json
 // @Param     data  body      request.FavoriteSearch   true  "分页获取API列表"
@@ -496,7 +509,8 @@ func (h *HouseResourceApi) ListByUserId(c *gin.Context) {
 
 // Create
 // @Tags     Center
-// @Summary  创建|编辑 房源
+// @Summary  [变更] 创建房源
+// @Description [变更接口] 支持房东房源类型、返佣金额，并自动联动团队房源标识和发布人手机号。
 // @Produce  application/json
 // @Param    data  body      house.Resource  true  "初始化内容"
 // @Success  200   {object}  response.Response{data=string}  "结果"
@@ -577,7 +591,8 @@ func (h *HouseResourceApi) DeleteByUserId(c *gin.Context) {
 
 // Edit
 // @Tags     Center
-// @Summary  创建|编辑 房源
+// @Summary  [变更] 编辑房源
+// @Description [变更接口] 支持修改房东房源类型、返佣金额和房源补充字段。
 // @Produce  application/json
 // @Param    data  body      house.Resource  true  "初始化内容"
 // @Success  200   {object}  response.Response{data=string}  "结果"
@@ -714,7 +729,8 @@ func (h *HouseResourceApi) FilterArea(c *gin.Context) {
 
 // FilterOptions
 // @Tags     Center
-// @Summary  筛选用到的选择项
+// @Summary  [变更] 获取房源筛选选项
+// @Description [变更接口] 增加房东房源、返佣和团队房源相关筛选项。
 // @Produce  application/json
 // @Success  200   {object}  response.Response{data=map[string]map[string]string}  "结果"
 // @Router   /center/options [get]
@@ -736,7 +752,8 @@ func (h *HouseResourceApi) FilterOptions(c *gin.Context) {
 
 // FilterTypeOptions
 // @Tags     Center
-// @Summary  new 房型筛选用到的选择项
+// @Summary  [变更] 获取新版房型筛选选项
+// @Description [变更接口] 增加房东房源类型，以及协助对接房东、可带看分佣等亮点选项。
 // @Produce  application/json
 // @Success  200   {object}  response.Response{data=map[string]interface{}}  "结果"
 // @Router   /center/type/options [get]
