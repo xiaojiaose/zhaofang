@@ -46,6 +46,7 @@ func (s *CenterRouter) InitCenterAuthRouter(Router *gin.RouterGroup, publicRoute
 		public.GET("/house/shared", resourceApi.Shared)
 		houseRouterRecord.GET("house/mobile", resourceApi.GetMobile)
 		public.GET("/house/share", resourceApi.SharedMap)
+		public.GET("/house/share/list", resourceApi.SharedMapList)
 		houseRouterRecord.POST("house/share", resourceApi.CreateShare)
 		houseRouter.POST("house/xiaoquAgg", resourceApi.ListByXiaoquAgg)
 		houseRouter.POST("house/xiaoquAggList", resourceApi.ListByXiaoquAggList)

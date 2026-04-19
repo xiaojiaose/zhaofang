@@ -594,7 +594,7 @@ const docTemplate = `{
         },
         "/api/house/batchUpload": {
             "post": {
-                "description": "[新增接口] 按“本次 Excel 为准”同步当前用户房源：先下架旧上架房源，再把本次导入结果置为上架。",
+                "description": "[新增接口] 按“本次 Excel 为准”同步当前用户房源：先下架旧上架房源，再把本次导入结果置为上架。支持上传时附带备注信息。示例文件见 server/docs/house-batch-upload-example.xlsx，字段说明见 server/docs/batch-upload-example.md。",
                 "consumes": [
                     "multipart/form-data"
                 ],
@@ -612,6 +612,12 @@ const docTemplate = `{
                         "name": "file",
                         "in": "formData",
                         "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "批量上传备注",
+                        "name": "remark",
+                        "in": "formData"
                     }
                 ],
                 "responses": {
@@ -1140,17 +1146,20 @@ const docTemplate = `{
                 "parameters": [
                     {
                         "type": "string",
+                        "description": "结束时间",
                         "name": "end",
                         "in": "query",
                         "required": true
                     },
                     {
                         "type": "string",
+                        "description": "手机号筛选",
                         "name": "phone",
                         "in": "query"
                     },
                     {
                         "type": "string",
+                        "description": "开始时间",
                         "name": "start",
                         "in": "query",
                         "required": true
@@ -4136,14 +4145,14 @@ const docTemplate = `{
         },
         "/center/house/share": {
             "get": {
-                "description": "[新增接口] 未登录也可访问；token 失效后前端应跳回首页。",
+                "description": "[新增接口] 未登录也可访问；先返回按小区聚合后的地图点位，前端点击点位后再调用 /center/house/share/list 查看该小区下的房源。",
                 "produces": [
                     "application/json"
                 ],
                 "tags": [
                     "Center"
                 ],
-                "summary": "[新增] 通过分享token获取地图房源列表",
+                "summary": "[新增] 通过分享token获取地图点位列表",
                 "parameters": [
                     {
                         "type": "string",
@@ -4155,7 +4164,7 @@ const docTemplate = `{
                 ],
                 "responses": {
                     "200": {
-                        "description": "分享房源列表",
+                        "description": "分享房源地图点位",
                         "schema": {
                             "allOf": [
                                 {
@@ -4165,8 +4174,7 @@ const docTemplate = `{
                                     "type": "object",
                                     "properties": {
                                         "data": {
-                                            "type": "object",
-                                            "additionalProperties": true
+                                            "$ref": "#/definitions/response.SharedMapResponse"
                                         },
                                         "msg": {
                                             "type": "string"
@@ -4214,6 +4222,84 @@ const docTemplate = `{
                                         "data": {
                                             "type": "object",
                                             "additionalProperties": true
+                                        },
+                                        "msg": {
+                                            "type": "string"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                }
+            }
+        },
+        "/center/house/share/list": {
+            "get": {
+                "description": "[新增接口] 地图点位点击后调用，仍然通过 ZincSearch 按 owner + xiaoqu_id 过滤，再回表补全房源详情。",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Center"
+                ],
+                "summary": "[新增] 通过分享token和小区ID获取点位下房源列表",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "分享token",
+                        "name": "token",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "小区ID",
+                        "name": "xiaoquId",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "页码",
+                        "name": "page",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "每页数量",
+                        "name": "pageSize",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "分享小区房源列表",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/response.Response"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "allOf": [
+                                                {
+                                                    "$ref": "#/definitions/response.PageResult"
+                                                },
+                                                {
+                                                    "type": "object",
+                                                    "properties": {
+                                                        "list": {
+                                                            "type": "array",
+                                                            "items": {
+                                                                "$ref": "#/definitions/house.Resource"
+                                                            }
+                                                        }
+                                                    }
+                                                }
+                                            ]
                                         },
                                         "msg": {
                                             "type": "string"
@@ -12181,12 +12267,15 @@ const docTemplate = `{
             "type": "object",
             "properties": {
                 "headerImg": {
+                    "description": "微信头像",
                     "type": "string"
                 },
                 "wxNickName": {
+                    "description": "微信昵称",
                     "type": "string"
                 },
                 "wxNo": {
+                    "description": "微信号",
                     "type": "string"
                 }
             }
@@ -12195,33 +12284,47 @@ const docTemplate = `{
             "type": "object",
             "properties": {
                 "ID": {
+                    "description": "主键ID",
                     "type": "integer"
                 },
                 "batchNo": {
+                    "description": "导入批次号",
                     "type": "string"
                 },
                 "createdAt": {
+                    "description": "创建时间",
                     "type": "string"
                 },
                 "failedCount": {
+                    "description": "导入失败条数",
                     "type": "integer"
                 },
                 "fileName": {
+                    "description": "上传文件名",
+                    "type": "string"
+                },
+                "remark": {
+                    "description": "批量上传备注",
                     "type": "string"
                 },
                 "resultSummary": {
+                    "description": "导入结果摘要",
                     "type": "string"
                 },
                 "successCount": {
+                    "description": "导入成功条数",
                     "type": "integer"
                 },
                 "totalCount": {
+                    "description": "Excel 总条数",
                     "type": "integer"
                 },
                 "updatedAt": {
+                    "description": "更新时间",
                     "type": "string"
                 },
                 "userId": {
+                    "description": "上传用户ID",
                     "type": "integer"
                 }
             }
@@ -12315,7 +12418,7 @@ const docTemplate = `{
                     "type": "integer"
                 },
                 "approval_status": {
-                    "description": "审批状态： 通过 未通过 待审批",
+                    "description": "审批状态",
                     "type": "string"
                 },
                 "area": {
@@ -12323,7 +12426,7 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "attachments": {
-                    "description": "公寓照片",
+                    "description": "房源图片",
                     "allOf": [
                         {
                             "$ref": "#/definitions/common.AttachmentMap"
@@ -12331,7 +12434,7 @@ const docTemplate = `{
                     ]
                 },
                 "building_id": {
-                    "description": "楼栋",
+                    "description": "楼栋ID",
                     "type": "string"
                 },
                 "city": {
@@ -12351,11 +12454,11 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "district_ids": {
-                    "description": "所属商圈s",
+                    "description": "所属商圈ID串",
                     "type": "string"
                 },
                 "districts": {
-                    "description": "所属商圈s",
+                    "description": "所属商圈",
                     "type": "string"
                 },
                 "door_no": {
@@ -12379,11 +12482,11 @@ const docTemplate = `{
                     "type": "boolean"
                 },
                 "house_id": {
-                    "description": "房号",
+                    "description": "房号ID",
                     "type": "string"
                 },
                 "house_type": {
-                    "description": "户型",
+                    "description": "房屋类型",
                     "type": "string"
                 },
                 "is_team_house": {
@@ -12391,7 +12494,7 @@ const docTemplate = `{
                     "type": "boolean"
                 },
                 "owner": {
-                    "description": "业主",
+                    "description": "房源归属用户ID",
                     "type": "integer"
                 },
                 "phone": {
@@ -12427,11 +12530,11 @@ const docTemplate = `{
                     "type": "integer"
                 },
                 "status": {
-                    "description": "状态 已出租，已下架，待出租",
+                    "description": "状态",
                     "type": "string"
                 },
                 "unit_id": {
-                    "description": "单元",
+                    "description": "单元ID",
                     "type": "string"
                 },
                 "updatedAt": {
@@ -12447,11 +12550,11 @@ const docTemplate = `{
                     "type": "integer"
                 },
                 "xiaoqu": {
-                    "description": "所属小区名字",
+                    "description": "所属小区名称",
                     "type": "string"
                 },
                 "xiaoqu_id": {
-                    "description": "所属小区id",
+                    "description": "所属小区ID",
                     "type": "integer"
                 }
             }
@@ -12836,12 +12939,15 @@ const docTemplate = `{
             "type": "object",
             "properties": {
                 "amount": {
+                    "description": "增加次数",
                     "type": "integer"
                 },
                 "remark": {
+                    "description": "备注",
                     "type": "string"
                 },
                 "userPhone": {
+                    "description": "经纪人手机号",
                     "type": "string"
                 }
             }
@@ -12862,6 +12968,7 @@ const docTemplate = `{
                     "type": "integer"
                 },
                 "userPhone": {
+                    "description": "经纪人手机号",
                     "type": "string"
                 }
             }
@@ -13177,7 +13284,7 @@ const docTemplate = `{
             "type": "object",
             "properties": {
                 "desc": {
-                    "description": "排序方式:升序false(默认)|降序true",
+                    "description": "排序方式",
                     "type": "boolean"
                 },
                 "doorNo": {
@@ -13189,7 +13296,7 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "orderKey": {
-                    "description": "排序",
+                    "description": "排序字段",
                     "type": "string"
                 },
                 "page": {
@@ -13201,11 +13308,11 @@ const docTemplate = `{
                     "type": "integer"
                 },
                 "status": {
-                    "description": "出租类型： 已出租，已下架，待出租",
+                    "description": "房源状态",
                     "type": "string"
                 },
                 "xiaoquId": {
-                    "description": "小区id",
+                    "description": "小区ID",
                     "type": "integer"
                 }
             }
@@ -13231,47 +13338,59 @@ const docTemplate = `{
             "type": "object",
             "properties": {
                 "authorityId": {
+                    "description": "角色ID",
                     "type": "string",
                     "example": "int 角色id"
                 },
                 "authorityIds": {
+                    "description": "角色ID列表",
                     "type": "string",
                     "example": "[]uint 角色id"
                 },
                 "contactViewQuotaTotal": {
+                    "description": "可查看联系方式次数",
                     "type": "integer"
                 },
                 "email": {
+                    "description": "邮箱",
                     "type": "string",
                     "example": "电子邮箱"
                 },
                 "enable": {
+                    "description": "是否启用",
                     "type": "string",
                     "example": "int 是否启用"
                 },
                 "headerImg": {
+                    "description": "头像",
                     "type": "string",
                     "example": "头像链接"
                 },
                 "isFindHouseSupermarket": {
+                    "description": "找房超市标识",
                     "type": "boolean"
                 },
                 "nickName": {
+                    "description": "昵称",
                     "type": "string",
                     "example": "昵称"
                 },
                 "passWord": {
+                    "description": "密码",
                     "type": "string",
                     "example": "密码"
                 },
                 "phone": {
+                    "description": "手机号",
                     "type": "string",
                     "example": "电话号码"
                 },
                 "publishQuotaTotal": {
+                    "description": "可上架总数",
                     "type": "integer"
                 },
                 "userName": {
+                    "description": "用户名",
                     "type": "string",
                     "example": "用户名"
                 }
@@ -13281,15 +13400,15 @@ const docTemplate = `{
             "type": "object",
             "properties": {
                 "feature": {
-                    "description": "有无电梯",
+                    "description": "亮点",
                     "type": "string"
                 },
                 "houseSource": {
-                    "description": "commission landlord team",
+                    "description": "房源来源筛选",
                     "type": "string"
                 },
                 "houseType": {
-                    "description": "1居室、2居室",
+                    "description": "房屋类型",
                     "type": "string"
                 },
                 "page": {
@@ -13301,15 +13420,15 @@ const docTemplate = `{
                     "type": "integer"
                 },
                 "price": {
-                    "description": "价格 1580",
+                    "description": "价格档位",
                     "type": "integer"
                 },
                 "rentType": {
-                    "description": "整租、合租、分整租",
+                    "description": "出租类型",
                     "type": "string"
                 },
                 "xiaoquIds": {
-                    "description": "商圈ids",
+                    "description": "商圈ID列表",
                     "type": "array",
                     "items": {
                         "type": "integer"
@@ -13321,6 +13440,7 @@ const docTemplate = `{
             "type": "object",
             "properties": {
                 "expireDays": {
+                    "description": "有效天数",
                     "type": "integer"
                 }
             }
@@ -13329,9 +13449,11 @@ const docTemplate = `{
             "type": "object",
             "properties": {
                 "action": {
+                    "description": "操作类型",
                     "type": "string"
                 },
                 "id": {
+                    "description": "申请单ID",
                     "type": "integer"
                 }
             }
@@ -13340,9 +13462,11 @@ const docTemplate = `{
             "type": "object",
             "properties": {
                 "remark": {
+                    "description": "申请备注",
                     "type": "string"
                 },
                 "resourceId": {
+                    "description": "房源ID",
                     "type": "integer"
                 }
             }
@@ -13351,6 +13475,7 @@ const docTemplate = `{
             "type": "object",
             "properties": {
                 "auditStatus": {
+                    "description": "后台审核状态",
                     "type": "string"
                 },
                 "keyword": {
@@ -13366,6 +13491,7 @@ const docTemplate = `{
                     "type": "integer"
                 },
                 "publisherConfirmStatus": {
+                    "description": "发布人确认状态",
                     "type": "string"
                 }
             }
@@ -13427,11 +13553,11 @@ const docTemplate = `{
             "type": "object",
             "properties": {
                 "approvalStatus": {
-                    "description": "审核状态： 通过 未通过 待审批",
+                    "description": "审核状态",
                     "type": "string"
                 },
                 "desc": {
-                    "description": "排序方式:升序false(默认)|降序true",
+                    "description": "排序方式",
                     "type": "boolean"
                 },
                 "doorNo": {
@@ -13447,7 +13573,7 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "orderKey": {
-                    "description": "排序",
+                    "description": "排序字段",
                     "type": "string"
                 },
                 "page": {
@@ -13479,7 +13605,7 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "xiaoquId": {
-                    "description": "小区id",
+                    "description": "小区ID",
                     "type": "integer"
                 }
             }
@@ -13488,11 +13614,11 @@ const docTemplate = `{
             "type": "object",
             "properties": {
                 "approvalStatus": {
-                    "description": "通过 未通过 待审批",
+                    "description": "审批状态",
                     "type": "string"
                 },
                 "desc": {
-                    "description": "排序方式:升序false(默认)|降序true",
+                    "description": "排序方式",
                     "type": "boolean"
                 },
                 "keyword": {
@@ -13500,7 +13626,7 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "orderKey": {
-                    "description": "排序",
+                    "description": "排序字段",
                     "type": "string"
                 },
                 "page": {
@@ -13512,10 +13638,11 @@ const docTemplate = `{
                     "type": "integer"
                 },
                 "phone": {
+                    "description": "手机号",
                     "type": "string"
                 },
                 "xiaoquId": {
-                    "description": "小区id",
+                    "description": "小区ID",
                     "type": "integer"
                 }
             }
@@ -13524,7 +13651,7 @@ const docTemplate = `{
             "type": "object",
             "properties": {
                 "desc": {
-                    "description": "排序方式:升序false(默认)|降序true",
+                    "description": "排序方式",
                     "type": "boolean"
                 },
                 "keyword": {
@@ -13532,7 +13659,7 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "orderKey": {
-                    "description": "排序",
+                    "description": "排序字段",
                     "type": "string"
                 },
                 "page": {
@@ -13544,7 +13671,7 @@ const docTemplate = `{
                     "type": "integer"
                 },
                 "xiaoquId": {
-                    "description": "小区id",
+                    "description": "小区ID",
                     "type": "integer"
                 }
             }
@@ -13934,7 +14061,7 @@ const docTemplate = `{
                     "type": "integer"
                 },
                 "approval_status": {
-                    "description": "审批状态： 通过 未通过 待审批",
+                    "description": "审批状态",
                     "type": "string"
                 },
                 "area": {
@@ -13942,7 +14069,7 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "attachments": {
-                    "description": "公寓照片",
+                    "description": "房源图片",
                     "allOf": [
                         {
                             "$ref": "#/definitions/common.AttachmentMap"
@@ -13950,7 +14077,7 @@ const docTemplate = `{
                     ]
                 },
                 "building_id": {
-                    "description": "楼栋",
+                    "description": "楼栋ID",
                     "type": "string"
                 },
                 "city": {
@@ -13970,11 +14097,11 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "district_ids": {
-                    "description": "所属商圈s",
+                    "description": "所属商圈ID串",
                     "type": "string"
                 },
                 "districts": {
-                    "description": "所属商圈s",
+                    "description": "所属商圈",
                     "type": "string"
                 },
                 "door_no": {
@@ -13998,11 +14125,11 @@ const docTemplate = `{
                     "type": "boolean"
                 },
                 "house_id": {
-                    "description": "房号",
+                    "description": "房号ID",
                     "type": "string"
                 },
                 "house_type": {
-                    "description": "户型",
+                    "description": "房屋类型",
                     "type": "string"
                 },
                 "is_team_house": {
@@ -14018,7 +14145,7 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "owner": {
-                    "description": "业主",
+                    "description": "房源归属用户ID",
                     "type": "integer"
                 },
                 "phone": {
@@ -14054,11 +14181,11 @@ const docTemplate = `{
                     "type": "integer"
                 },
                 "status": {
-                    "description": "状态 已出租，已下架，待出租",
+                    "description": "状态",
                     "type": "string"
                 },
                 "unit_id": {
-                    "description": "单元",
+                    "description": "单元ID",
                     "type": "string"
                 },
                 "updatedAt": {
@@ -14074,11 +14201,11 @@ const docTemplate = `{
                     "type": "integer"
                 },
                 "xiaoqu": {
-                    "description": "所属小区名字",
+                    "description": "所属小区名称",
                     "type": "string"
                 },
                 "xiaoqu_id": {
-                    "description": "所属小区id",
+                    "description": "所属小区ID",
                     "type": "integer"
                 }
             }
@@ -14091,7 +14218,7 @@ const docTemplate = `{
                     "type": "integer"
                 },
                 "approval_status": {
-                    "description": "审批状态： 通过 未通过 待审批",
+                    "description": "审批状态",
                     "type": "string"
                 },
                 "area": {
@@ -14099,7 +14226,7 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "attachments": {
-                    "description": "公寓照片",
+                    "description": "房源图片",
                     "allOf": [
                         {
                             "$ref": "#/definitions/common.AttachmentMap"
@@ -14107,7 +14234,7 @@ const docTemplate = `{
                     ]
                 },
                 "building_id": {
-                    "description": "楼栋",
+                    "description": "楼栋ID",
                     "type": "string"
                 },
                 "city": {
@@ -14127,11 +14254,11 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "district_ids": {
-                    "description": "所属商圈s",
+                    "description": "所属商圈ID串",
                     "type": "string"
                 },
                 "districts": {
-                    "description": "所属商圈s",
+                    "description": "所属商圈",
                     "type": "string"
                 },
                 "door_no": {
@@ -14155,14 +14282,15 @@ const docTemplate = `{
                     "type": "boolean"
                 },
                 "headerImg": {
+                    "description": "头像",
                     "type": "string"
                 },
                 "house_id": {
-                    "description": "房号",
+                    "description": "房号ID",
                     "type": "string"
                 },
                 "house_type": {
-                    "description": "户型",
+                    "description": "房屋类型",
                     "type": "string"
                 },
                 "is_team_house": {
@@ -14170,10 +14298,11 @@ const docTemplate = `{
                     "type": "boolean"
                 },
                 "owner": {
-                    "description": "业主",
+                    "description": "房源归属用户ID",
                     "type": "integer"
                 },
                 "phone": {
+                    "description": "手机号",
                     "type": "string"
                 },
                 "price": {
@@ -14205,11 +14334,11 @@ const docTemplate = `{
                     "type": "integer"
                 },
                 "status": {
-                    "description": "状态 已出租，已下架，待出租",
+                    "description": "状态",
                     "type": "string"
                 },
                 "unit_id": {
-                    "description": "单元",
+                    "description": "单元ID",
                     "type": "string"
                 },
                 "updatedAt": {
@@ -14225,6 +14354,7 @@ const docTemplate = `{
                     "type": "integer"
                 },
                 "wxNickName": {
+                    "description": "微信昵称",
                     "type": "string"
                 },
                 "wxNo": {
@@ -14232,11 +14362,11 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "xiaoqu": {
-                    "description": "所属小区名字",
+                    "description": "所属小区名称",
                     "type": "string"
                 },
                 "xiaoqu_id": {
-                    "description": "所属小区id",
+                    "description": "所属小区ID",
                     "type": "integer"
                 }
             }
@@ -14267,6 +14397,55 @@ const docTemplate = `{
                 },
                 "value": {
                     "type": "string"
+                }
+            }
+        },
+        "response.SharedMapResponse": {
+            "type": "object",
+            "properties": {
+                "expireAt": {
+                    "description": "分享过期时间",
+                    "type": "integer"
+                },
+                "list": {
+                    "description": "小区聚合点位",
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/response.SharedMapXiaoqu"
+                    }
+                },
+                "userInfo": {
+                    "description": "发布人资料",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/system.SysUser"
+                        }
+                    ]
+                }
+            }
+        },
+        "response.SharedMapXiaoqu": {
+            "type": "object",
+            "properties": {
+                "latitude": {
+                    "description": "坐标纬度",
+                    "type": "string"
+                },
+                "longitude": {
+                    "description": "坐标经度",
+                    "type": "string"
+                },
+                "name": {
+                    "description": "小区名称",
+                    "type": "string"
+                },
+                "num": {
+                    "description": "房源数量",
+                    "type": "integer"
+                },
+                "xiaoquId": {
+                    "description": "小区ID",
+                    "type": "integer"
                 }
             }
         },
@@ -15140,11 +15319,11 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "enable": {
-                    "description": "用户是否被冻结 1正常 2冻结",
+                    "description": "是否冻结",
                     "type": "integer"
                 },
                 "headerImg": {
-                    "description": "用户头像",
+                    "description": "头像",
                     "type": "string"
                 },
                 "isFindHouseSupermarket": {
@@ -15152,6 +15331,7 @@ const docTemplate = `{
                     "type": "boolean"
                 },
                 "nickName": {
+                    "description": "系统昵称",
                     "type": "string"
                 },
                 "openid": {
@@ -15187,10 +15367,11 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "wxNickName": {
-                    "description": "用户昵称",
+                    "description": "微信昵称",
                     "type": "string"
                 },
                 "wxNo": {
+                    "description": "微信号",
                     "type": "string"
                 }
             }

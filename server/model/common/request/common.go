@@ -38,9 +38,9 @@ type GetByIdStr struct {
 }
 
 type GetStatis struct {
-	Start time.Time `form:"start" binding:"required" time_format:"2006-01-02T15:04:05Z"`
-	End   time.Time `form:"end" binding:"required" time_format:"2006-01-02T15:04:05Z"`
-	Phone string    `form:"phone"`
+	Start time.Time `form:"start" binding:"required" time_format:"2006-01-02T15:04:05Z"` // 开始时间
+	End   time.Time `form:"end" binding:"required" time_format:"2006-01-02T15:04:05Z"`   // 结束时间
+	Phone string    `form:"phone"`                                                       // 手机号筛选
 }
 
 type VisitReq struct {
@@ -75,9 +75,9 @@ type SearchArea struct {
 }
 
 type WxProfileSync struct {
-	WxNickName string `json:"wxNickName"`
-	HeaderImg  string `json:"headerImg"`
-	WxNo       string `json:"wxNo"`
+	WxNickName string `json:"wxNickName"` // 微信昵称
+	HeaderImg  string `json:"headerImg"`  // 微信头像
+	WxNo       string `json:"wxNo"`       // 微信号
 }
 
 type SearchDistrict struct {
@@ -93,59 +93,59 @@ type SearchXiaoqu struct {
 }
 type SearchResource struct {
 	PageInfo
-	XiaoquId uint   `json:"xiaoquId"` // 小区id
-	OrderKey string `json:"orderKey"` // 排序
-	Desc     bool   `json:"desc"`     // 排序方式:升序false(默认)|降序true
+	XiaoquId uint   `json:"xiaoquId"` // 小区ID
+	OrderKey string `json:"orderKey"` // 排序字段
+	Desc     bool   `json:"desc"`     // 排序方式
 }
 
 type MySearchResource struct {
 	PageInfo
 	DoorNo   string `json:"doorNo"`   // 户室号
-	Status   string `json:"status"`   // 出租类型： 已出租，已下架，待出租
-	XiaoquId uint   `json:"xiaoquId"` // 小区id
-	OrderKey string `json:"orderKey"` // 排序
-	Desc     bool   `json:"desc"`     // 排序方式:升序false(默认)|降序true
+	Status   string `json:"status"`   // 房源状态
+	XiaoquId uint   `json:"xiaoquId"` // 小区ID
+	OrderKey string `json:"orderKey"` // 排序字段
+	Desc     bool   `json:"desc"`     // 排序方式
 }
 
 type SearchNameResource struct {
 	PageInfo
-	XiaoquId       uint   `json:"xiaoquId"` // 小区id
-	OrderKey       string `json:"orderKey"` // 排序
-	Desc           bool   `json:"desc"`     // 排序方式:升序false(默认)|降序true
-	Phone          string `json:"phone"`
-	ApprovalStatus string `json:"approvalStatus"` //  通过 未通过 待审批
+	XiaoquId       uint   `json:"xiaoquId"`       // 小区ID
+	OrderKey       string `json:"orderKey"`       // 排序字段
+	Desc           bool   `json:"desc"`           // 排序方式
+	Phone          string `json:"phone"`          // 手机号
+	ApprovalStatus string `json:"approvalStatus"` // 审批状态
 }
 
 type RentType struct {
-	Name      string   `json:"name"` // 房型 整租、分整租、合租
-	HouseType []string `json:"houseType"`
-	Feature   []string `json:"feature"`
+	Name      string   `json:"name"`      // 房型名称
+	HouseType []string `json:"houseType"` // 适用房型
+	Feature   []string `json:"feature"`   // 可选亮点
 }
 
 type SearchHouseResource struct {
 	PageInfo
-	XiaoquId       uint      `json:"xiaoquId"`       // 小区id
+	XiaoquId       uint      `json:"xiaoquId"`       // 小区ID
 	RentType       string    `json:"rentType"`       // 出租类型
 	DoorNo         string    `json:"doorNo"`         // 户室号
-	OrderKey       string    `json:"orderKey"`       // 排序
-	Desc           bool      `json:"desc"`           // 排序方式:升序false(默认)|降序true
+	OrderKey       string    `json:"orderKey"`       // 排序字段
+	Desc           bool      `json:"desc"`           // 排序方式
 	Phone          string    `json:"phone"`          // 手机号
 	WxNo           string    `json:"wxNo"`           // 微信号
-	ApprovalStatus string    `json:"approvalStatus"` //  审核状态： 通过 未通过 待审批
+	ApprovalStatus string    `json:"approvalStatus"` // 审核状态
 	HasPic         string    `json:"hasPic"`         // 是否有图片
 	UpdatedAtLast  time.Time `json:"updatedAtLast"`  // 开始时间
 	UpdatedAtStart time.Time `json:"updatedAtStart"` // 结束时间
 }
 
 type SearchOther struct {
-	Phone          string    `json:"phone"`
+	Phone          string    `json:"phone"`          // 手机号
 	HasPic         string    `json:"hasPic"`         // 是否有图片
 	UpdatedAtLast  time.Time `json:"updatedAtLast"`  // 开始时间
 	UpdatedAtStart time.Time `json:"updatedAtStart"` // 结束时间
 	RentType       string    `json:"rentType"`       // 出租类型
-	IsTeamHouse    string    `json:"isTeamHouse"`
-	HouseType      string    `json:"houseType"`
-	HasCommission  string    `json:"hasCommission"`
+	IsTeamHouse    string    `json:"isTeamHouse"`    // 是否团队房源
+	HouseType      string    `json:"houseType"`      // 房屋类型
+	HasCommission  string    `json:"hasCommission"`  // 是否有返佣
 }
 
 type HouseStateReq struct {
@@ -160,44 +160,44 @@ type FavoriteSearch struct {
 }
 
 type ResourceSearch struct {
-	XiaoquId    []int  `json:"xiaoquIds"`   // 商圈ids
-	HouseType   string `json:"houseType"`   // 1居室、2居室
-	RentType    string `json:"rentType"`    // 整租、合租、分整租
-	Price       int    `json:"price"`       // 价格 1580
-	Feature     string `json:"feature"`     // 有无电梯
-	HouseSource string `json:"houseSource"` // commission landlord team
+	XiaoquId    []int  `json:"xiaoquIds"`   // 商圈ID列表
+	HouseType   string `json:"houseType"`   // 房屋类型
+	RentType    string `json:"rentType"`    // 出租类型
+	Price       int    `json:"price"`       // 价格档位
+	Feature     string `json:"feature"`     // 亮点
+	HouseSource string `json:"houseSource"` // 房源来源筛选
 
 	Page     int `json:"page" form:"page"`         // 页码
 	PageSize int `json:"pageSize" form:"pageSize"` // 每页大小
 }
 
 type RewardApplicationCreate struct {
-	ResourceID uint   `json:"resourceId"`
-	Remark     string `json:"remark"`
+	ResourceID uint   `json:"resourceId"` // 房源ID
+	Remark     string `json:"remark"`     // 申请备注
 }
 
 type RewardApplicationSearch struct {
 	PageInfo
-	PublisherConfirmStatus string `json:"publisherConfirmStatus"`
-	AuditStatus            string `json:"auditStatus"`
+	PublisherConfirmStatus string `json:"publisherConfirmStatus"` // 发布人确认状态
+	AuditStatus            string `json:"auditStatus"`            // 后台审核状态
 }
 
 type RewardApplicationAction struct {
-	ID     uint   `json:"id"`
-	Action string `json:"action"`
+	ID     uint   `json:"id"`     // 申请单ID
+	Action string `json:"action"` // 操作类型
 }
 
 type ContactQuotaCreate struct {
-	UserPhone string `json:"userPhone"`
-	Amount    int    `json:"amount"`
-	Remark    string `json:"remark"`
+	UserPhone string `json:"userPhone"` // 经纪人手机号
+	Amount    int    `json:"amount"`    // 增加次数
+	Remark    string `json:"remark"`    // 备注
 }
 
 type ContactQuotaSearch struct {
 	PageInfo
-	UserPhone string `json:"userPhone"`
+	UserPhone string `json:"userPhone"` // 经纪人手机号
 }
 
 type ResourceShareCreate struct {
-	ExpireDays int `json:"expireDays"`
+	ExpireDays int `json:"expireDays"` // 有效天数
 }

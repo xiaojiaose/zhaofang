@@ -897,33 +897,49 @@ definitions:
   github_com_flipped-aurora_gin-vue-admin_server_model_system_request.WxProfileSync:
     properties:
       headerImg:
+        description: 微信头像
         type: string
       wxNickName:
+        description: 微信昵称
         type: string
       wxNo:
+        description: 微信号
         type: string
     type: object
   house.BatchUploadRecord:
     properties:
       ID:
+        description: 主键ID
         type: integer
       batchNo:
+        description: 导入批次号
         type: string
       createdAt:
+        description: 创建时间
         type: string
       failedCount:
+        description: 导入失败条数
         type: integer
       fileName:
+        description: 上传文件名
+        type: string
+      remark:
+        description: 批量上传备注
         type: string
       resultSummary:
+        description: 导入结果摘要
         type: string
       successCount:
+        description: 导入成功条数
         type: integer
       totalCount:
+        description: Excel 总条数
         type: integer
       updatedAt:
+        description: 更新时间
         type: string
       userId:
+        description: 上传用户ID
         type: integer
     type: object
   house.DictBuilding:
@@ -989,7 +1005,7 @@ definitions:
         description: 主键ID
         type: integer
       approval_status:
-        description: 审批状态： 通过 未通过 待审批
+        description: 审批状态
         type: string
       area:
         description: 房源面积
@@ -997,9 +1013,9 @@ definitions:
       attachments:
         allOf:
         - $ref: '#/definitions/common.AttachmentMap'
-        description: 公寓照片
+        description: 房源图片
       building_id:
-        description: 楼栋
+        description: 楼栋ID
         type: string
       city:
         description: 所属城市
@@ -1014,10 +1030,10 @@ definitions:
         description: 创建时间
         type: string
       district_ids:
-        description: 所属商圈s
+        description: 所属商圈ID串
         type: string
       districts:
-        description: 所属商圈s
+        description: 所属商圈
         type: string
       door_no:
         description: 门牌号
@@ -1035,16 +1051,16 @@ definitions:
         description: 是否有照片
         type: boolean
       house_id:
-        description: 房号
+        description: 房号ID
         type: string
       house_type:
-        description: 户型
+        description: 房屋类型
         type: string
       is_team_house:
         description: 是否团队房源
         type: boolean
       owner:
-        description: 业主
+        description: 房源归属用户ID
         type: integer
       phone:
         description: 联系手机号
@@ -1071,10 +1087,10 @@ definitions:
         description: 分享次数
         type: integer
       status:
-        description: 状态 已出租，已下架，待出租
+        description: 状态
         type: string
       unit_id:
-        description: 单元
+        description: 单元ID
         type: string
       updated_last_at:
         description: 最后编辑时间
@@ -1086,10 +1102,10 @@ definitions:
         description: 浏览次数
         type: integer
       xiaoqu:
-        description: 所属小区名字
+        description: 所属小区名称
         type: string
       xiaoqu_id:
-        description: 所属小区id
+        description: 所属小区ID
         type: integer
     type: object
   model.Ali:
@@ -1367,10 +1383,13 @@ definitions:
   request.ContactQuotaCreate:
     properties:
       amount:
+        description: 增加次数
         type: integer
       remark:
+        description: 备注
         type: string
       userPhone:
+        description: 经纪人手机号
         type: string
     type: object
   request.ContactQuotaSearch:
@@ -1385,6 +1404,7 @@ definitions:
         description: 每页大小
         type: integer
       userPhone:
+        description: 经纪人手机号
         type: string
     type: object
   request.DataSource:
@@ -1604,7 +1624,7 @@ definitions:
   request.MySearchResource:
     properties:
       desc:
-        description: 排序方式:升序false(默认)|降序true
+        description: 排序方式
         type: boolean
       doorNo:
         description: 户室号
@@ -1613,7 +1633,7 @@ definitions:
         description: 关键字
         type: string
       orderKey:
-        description: 排序
+        description: 排序字段
         type: string
       page:
         description: 页码
@@ -1622,10 +1642,10 @@ definitions:
         description: 每页大小
         type: integer
       status:
-        description: 出租类型： 已出租，已下架，待出租
+        description: 房源状态
         type: string
       xiaoquId:
-        description: 小区id
+        description: 小区ID
         type: integer
     type: object
   request.PageInfo:
@@ -1643,49 +1663,61 @@ definitions:
   request.Register:
     properties:
       authorityId:
+        description: 角色ID
         example: int 角色id
         type: string
       authorityIds:
+        description: 角色ID列表
         example: '[]uint 角色id'
         type: string
       contactViewQuotaTotal:
+        description: 可查看联系方式次数
         type: integer
       email:
+        description: 邮箱
         example: 电子邮箱
         type: string
       enable:
+        description: 是否启用
         example: int 是否启用
         type: string
       headerImg:
+        description: 头像
         example: 头像链接
         type: string
       isFindHouseSupermarket:
+        description: 找房超市标识
         type: boolean
       nickName:
+        description: 昵称
         example: 昵称
         type: string
       passWord:
+        description: 密码
         example: 密码
         type: string
       phone:
+        description: 手机号
         example: 电话号码
         type: string
       publishQuotaTotal:
+        description: 可上架总数
         type: integer
       userName:
+        description: 用户名
         example: 用户名
         type: string
     type: object
   request.ResourceSearch:
     properties:
       feature:
-        description: 有无电梯
+        description: 亮点
         type: string
       houseSource:
-        description: commission landlord team
+        description: 房源来源筛选
         type: string
       houseType:
-        description: 1居室、2居室
+        description: 房屋类型
         type: string
       page:
         description: 页码
@@ -1694,13 +1726,13 @@ definitions:
         description: 每页大小
         type: integer
       price:
-        description: 价格 1580
+        description: 价格档位
         type: integer
       rentType:
-        description: 整租、合租、分整租
+        description: 出租类型
         type: string
       xiaoquIds:
-        description: 商圈ids
+        description: 商圈ID列表
         items:
           type: integer
         type: array
@@ -1708,25 +1740,31 @@ definitions:
   request.ResourceShareCreate:
     properties:
       expireDays:
+        description: 有效天数
         type: integer
     type: object
   request.RewardApplicationAction:
     properties:
       action:
+        description: 操作类型
         type: string
       id:
+        description: 申请单ID
         type: integer
     type: object
   request.RewardApplicationCreate:
     properties:
       remark:
+        description: 申请备注
         type: string
       resourceId:
+        description: 房源ID
         type: integer
     type: object
   request.RewardApplicationSearch:
     properties:
       auditStatus:
+        description: 后台审核状态
         type: string
       keyword:
         description: 关键字
@@ -1738,6 +1776,7 @@ definitions:
         description: 每页大小
         type: integer
       publisherConfirmStatus:
+        description: 发布人确认状态
         type: string
     type: object
   request.SearchApiParams:
@@ -1782,10 +1821,10 @@ definitions:
   request.SearchHouseResource:
     properties:
       approvalStatus:
-        description: 审核状态： 通过 未通过 待审批
+        description: 审核状态
         type: string
       desc:
-        description: 排序方式:升序false(默认)|降序true
+        description: 排序方式
         type: boolean
       doorNo:
         description: 户室号
@@ -1797,7 +1836,7 @@ definitions:
         description: 关键字
         type: string
       orderKey:
-        description: 排序
+        description: 排序字段
         type: string
       page:
         description: 页码
@@ -1821,22 +1860,22 @@ definitions:
         description: 微信号
         type: string
       xiaoquId:
-        description: 小区id
+        description: 小区ID
         type: integer
     type: object
   request.SearchNameResource:
     properties:
       approvalStatus:
-        description: 通过 未通过 待审批
+        description: 审批状态
         type: string
       desc:
-        description: 排序方式:升序false(默认)|降序true
+        description: 排序方式
         type: boolean
       keyword:
         description: 关键字
         type: string
       orderKey:
-        description: 排序
+        description: 排序字段
         type: string
       page:
         description: 页码
@@ -1845,21 +1884,22 @@ definitions:
         description: 每页大小
         type: integer
       phone:
+        description: 手机号
         type: string
       xiaoquId:
-        description: 小区id
+        description: 小区ID
         type: integer
     type: object
   request.SearchResource:
     properties:
       desc:
-        description: 排序方式:升序false(默认)|降序true
+        description: 排序方式
         type: boolean
       keyword:
         description: 关键字
         type: string
       orderKey:
-        description: 排序
+        description: 排序字段
         type: string
       page:
         description: 页码
@@ -1868,7 +1908,7 @@ definitions:
         description: 每页大小
         type: integer
       xiaoquId:
-        description: 小区id
+        description: 小区ID
         type: integer
     type: object
   request.SearchXiaoqu:
@@ -2137,7 +2177,7 @@ definitions:
         description: 主键ID
         type: integer
       approval_status:
-        description: 审批状态： 通过 未通过 待审批
+        description: 审批状态
         type: string
       area:
         description: 房源面积
@@ -2145,9 +2185,9 @@ definitions:
       attachments:
         allOf:
         - $ref: '#/definitions/common.AttachmentMap'
-        description: 公寓照片
+        description: 房源图片
       building_id:
-        description: 楼栋
+        description: 楼栋ID
         type: string
       city:
         description: 所属城市
@@ -2162,10 +2202,10 @@ definitions:
         description: 创建时间
         type: string
       district_ids:
-        description: 所属商圈s
+        description: 所属商圈ID串
         type: string
       districts:
-        description: 所属商圈s
+        description: 所属商圈
         type: string
       door_no:
         description: 门牌号
@@ -2183,10 +2223,10 @@ definitions:
         description: 是否有照片
         type: boolean
       house_id:
-        description: 房号
+        description: 房号ID
         type: string
       house_type:
-        description: 户型
+        description: 房屋类型
         type: string
       is_team_house:
         description: 是否团队房源
@@ -2198,7 +2238,7 @@ definitions:
         description: longitude
         type: string
       owner:
-        description: 业主
+        description: 房源归属用户ID
         type: integer
       phone:
         description: 联系手机号
@@ -2225,10 +2265,10 @@ definitions:
         description: 分享次数
         type: integer
       status:
-        description: 状态 已出租，已下架，待出租
+        description: 状态
         type: string
       unit_id:
-        description: 单元
+        description: 单元ID
         type: string
       updated_last_at:
         description: 最后编辑时间
@@ -2240,10 +2280,10 @@ definitions:
         description: 浏览次数
         type: integer
       xiaoqu:
-        description: 所属小区名字
+        description: 所属小区名称
         type: string
       xiaoqu_id:
-        description: 所属小区id
+        description: 所属小区ID
         type: integer
     type: object
   response.ResourceVisitResponse:
@@ -2252,7 +2292,7 @@ definitions:
         description: 主键ID
         type: integer
       approval_status:
-        description: 审批状态： 通过 未通过 待审批
+        description: 审批状态
         type: string
       area:
         description: 房源面积
@@ -2260,9 +2300,9 @@ definitions:
       attachments:
         allOf:
         - $ref: '#/definitions/common.AttachmentMap'
-        description: 公寓照片
+        description: 房源图片
       building_id:
-        description: 楼栋
+        description: 楼栋ID
         type: string
       city:
         description: 所属城市
@@ -2277,10 +2317,10 @@ definitions:
         description: 创建时间
         type: string
       district_ids:
-        description: 所属商圈s
+        description: 所属商圈ID串
         type: string
       districts:
-        description: 所属商圈s
+        description: 所属商圈
         type: string
       door_no:
         description: 门牌号
@@ -2298,20 +2338,22 @@ definitions:
         description: 是否有照片
         type: boolean
       headerImg:
+        description: 头像
         type: string
       house_id:
-        description: 房号
+        description: 房号ID
         type: string
       house_type:
-        description: 户型
+        description: 房屋类型
         type: string
       is_team_house:
         description: 是否团队房源
         type: boolean
       owner:
-        description: 业主
+        description: 房源归属用户ID
         type: integer
       phone:
+        description: 手机号
         type: string
       price:
         description: 房源价格
@@ -2335,10 +2377,10 @@ definitions:
         description: 分享次数
         type: integer
       status:
-        description: 状态 已出租，已下架，待出租
+        description: 状态
         type: string
       unit_id:
-        description: 单元
+        description: 单元ID
         type: string
       updated_last_at:
         description: 最后编辑时间
@@ -2350,15 +2392,16 @@ definitions:
         description: 浏览次数
         type: integer
       wxNickName:
+        description: 微信昵称
         type: string
       wxNo:
         description: 微信号
         type: string
       xiaoqu:
-        description: 所属小区名字
+        description: 所属小区名称
         type: string
       xiaoqu_id:
-        description: 所属小区id
+        description: 所属小区ID
         type: integer
     type: object
   response.Response:
@@ -2379,6 +2422,39 @@ definitions:
         type: string
       value:
         type: string
+    type: object
+  response.SharedMapResponse:
+    properties:
+      expireAt:
+        description: 分享过期时间
+        type: integer
+      list:
+        description: 小区聚合点位
+        items:
+          $ref: '#/definitions/response.SharedMapXiaoqu'
+        type: array
+      userInfo:
+        allOf:
+        - $ref: '#/definitions/system.SysUser'
+        description: 发布人资料
+    type: object
+  response.SharedMapXiaoqu:
+    properties:
+      latitude:
+        description: 坐标纬度
+        type: string
+      longitude:
+        description: 坐标经度
+        type: string
+      name:
+        description: 小区名称
+        type: string
+      num:
+        description: 房源数量
+        type: integer
+      xiaoquId:
+        description: 小区ID
+        type: integer
     type: object
   response.SysAPIListResponse:
     properties:
@@ -2988,10 +3064,10 @@ definitions:
         description: 用户邮箱
         type: string
       enable:
-        description: 用户是否被冻结 1正常 2冻结
+        description: 是否冻结
         type: integer
       headerImg:
-        description: 用户头像
+        description: 头像
         type: string
       isFindHouseSupermarket:
         description: |-
@@ -3000,6 +3076,7 @@ definitions:
           2. 该用户可以看到团队房源筛选和团队房源数据
         type: boolean
       nickName:
+        description: 系统昵称
         type: string
       openid:
         description: openid
@@ -3024,9 +3101,10 @@ definitions:
         description: 用户UUID
         type: string
       wxNickName:
-        description: 用户昵称
+        description: 微信昵称
         type: string
       wxNo:
+        description: 微信号
         type: string
     type: object
   system.SysVersion:
@@ -3441,13 +3519,18 @@ paths:
     post:
       consumes:
       - multipart/form-data
-      description: '[新增接口] 按“本次 Excel 为准”同步当前用户房源：先下架旧上架房源，再把本次导入结果置为上架。'
+      description: '[新增接口] 按“本次 Excel 为准”同步当前用户房源：先下架旧上架房源，再把本次导入结果置为上架。支持上传时附带备注信息。示例文件见
+        server/docs/house-batch-upload-example.xlsx，字段说明见 server/docs/batch-upload-example.md。'
       parameters:
       - description: excel文件
         in: formData
         name: file
         required: true
         type: file
+      - description: 批量上传备注
+        in: formData
+        name: remark
+        type: string
       produces:
       - application/json
       responses:
@@ -3752,14 +3835,17 @@ paths:
     get:
       description: '[变更接口] 增加出房有礼申请统计，并支持按手机号汇总房源相关数据。'
       parameters:
-      - in: query
+      - description: 结束时间
+        in: query
         name: end
         required: true
         type: string
-      - in: query
+      - description: 手机号筛选
+        in: query
         name: phone
         type: string
-      - in: query
+      - description: 开始时间
+        in: query
         name: start
         required: true
         type: string
@@ -5464,7 +5550,8 @@ paths:
       - Center
   /center/house/share:
     get:
-      description: '[新增接口] 未登录也可访问；token 失效后前端应跳回首页。'
+      description: '[新增接口] 未登录也可访问；先返回按小区聚合后的地图点位，前端点击点位后再调用 /center/house/share/list
+        查看该小区下的房源。'
       parameters:
       - description: 分享token
         in: query
@@ -5475,18 +5562,17 @@ paths:
       - application/json
       responses:
         "200":
-          description: 分享房源列表
+          description: 分享房源地图点位
           schema:
             allOf:
             - $ref: '#/definitions/response.Response'
             - properties:
                 data:
-                  additionalProperties: true
-                  type: object
+                  $ref: '#/definitions/response.SharedMapResponse'
                 msg:
                   type: string
               type: object
-      summary: '[新增] 通过分享token获取地图房源列表'
+      summary: '[新增] 通过分享token获取地图点位列表'
       tags:
       - Center
     post:
@@ -5515,6 +5601,52 @@ paths:
                   type: string
               type: object
       summary: '[新增] 创建我的房源地图分享链接'
+      tags:
+      - Center
+  /center/house/share/list:
+    get:
+      description: '[新增接口] 地图点位点击后调用，仍然通过 ZincSearch 按 owner + xiaoqu_id 过滤，再回表补全房源详情。'
+      parameters:
+      - description: 分享token
+        in: query
+        name: token
+        required: true
+        type: string
+      - description: 小区ID
+        in: query
+        name: xiaoquId
+        required: true
+        type: integer
+      - description: 页码
+        in: query
+        name: page
+        type: integer
+      - description: 每页数量
+        in: query
+        name: pageSize
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 分享小区房源列表
+          schema:
+            allOf:
+            - $ref: '#/definitions/response.Response'
+            - properties:
+                data:
+                  allOf:
+                  - $ref: '#/definitions/response.PageResult'
+                  - properties:
+                      list:
+                        items:
+                          $ref: '#/definitions/house.Resource'
+                        type: array
+                    type: object
+                msg:
+                  type: string
+              type: object
+      summary: '[新增] 通过分享token和小区ID获取点位下房源列表'
       tags:
       - Center
   /center/house/shared:

@@ -351,10 +351,11 @@ func (h *HouseResourceApi) Edit(c *gin.Context) {
 // BatchUpload
 // @Tags     Admin
 // @Summary  [新增] Excel批量上传房源
-// @Description [新增接口] 按“本次 Excel 为准”同步当前用户房源：先下架旧上架房源，再把本次导入结果置为上架。
+// @Description [新增接口] 按“本次 Excel 为准”同步当前用户房源：先下架旧上架房源，再把本次导入结果置为上架。支持上传时附带备注信息。示例文件见 server/docs/house-batch-upload-example.xlsx，字段说明见 server/docs/batch-upload-example.md。
 // @Accept   multipart/form-data
 // @Produce  application/json
 // @Param    file  formData  file  true  "excel文件"
+// @Param    remark  formData  string  false  "批量上传备注"
 // @Success  200   {object}  response.Response{data=house.BatchUploadRecord}  "结果"
 // @Router   /api/house/batchUpload [post]
 func (h *HouseResourceApi) BatchUpload(c *gin.Context) {
@@ -365,7 +366,7 @@ func (h *HouseResourceApi) BatchUpload(c *gin.Context) {
 	}
 
 	userID := utils.GetUserID(c)
-	record, err := ResourceService.BatchUpload(userID, header)
+	record, err := ResourceService.BatchUpload(userID, header, c.PostForm("remark"))
 	if err != nil {
 		global.GVA_LOG.Error("批量上传房源失败!", zap.Error(err))
 		response.FailWithMessage(err.Error(), c)

@@ -19,13 +19,13 @@ var _ Login = new(SysUser)
 
 type SysUser struct {
 	global.GVA_MODEL
-	UUID       uuid.UUID `json:"uuid" gorm:"index;comment:用户UUID"`    // 用户UUID
-	Username   string    `json:"userName" gorm:"index;comment:用户登录名"` // 用户登录名
-	Password   string    `json:"-"  gorm:"comment:用户登录密码"`            // 用户登录密码
-	NickName   string    `json:"nickName" gorm:"default:系统用户;comment:用户昵称"`
-	WxNickName string    `json:"wxNickName" gorm:"default:系统用户;comment:用户wx昵称"` // 用户昵称
-	WxNo       string    `json:"wxNo" gorm:"comment:用户wx号"`
-	HeaderImg  string    `json:"headerImg" gorm:"default:https://qmplusimg.henrongyi.top/gva_header.jpg;comment:用户头像"` // 用户头像
+	UUID       uuid.UUID `json:"uuid" gorm:"index;comment:用户UUID"`                                                     // 用户UUID
+	Username   string    `json:"userName" gorm:"index;comment:用户登录名"`                                                  // 用户登录名
+	Password   string    `json:"-"  gorm:"comment:用户登录密码"`                                                             // 用户登录密码
+	NickName   string    `json:"nickName" gorm:"default:系统用户;comment:用户昵称"`                                            // 系统昵称
+	WxNickName string    `json:"wxNickName" gorm:"default:系统用户;comment:用户wx昵称"`                                        // 微信昵称
+	WxNo       string    `json:"wxNo" gorm:"comment:用户wx号"`                                                            // 微信号
+	HeaderImg  string    `json:"headerImg" gorm:"default:https://qmplusimg.henrongyi.top/gva_header.jpg;comment:用户头像"` // 头像
 	// 找房超市标识决定两件事：
 	// 1. 该用户发布的房源会被标记为团队房源
 	// 2. 该用户可以看到团队房源筛选和团队房源数据
@@ -39,7 +39,7 @@ type SysUser struct {
 	Authorities           []SysAuthority `json:"authorities" gorm:"many2many:sys_user_authority;"`                                                   // 多用户角色
 	Phone                 string         `json:"phone"  gorm:"comment:用户手机号"`                                                                        // 用户手机号
 	Email                 string         `json:"email"  gorm:"comment:用户邮箱"`                                                                         // 用户邮箱
-	Enable                int            `json:"enable" gorm:"default:1;comment:用户是否被冻结 1正常 2冻结"`                                                    //用户是否被冻结 1正常 2冻结
+	Enable                int            `json:"enable" gorm:"default:1;comment:用户是否被冻结 1正常 2冻结"`                                                    // 是否冻结
 	Openid                string         `json:"openid"`                                                                                             // openid
 	OriginSetting         common.JSONMap `json:"originSetting" form:"originSetting" gorm:"type:text;default:null;column:origin_setting;comment:配置;"` //配置
 }

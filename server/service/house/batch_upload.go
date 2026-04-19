@@ -13,7 +13,7 @@ import (
 	"github.com/xuri/excelize/v2"
 )
 
-func (service *ResourceService) BatchUpload(userID uint, header *multipart.FileHeader) (record *house.BatchUploadRecord, err error) {
+func (service *ResourceService) BatchUpload(userID uint, header *multipart.FileHeader, remark string) (record *house.BatchUploadRecord, err error) {
 	// 批量上传按“同步当前账号房源”的语义实现：
 	// 上传前先把当前账号已上架房源统一下架，
 	// 再把 Excel 里解析出来的房源重新更新/创建为上架状态。
@@ -45,6 +45,7 @@ func (service *ResourceService) BatchUpload(userID uint, header *multipart.FileH
 		UserID:   userID,
 		FileName: header.Filename,
 		BatchNo:  batchNo,
+		Remark:   strings.TrimSpace(remark),
 	}
 	if err = global.GVA_DB.Create(record).Error; err != nil {
 		return nil, err
