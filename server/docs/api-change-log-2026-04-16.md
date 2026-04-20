@@ -20,7 +20,9 @@
 - `POST /center/house/share`
   - 创建我的房源地图分享链接
 - `GET /center/house/share`
-  - 通过分享 token 获取地图房源列表
+  - 通过分享 token 获取地图点位列表
+- `GET /center/house/share/list`
+  - 通过分享 token 和小区 ID 获取点位下房源列表
 - `POST /center/profile`
   - 小程序设置微信资料
 

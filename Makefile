@@ -57,7 +57,7 @@ build-server-local:
 pack:
 	@cd server/ && if [ -f "bin/core" ];then rm -rf bin/core; else echo "OK!"; fi \
 	&& swag init \
-	&& GOOS=linux GOARCH=amd64 go build -ldflags '-s -w' -o  bin/core main.go;
+	&& CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -ldflags '-s -w' -o  bin/core main.go;
 #打包前后端二合一镜像
 image: build
 	docker build -t ${REPOSITORY}/gin-vue-admin:${TAGS_OPT} -f deploy/docker/Dockerfile .
