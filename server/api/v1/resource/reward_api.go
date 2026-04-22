@@ -121,7 +121,7 @@ func (h *HouseResourceApi) ContactQuotaList(c *gin.Context) {
 // @Accept   application/json
 // @Produce  application/json
 // @Param    data  body      request.LandlordContactViewSearch  true  "查询参数"
-// @Success  200   {object}  response.Response{data=response.PageResult{list=[]response2.LandlordContactViewResponse},msg=string}  "记录列表"
+// @Success  200   {object}  response.Response{data=response.PageResult{list=[]response.LandlordContactViewResponse},msg=string}  "记录列表"
 // @Router   /api/house/landlordContactView/list [post]
 func (h *HouseResourceApi) LandlordContactViewList(c *gin.Context) {
 	var req request.LandlordContactViewSearch

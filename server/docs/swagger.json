@@ -861,6 +861,119 @@
                 }
             }
         },
+        "/api/house/landlordContactView/action": {
+            "post": {
+                "description": "[新增接口] 支持待审核记录流转到审核中、已通过未付款、已付款、未通过已拒绝。",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Admin"
+                ],
+                "summary": "[新增] 更新房东房源联系方式查看记录状态",
+                "parameters": [
+                    {
+                        "description": "操作参数",
+                        "name": "data",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/request.LandlordContactViewAction"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "操作结果",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/response.Response"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "type": "string"
+                                        },
+                                        "msg": {
+                                            "type": "string"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                }
+            }
+        },
+        "/api/house/landlordContactView/list": {
+            "post": {
+                "description": "[新增接口] 房东房源被有权限用户查看联系方式后会自动生成记录，后台可在此分页查看和筛选。",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Admin"
+                ],
+                "summary": "[新增] 房东房源联系方式查看记录列表",
+                "parameters": [
+                    {
+                        "description": "查询参数",
+                        "name": "data",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/request.LandlordContactViewSearch"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "记录列表",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/response.Response"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "allOf": [
+                                                {
+                                                    "$ref": "#/definitions/response.PageResult"
+                                                },
+                                                {
+                                                    "type": "object",
+                                                    "properties": {
+                                                        "list": {
+                                                            "type": "array",
+                                                            "items": {
+                                                                "$ref": "#/definitions/response.LandlordContactViewResponse"
+                                                            }
+                                                        }
+                                                    }
+                                                }
+                                            ]
+                                        },
+                                        "msg": {
+                                            "type": "string"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                }
+            }
+        },
         "/api/house/list": {
             "post": {
                 "description": "[变更接口] 列表新增发布人微信资料和返佣、团队房源相关数据。",
@@ -4678,7 +4791,7 @@
         },
         "/center/reward/apply": {
             "post": {
-                "description": "[新增接口] 申请人提交房源和备注后，后端会自动补齐申请人/发布人的手机号和微信号快照。",
+                "description": "[新增接口] 申请人提交房源和备注后，后端会自动补齐申请人/发布人的手机号和微信号快照；同一个用户对同一套房源只能申请一次。",
                 "consumes": [
                     "application/json"
                 ],
@@ -13245,6 +13358,48 @@
                 }
             }
         },
+        "request.LandlordContactViewAction": {
+            "type": "object",
+            "properties": {
+                "action": {
+                    "description": "操作类型 pending  processing approved paid rejected   待审核 审核中 已通过，未付款 已付款 未通过，已拒绝",
+                    "type": "string"
+                },
+                "id": {
+                    "description": "记录ID",
+                    "type": "integer"
+                }
+            }
+        },
+        "request.LandlordContactViewSearch": {
+            "type": "object",
+            "properties": {
+                "keyword": {
+                    "description": "关键字",
+                    "type": "string"
+                },
+                "page": {
+                    "description": "页码",
+                    "type": "integer"
+                },
+                "pageSize": {
+                    "description": "每页大小",
+                    "type": "integer"
+                },
+                "publisherPhone": {
+                    "description": "发布人手机号",
+                    "type": "string"
+                },
+                "status": {
+                    "description": "当前状态",
+                    "type": "string"
+                },
+                "viewerPhone": {
+                    "description": "查看人手机号",
+                    "type": "string"
+                }
+            }
+        },
         "request.Login": {
             "type": "object",
             "properties": {
@@ -14016,6 +14171,67 @@
             "properties": {
                 "file": {
                     "$ref": "#/definitions/example.ExaFile"
+                }
+            }
+        },
+        "response.LandlordContactViewResponse": {
+            "type": "object",
+            "properties": {
+                "doorNo": {
+                    "description": "门牌号",
+                    "type": "string"
+                },
+                "id": {
+                    "description": "记录ID",
+                    "type": "integer"
+                },
+                "lastOperateAt": {
+                    "description": "最后操作时间",
+                    "type": "string"
+                },
+                "publisherName": {
+                    "description": "发布人名称",
+                    "type": "string"
+                },
+                "publisherPhone": {
+                    "description": "发布人手机号",
+                    "type": "string"
+                },
+                "publisherUserId": {
+                    "description": "发布人ID",
+                    "type": "integer"
+                },
+                "resourceAt": {
+                    "description": "房源录入时间",
+                    "type": "string"
+                },
+                "resourceId": {
+                    "description": "房源ID",
+                    "type": "integer"
+                },
+                "status": {
+                    "description": "当前状态",
+                    "type": "string"
+                },
+                "viewAt": {
+                    "description": "查看时间",
+                    "type": "string"
+                },
+                "viewerName": {
+                    "description": "查看人名称",
+                    "type": "string"
+                },
+                "viewerPhone": {
+                    "description": "查看人手机号",
+                    "type": "string"
+                },
+                "viewerUserId": {
+                    "description": "查看人ID",
+                    "type": "integer"
+                },
+                "xiaoqu": {
+                    "description": "小区",
+                    "type": "string"
                 }
             }
         },
