@@ -11,8 +11,11 @@
 ### 小程序端
 - `GET /center/reward/recent`
   - 最近联系过的房源发布人记录
+  - 仅保留最近 2 个月数据
+  - 按联系电话 + 状态去重，同一个电话在不同状态下会分别保留最近一次记录
 - `POST /center/reward/apply`
   - 发起出房有礼申请
+  - 同一个用户对同一套房源只能申请一次
 - `POST /center/reward/publisher/list`
   - 发布人查看出房有礼审核列表
 - `POST /center/reward/publisher/action`
@@ -35,6 +38,10 @@
   - 增加经纪人联系方式查看次数
 - `POST /api/house/contactQuota/list`
   - 查看联系方式次数流水
+- `POST /api/house/landlordContactView/list`
+  - 房东房源联系方式查看记录列表
+- `POST /api/house/landlordContactView/action`
+  - 房东房源联系方式查看记录状态流转
 - `POST /api/house/batchUpload`
   - Excel 批量上传房源
 

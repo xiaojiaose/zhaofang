@@ -2,6 +2,7 @@ package house
 
 import (
 	"errors"
+	"sort"
 	"time"
 
 	"github.com/flipped-aurora/gin-vue-admin/server/global"
@@ -17,20 +18,27 @@ type RewardService struct{}
 func (service *RewardService) RecentContacts(userID uint) (list []response2.RewardRecentContact, err error) {
 	// 出房有礼的“最近联系过的人”并不是单独维护一张表，
 	// 而是直接复用 /center/house/mobile 产生的 click 行为记录。
-	// 这里先按当前用户聚合最近点击过的房源，再反查房源发布人信息返回给前端。
+	// 这里先按当前用户取最近 2 个月的点击记录，再反查房源发布人信息；
+	// 最终按“联系电话 + 状态”去重，只保留每个电话在每种状态下最近一次联系到的那条记录。
+	cutoff := time.Now().AddDate(0, -2, 0)
 	var rows []struct {
 		ResourceID uint
 		MaxDate    time.Time
 	}
 	err = global.GVA_DB.Table("visit_daily").
 		Select("resource_id, max(date) as max_date").
-		Where("user_id = ? AND click > 0", userID).
+		Where("user_id = ? AND click > 0 AND date >= ?", userID, cutoff).
 		Group("resource_id").
 		Order("max_date desc").
 		Scan(&rows).Error
 	if err != nil {
 		return
 	}
+	type contactEntry struct {
+		item response2.RewardRecentContact
+		at   time.Time
+	}
+	latestByPhoneAndStatus := make(map[string]contactEntry)
 	for _, row := range rows {
 		var resource house.Resource
 		if e := global.GVA_DB.Where("id = ?", row.ResourceID).First(&resource).Error; e != nil {
@@ -38,7 +46,14 @@ func (service *RewardService) RecentContacts(userID uint) (list []response2.Rewa
 		}
 		var publisher system.SysUser
 		_ = global.GVA_DB.Where("id = ?", resource.Owner).First(&publisher).Error
-		list = append(list, response2.RewardRecentContact{
+		if publisher.Phone == "" {
+			continue
+		}
+		status := resource.ApprovalStatus
+		if status == "" {
+			status = resource.Status
+		}
+		item := response2.RewardRecentContact{
 			ResourceID:          resource.ID,
 			Xiaoqu:              resource.Xiaoqu,
 			DoorNo:              resource.DoorNo,
@@ -46,9 +61,29 @@ func (service *RewardService) RecentContacts(userID uint) (list []response2.Rewa
 			PublisherPhone:      publisher.Phone,
 			PublisherWxNo:       publisher.WxNo,
 			PublisherWxNickName: publisher.WxNickName,
+			Status:              status,
 			LastContactAt:       row.MaxDate.Format(time.DateTime),
-		})
+		}
+		key := publisher.Phone + "|" + status
+		if current, ok := latestByPhoneAndStatus[key]; !ok || row.MaxDate.After(current.at) {
+			latestByPhoneAndStatus[key] = contactEntry{
+				item: item,
+				at:   row.MaxDate,
+			}
+		}
 	}
+	entries := make([]contactEntry, 0, len(latestByPhoneAndStatus))
+	for _, entry := range latestByPhoneAndStatus {
+		entries = append(entries, entry)
+	}
+	sort.Slice(entries, func(i, j int) bool {
+		return entries[i].at.After(entries[j].at)
+	})
+	for _, entry := range entries {
+		list = append(list, entry.item)
+	}
+	// 上面先按“电话 + 状态”做去重，再按最近联系时间倒序输出；
+	// 这样同一个电话如果在不同状态下产生了新的记录，不会被旧状态那条覆盖。
 	return
 }
 
@@ -61,6 +96,16 @@ func (service *RewardService) Create(userID uint, req request.RewardApplicationC
 	}
 	if resource.Owner == userID {
 		return errors.New("不能对自己的房源申请出房有礼")
+	}
+	// 同一用户对同一套房源只允许申请一次，避免重复提交把审核列表刷脏。
+	var exists int64
+	if err := global.GVA_DB.Model(&house.RewardApplication{}).
+		Where("apply_user_id = ? AND resource_id = ?", userID, req.ResourceID).
+		Count(&exists).Error; err != nil {
+		return err
+	}
+	if exists > 0 {
+		return errors.New("你已经申请过这套房源了")
 	}
 	var applyUser system.SysUser
 	var publisher system.SysUser

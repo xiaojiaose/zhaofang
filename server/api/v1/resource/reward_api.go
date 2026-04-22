@@ -113,3 +113,54 @@ func (h *HouseResourceApi) ContactQuotaList(c *gin.Context) {
 	}
 	response.OkWithData(response.PageResult{List: list, Total: total, Page: req.Page, PageSize: req.PageSize}, c)
 }
+
+// LandlordContactViewList
+// @Tags     Admin
+// @Summary  [新增] 房东房源联系方式查看记录列表
+// @Description [新增接口] 房东房源被有权限用户查看联系方式后会自动生成记录，后台可在此分页查看和筛选。
+// @Accept   application/json
+// @Produce  application/json
+// @Param    data  body      request.LandlordContactViewSearch  true  "查询参数"
+// @Success  200   {object}  response.Response{data=response.PageResult{list=[]response2.LandlordContactViewResponse},msg=string}  "记录列表"
+// @Router   /api/house/landlordContactView/list [post]
+func (h *HouseResourceApi) LandlordContactViewList(c *gin.Context) {
+	var req request.LandlordContactViewSearch
+	if err := c.ShouldBindJSON(&req); err != nil {
+		response.FailWithMessage(err.Error(), c)
+		return
+	}
+	if req.Page == 0 {
+		req.Page = 1
+	}
+	if req.PageSize == 0 {
+		req.PageSize = 20
+	}
+	list, total, err := ContactQuotaService.GetLandlordContactViewPage(req)
+	if err != nil {
+		response.FailWithMessage(err.Error(), c)
+		return
+	}
+	response.OkWithData(response.PageResult{List: list, Total: total, Page: req.Page, PageSize: req.PageSize}, c)
+}
+
+// LandlordContactViewAction
+// @Tags     Admin
+// @Summary  [新增] 更新房东房源联系方式查看记录状态
+// @Description [新增接口] 支持待审核记录流转到审核中、已通过未付款、已付款、未通过已拒绝。
+// @Accept   application/json
+// @Produce  application/json
+// @Param    data  body      request.LandlordContactViewAction  true  "操作参数"
+// @Success  200   {object}  response.Response{data=string,msg=string}  "操作结果"
+// @Router   /api/house/landlordContactView/action [post]
+func (h *HouseResourceApi) LandlordContactViewAction(c *gin.Context) {
+	var req request.LandlordContactViewAction
+	if err := c.ShouldBindJSON(&req); err != nil {
+		response.FailWithMessage(err.Error(), c)
+		return
+	}
+	if err := ContactQuotaService.UpdateLandlordContactViewStatus(req); err != nil {
+		response.FailWithMessage(err.Error(), c)
+		return
+	}
+	response.OkWithMessage("操作成功", c)
+}

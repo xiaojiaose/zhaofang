@@ -1711,13 +1711,13 @@ definitions:
   request.ResourceSearch:
     properties:
       feature:
-        description: 亮点
+        description: 有无电梯
         type: string
       houseSource:
-        description: 房源来源筛选
+        description: commission \ landlord \ team
         type: string
       houseType:
-        description: 房屋类型
+        description: 1居室、2居室
         type: string
       page:
         description: 页码
@@ -1726,13 +1726,13 @@ definitions:
         description: 每页大小
         type: integer
       price:
-        description: 价格档位
+        description: 价格 1580
         type: integer
       rentType:
-        description: 出租类型
+        description: 整租、合租、分整租
         type: string
       xiaoquIds:
-        description: 商圈ID列表
+        description: 商圈ids
         items:
           type: integer
         type: array
@@ -2421,6 +2421,59 @@ definitions:
       name:
         type: string
       value:
+        type: string
+    type: object
+  response.RewardApplicationResponse:
+    properties:
+      ID:
+        description: 主键ID
+        type: integer
+      applyUserId:
+        description: 申请人ID
+        type: integer
+      applyUserPhone:
+        description: |-
+          下面这些联系人信息是申请创建时的快照，
+          避免用户后续修改手机号/微信号后，历史审核单展示被“穿透更新”。
+        type: string
+      applyUserWxNo:
+        description: 申请人微信号快照
+        type: string
+      auditStatus:
+        description: 后台审核状态
+        type: string
+      createdAt:
+        description: 创建时间
+        type: string
+      doorNo:
+        description: 户室号
+        type: string
+      lastOperatedAtUnixMilli:
+        description: 最后操作时间毫秒
+        type: integer
+      publisherConfirmStatus:
+        description: 发布人确认状态
+        type: string
+      publisherUserId:
+        description: 发布人ID
+        type: integer
+      publisherUserPhone:
+        description: 发布人手机号快照
+        type: string
+      publisherUserWxNo:
+        description: 发布人微信号快照
+        type: string
+      remark:
+        description: 申请备注
+        type: string
+      resourceId:
+        description: 房源ID
+        type: integer
+      updatedAt:
+        description: 更新时间
+        type: string
+      xiaoqu:
+        description: 小区名称
         type: string
     type: object
   response.SharedMapResponse:
@@ -5948,7 +6001,14 @@ paths:
             - $ref: '#/definitions/response.Response'
             - properties:
                 data:
-                  $ref: '#/definitions/response.PageResult'
+                  allOf:
+                  - $ref: '#/definitions/response.PageResult'
+                  - properties:
+                      list:
+                        items:
+                          $ref: '#/definitions/response.RewardApplicationResponse'
+                        type: array
+                    type: object
                 msg:
                   type: string
               type: object
@@ -5957,7 +6017,7 @@ paths:
       - Center
   /center/reward/recent:
     get:
-      description: '[新增接口] 基于 /center/house/mobile 的联系方式点击记录，返回当前登录用户最近联系过的房源发布人。'
+      description: '[新增接口] 基于 /center/house/mobile 的联系方式点击记录，返回当前登录用户最近 2 个月内最近联系过的房源发布人；结果按“联系电话 + 状态”去重，同一个电话在不同状态下会分别保留最近一次联系记录。'
       produces:
       - application/json
       responses:

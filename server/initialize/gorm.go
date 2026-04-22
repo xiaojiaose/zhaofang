@@ -77,6 +77,7 @@ func RegisterTables() {
 		house.Favorite{},
 		house.RewardApplication{},
 		house.ContactQuotaLog{},
+		house.LandlordContactView{},
 		house.ShareToken{},
 		house.BatchUploadRecord{},
 		house.DictHouse{},

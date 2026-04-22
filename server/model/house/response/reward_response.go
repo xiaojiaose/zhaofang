@@ -10,6 +10,7 @@ type RewardRecentContact struct {
 	PublisherPhone      string `json:"publisherPhone"`      // 发布人手机号
 	PublisherWxNo       string `json:"publisherWxNo"`       // 发布人微信号
 	PublisherWxNickName string `json:"publisherWxNickName"` // 发布人微信昵称
+	Status              string `json:"status"`              // 房源状态/审核状态
 	LastContactAt       string `json:"lastContactAt"`       // 最近联系时间
 }
 

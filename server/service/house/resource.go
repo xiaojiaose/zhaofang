@@ -45,8 +45,8 @@ func (service *ResourceService) FilterOptions1() (list []request.RentType, err e
 		},
 		request.RentType{
 			Name:      "房东房源",
-			HouseType: []string{"房东房源"},
-			Feature:   []string{"协助对接房东", "可带看分佣"},
+			HouseType: []string{"1居", "2居", "3居", "4居+", "开间"}, // 可短租，有电梯，可注册办公，密码看房、包物业
+			Feature:   []string{"可短租", "包物业", "有电梯", "密码看房", "可办公注册", "协助对接房东", "可带看分佣"},
 		},
 	)
 

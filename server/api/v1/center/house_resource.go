@@ -148,7 +148,7 @@ func (h *HouseResourceApi) GetMobile(c *gin.Context) {
 
 	if info.HouseType == "房东房源" {
 		// 房东房源联系方式需要消耗当前登录用户的可用查看次数，
-		// 普通房源保持原有直接查看逻辑。
+		// 扣减成功后会自动生成一条“联系方式查看记录”（默认待审核）供后台展示。
 		err = ContactQuotaService.Consume(utils.GetUserID(c), uint(req.ID), "查看房东房源联系方式")
 		if err != nil {
 			response.FailWithMessage(err.Error(), c)
@@ -221,17 +221,23 @@ func (h *HouseResourceApi) ListByXiaoquAgg(c *gin.Context) {
 		// 普通用户即使前端手工构造参数，也不能看到团队房源，这里做后端兜底过滤。
 		condition.Terms = append(condition.Terms, searchx.Term{Field: "is_team_house", Value: "0"})
 	}
-	switch req.HouseSource {
-	case "commission":
-		condition.Ranges = append(condition.Ranges, searchx.Range{Field: "commission_price", GreatEqual: "1"})
-	case "landlord":
-		condition.Terms = append(condition.Terms, searchx.Term{Field: "house_type", Value: "房东房源"})
-	case "team":
-		if userHasTeamPermission(utils.GetUserID(c)) {
-			// 只有带找房超市标识的用户，才允许主动筛团队房源。
-			condition.Terms = append(condition.Terms, searchx.Term{Field: "is_team_house", Value: "1"})
+
+	if len(req.HouseSource) > 0 {
+		for _, f := range strings.Split(req.HouseSource, ",") {
+			switch f {
+			case "commission":
+				condition.Ranges = append(condition.Ranges, searchx.Range{Field: "commission_price", GreatEqual: "1"})
+			case "landlord":
+				condition.Terms = append(condition.Terms, searchx.Term{Field: "house_type", Value: "房东房源"})
+			case "team":
+				if userHasTeamPermission(utils.GetUserID(c)) {
+					// 只有带找房超市标识的用户，才允许主动筛团队房源。
+					condition.Terms = append(condition.Terms, searchx.Term{Field: "is_team_house", Value: "1"})
+				}
+			}
 		}
 	}
+
 	if req.Price > 0 {
 		priceOption := ResourceService.GetPriceByOption(strconv.Itoa(req.Price))
 		g := priceOption[0]
@@ -764,12 +770,15 @@ func (h *HouseResourceApi) FilterTypeOptions(c *gin.Context) {
 		return
 	}
 
-	response.OkWithDetailed(map[string]interface{}{
-		"houseType":        options,
-		"price":            map[string]string{"1": "500以下", "2": "500-1000元", "3": "1000-1500元", "4": "1500-2000元", "5": "2000-2500元", "6": "2500-3000元", "7": "3000元以上"},
-		"houseSource":      map[string]string{"1": "不限", "2": "有返佣", "3": "房东房源", "4": "团队房源"},
-		"canViewTeamHouse": userHasTeamPermission(utils.GetUserID(c)),
-	}, "获取成功", c)
+	re := map[string]interface{}{
+		"houseType":   options,
+		"price":       map[string]string{"1": "500以下", "2": "500-1000元", "3": "1000-1500元", "4": "1500-2000元", "5": "2000-2500元", "6": "2500-3000元", "7": "3000元以上"},
+		"houseSource": map[string]string{"1": "不限", "2": "有返佣", "3": "房东房源"},
+	}
+	if userHasTeamPermission(utils.GetUserID(c)) {
+		re["houseSource"] = map[string]string{"1": "不限", "2": "有返佣", "3": "房东房源", "4": "团队房源"}
+	}
+	response.OkWithDetailed(re, "获取成功", c)
 
 }
 

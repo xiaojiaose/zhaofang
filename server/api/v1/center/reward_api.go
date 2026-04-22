@@ -12,7 +12,7 @@ import (
 // RewardRecent
 // @Tags     Center
 // @Summary  [新增] 获取最近联系过的房源发布人记录
-// @Description [新增接口] 基于 /center/house/mobile 的联系方式点击记录，返回当前登录用户最近联系过的房源发布人。
+// @Description [新增接口] 基于 /center/house/mobile 的联系方式点击记录，返回当前登录用户最近 2 个月内最近联系过的房源发布人；结果按“联系电话 + 状态”去重，同一个电话在不同状态下会分别保留最近一次联系记录。
 // @Produce  application/json
 // @Success  200  {object}  response.Response{data=[]map[string]interface{},msg=string}  "最近联系记录"
 // @Router   /center/reward/recent [get]
@@ -30,7 +30,7 @@ func (h *HouseResourceApi) RewardRecent(c *gin.Context) {
 // RewardApply
 // @Tags     Center
 // @Summary  [新增] 发起出房有礼申请
-// @Description [新增接口] 申请人提交房源和备注后，后端会自动补齐申请人/发布人的手机号和微信号快照。
+// @Description [新增接口] 申请人提交房源和备注后，后端会自动补齐申请人/发布人的手机号和微信号快照；同一个用户对同一套房源只能申请一次。
 // @Accept   application/json
 // @Produce  application/json
 // @Param    data  body      request.RewardApplicationCreate  true  "申请参数"
@@ -58,7 +58,7 @@ func (h *HouseResourceApi) RewardApply(c *gin.Context) {
 // @Accept   application/json
 // @Produce  application/json
 // @Param    data  body      request.RewardApplicationSearch  true  "查询参数"
-// @Success  200   {object}  response.Response{data=response.PageResult,msg=string}  "审核列表"
+// @Success  200   {object}  response.Response{data=response.PageResult{list=[]response2.RewardApplicationResponse},msg=string}  "审核列表"
 // @Router   /center/reward/publisher/list [post]
 func (h *HouseResourceApi) RewardPublisherList(c *gin.Context) {
 	// 这是“房源发布人视角”的审核列表，不是后台总审核池。

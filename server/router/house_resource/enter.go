@@ -45,6 +45,8 @@ func (s *ApiRouter) InitApiAuthRouter(Router *gin.RouterGroup) {
 		houseRecordRouter.POST("reward/action", resourceApi.RewardAdminAction)
 		houseRecordRouter.POST("contactQuota/grant", resourceApi.ContactQuotaGrant)
 		houseRecordRouter.POST("contactQuota/list", resourceApi.ContactQuotaList)
+		houseRecordRouter.POST("landlordContactView/list", resourceApi.LandlordContactViewList)
+		houseRecordRouter.POST("landlordContactView/action", resourceApi.LandlordContactViewAction)
 	}
 
 	{

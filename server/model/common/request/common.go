@@ -160,12 +160,12 @@ type FavoriteSearch struct {
 }
 
 type ResourceSearch struct {
-	XiaoquId    []int  `json:"xiaoquIds"`   // 商圈ID列表
-	HouseType   string `json:"houseType"`   // 房屋类型
-	RentType    string `json:"rentType"`    // 出租类型
-	Price       int    `json:"price"`       // 价格档位
-	Feature     string `json:"feature"`     // 亮点
-	HouseSource string `json:"houseSource"` // 房源来源筛选
+	XiaoquId    []int  `json:"xiaoquIds"`   // 商圈ids
+	HouseType   string `json:"houseType"`   // 1居室、2居室
+	RentType    string `json:"rentType"`    // 整租、合租、分整租
+	Price       int    `json:"price"`       // 价格 1580
+	Feature     string `json:"feature"`     // 有无电梯
+	HouseSource string `json:"houseSource"` // commission \ landlord \ team
 
 	Page     int `json:"page" form:"page"`         // 页码
 	PageSize int `json:"pageSize" form:"pageSize"` // 每页大小
@@ -196,6 +196,18 @@ type ContactQuotaCreate struct {
 type ContactQuotaSearch struct {
 	PageInfo
 	UserPhone string `json:"userPhone"` // 经纪人手机号
+}
+
+type LandlordContactViewSearch struct {
+	PageInfo
+	Status         string `json:"status"`         // 当前状态
+	PublisherPhone string `json:"publisherPhone"` // 发布人手机号
+	ViewerPhone    string `json:"viewerPhone"`    // 查看人手机号
+}
+
+type LandlordContactViewAction struct {
+	ID     uint   `json:"id"`     // 记录ID
+	Action string `json:"action"` // 操作类型 pending  processing approved paid rejected   待审核 审核中 已通过，未付款 已付款 未通过，已拒绝
 }
 
 type ResourceShareCreate struct {
