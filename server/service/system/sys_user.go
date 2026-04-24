@@ -146,9 +146,26 @@ func (userService *UserService) GetUserInfoList(info systemReq.GetUserList) (lis
 	case 2: // 未绑定
 		db = db.Where("openid == ''")
 	}
+	switch info.IsPublish {
+	case 1:
+		db = db.Where("is_publish = ?", true)
+	case 2:
+		db = db.Where("is_publish = ?", false)
+	}
+	switch info.IsFindHouseSupermarket {
+	case 1:
+		db = db.Where("is_find_house_supermarket = ?", true)
+	case 2:
+		db = db.Where("is_find_house_supermarket = ?", false)
+	}
 
 	if info.AuthorityId > 0 {
 		db = db.Where("authority_id = ?", info.AuthorityId)
+	}
+	if info.AuthorityId == 555 {
+		// getSaler 这条列表按创建时间、删除时间、绑定时间倒序，
+		// 这样后台看到的顺序和业务筛选优先级保持一致。
+		db = db.Order("created_at desc").Order("bind_at desc")
 	}
 
 	err = db.Count(&total).Error

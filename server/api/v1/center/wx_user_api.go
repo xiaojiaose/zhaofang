@@ -42,7 +42,7 @@ func (wx *WxUserApi) Index(c *gin.Context) {
 // @Summary   个人中心接口
 // @accept    application/json
 // @Produce   application/json
-// @Success   200  {object}  response.Response{data=map[string]interface{},msg=string}  "个人中心接口"
+// @Success   200  {object}  response.Response{data=system.SysUser,msg=string}  "个人中心接口"
 // @Router    /center/profile [get]
 func (wx *WxUserApi) WxProfile(c *gin.Context) {
 	user, err := userService.FindUserById(int(utils.GetUserID(c)))
