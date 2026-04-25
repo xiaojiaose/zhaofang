@@ -60,6 +60,7 @@ func (s *CenterRouter) InitCenterAuthRouter(Router *gin.RouterGroup, publicRoute
 		houseRouterRecord.POST("house/state", resourceApi.States)
 		houseRouterRecord.GET("reward/recent", resourceApi.RewardRecent)
 		houseRouterRecord.POST("reward/apply", resourceApi.RewardApply)
+		houseRouterRecord.POST("reward/my/list", resourceApi.RewardMyApplyList)
 		houseRouterRecord.POST("reward/publisher/list", resourceApi.RewardPublisherList)
 		houseRouterRecord.POST("reward/publisher/action", resourceApi.RewardPublisherAction)
 

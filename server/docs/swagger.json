@@ -4728,8 +4728,7 @@
                                     "type": "object",
                                     "properties": {
                                         "data": {
-                                            "type": "object",
-                                            "additionalProperties": true
+                                            "$ref": "#/definitions/system.SysUser"
                                         },
                                         "msg": {
                                             "type": "string"
@@ -13231,6 +13230,14 @@
                 "email": {
                     "type": "string"
                 },
+                "isFindHouseSupermarket": {
+                    "description": "找房超市标识 1有 2没有 0不筛选",
+                    "type": "integer"
+                },
+                "isPublish": {
+                    "description": "上架权限 1有 2没有 0不筛选",
+                    "type": "integer"
+                },
                 "keyword": {
                     "description": "关键字",
                     "type": "string"
@@ -15598,6 +15605,10 @@
                     "description": "用户角色ID",
                     "type": "integer"
                 },
+                "bindAt": {
+                    "description": "微信绑定时间",
+                    "type": "string"
+                },
                 "contactViewQuotaTotal": {
                     "description": "该次数用于房东房源联系方式查看扣减。",
                     "type": "integer"
@@ -15622,6 +15633,10 @@
                     "description": "找房超市标识决定两件事：\n1. 该用户发布的房源会被标记为团队房源\n2. 该用户可以看到团队房源筛选和团队房源数据",
                     "type": "boolean"
                 },
+                "isPublish": {
+                    "description": "上架额度限制的是“同时处于待出租状态的房源数量”。",
+                    "type": "boolean"
+                },
                 "nickName": {
                     "description": "系统昵称",
                     "type": "string"
@@ -15643,7 +15658,6 @@
                     "type": "string"
                 },
                 "publishQuotaTotal": {
-                    "description": "上架额度限制的是“同时处于待出租状态的房源数量”。",
                     "type": "integer"
                 },
                 "updatedAt": {

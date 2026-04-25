@@ -59,6 +59,7 @@ func (service *RewardService) RecentContacts(userID uint) (list []response2.Rewa
 			DoorNo:              resource.DoorNo,
 			PublisherUserID:     publisher.ID,
 			PublisherPhone:      publisher.Phone,
+			PublisherHeaderImg:  publisher.HeaderImg,
 			PublisherWxNo:       publisher.WxNo,
 			PublisherWxNickName: publisher.WxNickName,
 			Status:              status,
@@ -135,6 +136,29 @@ func (service *RewardService) GetPageForPublisher(userID uint, req request.Rewar
 	// 进入列表前先做一次兜底自动流转，保证页面看到的状态尽量接近最终业务状态。
 	service.AutoApproveExpired()
 	db := global.GVA_DB.Model(&house.RewardApplication{}).Where("publisher_user_id = ?", userID)
+	if req.PublisherConfirmStatus != "" {
+		db = db.Where("publisher_confirm_status = ?", req.PublisherConfirmStatus)
+	}
+	if req.AuditStatus != "" {
+		db = db.Where("audit_status = ?", req.AuditStatus)
+	}
+	err = db.Count(&total).Error
+	if err != nil {
+		return
+	}
+	var apps []house.RewardApplication
+	err = db.Order("id desc").Offset((req.Page - 1) * req.PageSize).Limit(req.PageSize).Find(&apps).Error
+	if err != nil {
+		return
+	}
+	list = service.attachResourceInfo(apps)
+	return
+}
+
+func (service *RewardService) GetPageForApplyUser(userID uint, req request.RewardApplicationSearch) (list []response2.RewardApplicationResponse, total int64, err error) {
+	// 申请人视角列表：展示“我发起的申请”，用于小程序“我的申请有礼记录”。
+	service.AutoApproveExpired()
+	db := global.GVA_DB.Model(&house.RewardApplication{}).Where("apply_user_id = ?", userID)
 	if req.PublisherConfirmStatus != "" {
 		db = db.Where("publisher_confirm_status = ?", req.PublisherConfirmStatus)
 	}
@@ -246,10 +270,14 @@ func (service *RewardService) attachResourceInfo(apps []house.RewardApplication)
 	for _, app := range apps {
 		var resource house.Resource
 		_ = global.GVA_DB.Where("id = ?", app.ResourceID).First(&resource).Error
+		var applyUser system.SysUser
+		_ = global.GVA_DB.Where("id = ?", app.ApplyUserID).First(&applyUser).Error
 		list = append(list, response2.RewardApplicationResponse{
-			RewardApplication: app,
-			Xiaoqu:            resource.Xiaoqu,
-			DoorNo:            resource.DoorNo,
+			RewardApplication:   app,
+			Xiaoqu:              resource.Xiaoqu,
+			DoorNo:              resource.DoorNo,
+			ApplyUserHeaderImg:  applyUser.HeaderImg,
+			ApplyUserWxNickName: applyUser.WxNickName,
 		})
 	}
 	return list

@@ -51,6 +51,40 @@ func (h *HouseResourceApi) RewardApply(c *gin.Context) {
 	response.OkWithMessage("申请成功", c)
 }
 
+// RewardMyApplyList
+// @Tags     Center
+// @Summary  [新增] 申请人查看我的申请有礼记录
+// @Description [新增接口] 申请人查看自己发起的申请记录列表，支持按发布人确认状态和后台审核状态筛选。
+// @Accept   application/json
+// @Produce  application/json
+// @Param    data  body      request.RewardApplicationSearch  true  "查询参数"
+// @Success  200   {object}  response.Response{data=response.PageResult{list=[]response2.RewardApplicationResponse},msg=string}  "我的申请记录"
+// @Router   /center/reward/my/list [post]
+func (h *HouseResourceApi) RewardMyApplyList(c *gin.Context) {
+	var req request.RewardApplicationSearch
+	if err := c.ShouldBindJSON(&req); err != nil {
+		response.FailWithMessage(err.Error(), c)
+		return
+	}
+	if req.Page == 0 {
+		req.Page = 1
+	}
+	if req.PageSize == 0 {
+		req.PageSize = 20
+	}
+	list, total, err := RewardService.GetPageForApplyUser(utils.GetUserID(c), req)
+	if err != nil {
+		response.FailWithMessage(err.Error(), c)
+		return
+	}
+	response.OkWithData(response.PageResult{
+		List:     list,
+		Total:    total,
+		Page:     req.Page,
+		PageSize: req.PageSize,
+	}, c)
+}
+
 // RewardPublisherList
 // @Tags     Center
 // @Summary  [新增] 发布人查看出房有礼审核列表
