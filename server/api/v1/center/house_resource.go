@@ -20,15 +20,15 @@ type HouseResourceApi struct {
 }
 
 var houseType = map[string]string{
-	"房东房源": "房东房源",
-	"1居":   "1居",
-	"2居":   "2居",
-	"3居":   "3居",
-	"4居+":  "4居+",
-	"开间":   "开间",
-	"主卧":   "主卧",
-	"次卧":   "次卧",
-	"暗间":   "暗间",
+	//"房东房源": "房东房源",
+	"1居":  "1居",
+	"2居":  "2居",
+	"3居":  "3居",
+	"4居+": "4居+",
+	"开间":  "开间",
+	"主卧":  "主卧",
+	"次卧":  "次卧",
+	"暗间":  "暗间",
 }
 
 // View
@@ -145,8 +145,7 @@ func (h *HouseResourceApi) GetMobile(c *gin.Context) {
 		}
 		info.Phone = u.Phone
 	}
-
-	if info.HouseType == "房东房源" {
+	if isLandlordResource(*info) {
 		// 房东房源联系方式需要消耗当前登录用户的可用查看次数，
 		// 扣减成功后会自动生成一条“联系方式查看记录”（默认待审核）供后台展示。
 		err = ContactQuotaService.Consume(utils.GetUserID(c), uint(req.ID), "查看房东房源联系方式")
@@ -162,6 +161,15 @@ func (h *HouseResourceApi) GetMobile(c *gin.Context) {
 	}
 	StatisService.InsertRecord(uint(req.ID), "click", utils.GetUserID(c))
 	response.OkWithDetailed(map[string]string{"mobile": info.Phone}, "获取成功", c)
+}
+
+func isLandlordResource(resource house.Resource) bool {
+	// 只保留  rent_type 就行了。可以先这样 没啥影响
+	// 历史数据里“房东房源”可能落在 house_type 或 rent_type，
+	// 且可能出现前后缀/空格，统一用包含匹配做兼容。
+	houseTyp := strings.TrimSpace(resource.HouseType)
+	rentType := strings.TrimSpace(resource.RentType)
+	return strings.Contains(houseTyp, "房东房源") || strings.Contains(rentType, "房东房源")
 }
 
 // @Tags      Center

@@ -13,6 +13,25 @@ import (
 	"github.com/xuri/excelize/v2"
 )
 
+var validRentTypes = map[string]struct{}{
+	"整租":     {},
+	"分整租":   {},
+	"合租":     {},
+	"房东房源": {},
+}
+
+var validHouseTypes = map[string]struct{}{
+	"1居":  {},
+	"2居":  {},
+	"3居":  {},
+	"4居+": {},
+	"开间": {},
+	"主卧": {},
+	"次卧": {},
+	"暗间": {},
+	//"房东房源": {},
+}
+
 func (service *ResourceService) BatchUpload(userID uint, header *multipart.FileHeader, remark string) (record *house.BatchUploadRecord, err error) {
 	// 批量上传按“同步当前账号房源”的语义实现：
 	// 上传前先把当前账号已上架房源统一下架，
@@ -92,6 +111,25 @@ func (service *ResourceService) BatchUpload(userID uint, header *multipart.FileH
 			record.FailedCount++
 			failures = append(failures, fmt.Sprintf("第%d行小区不存在:%s", idx+2, xiaoquName))
 			continue
+		}
+		if err = validateDoorNoByDict(xq, doorNo); err != nil {
+			record.FailedCount++
+			failures = append(failures, fmt.Sprintf("第%d行楼栋房间号不合法:%s", idx+2, err.Error()))
+			continue
+		}
+		if rentType != "" {
+			if _, ok := validRentTypes[rentType]; !ok {
+				record.FailedCount++
+				failures = append(failures, fmt.Sprintf("第%d行出租类型不合法:%s", idx+2, rentType))
+				continue
+			}
+		}
+		if houseType != "" {
+			if _, ok := validHouseTypes[houseType]; !ok {
+				record.FailedCount++
+				failures = append(failures, fmt.Sprintf("第%d行房屋类型不合法:%s", idx+2, houseType))
+				continue
+			}
 		}
 
 		var entity house.Resource
@@ -187,4 +225,33 @@ func findHistoricalAttachments(userID, xiaoquID uint, doorNo, roomCode string) c
 		return resource.Attachments
 	}
 	return common.AttachmentMap{}
+}
+
+func validateDoorNoByDict(xq system.XiaoQu, doorNo string) error {
+	trimmed := strings.TrimSpace(doorNo)
+	if trimmed == "" {
+		return fmt.Errorf("为空")
+	}
+	// 小区未关联社区字典时，只做非空校验，避免历史小区数据被误拦截。
+	if xq.CommunityId == 0 {
+		return nil
+	}
+	var buildings []house.DictBuilding
+	if err := global.GVA_DB.Where("community_id = ?", xq.CommunityId).Find(&buildings).Error; err != nil {
+		return err
+	}
+	if len(buildings) == 0 {
+		// 字典无楼栋数据时不阻断导入。
+		return nil
+	}
+	for _, b := range buildings {
+		name := strings.TrimSpace(b.EncryptBuildingName)
+		if name == "" {
+			continue
+		}
+		if strings.Contains(trimmed, name+"号楼") || strings.Contains(trimmed, name) {
+			return nil
+		}
+	}
+	return fmt.Errorf("未匹配到该小区楼栋字典")
 }

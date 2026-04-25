@@ -20,13 +20,13 @@ var _ Login = new(SysUser)
 
 type SysUser struct {
 	global.GVA_MODEL
-	UUID       uuid.UUID `json:"uuid" gorm:"index;comment:用户UUID"`                    // 用户UUID
-	Username   string    `json:"userName" gorm:"index;comment:用户登录名"`              // 用户登录名
-	Password   string    `json:"-"  gorm:"comment:用户登录密码"`                        // 用户登录密码
+	UUID       uuid.UUID `json:"uuid" gorm:"index;comment:用户UUID"`              // 用户UUID
+	Username   string    `json:"userName" gorm:"index;comment:用户登录名"`           // 用户登录名
+	Password   string    `json:"-"  gorm:"comment:用户登录密码"`                      // 用户登录密码
 	NickName   string    `json:"nickName" gorm:"default:系统用户;comment:用户昵称"`     // 系统昵称
 	WxNickName string    `json:"wxNickName" gorm:"default:系统用户;comment:用户wx昵称"` // 微信昵称
-	WxNo       string    `json:"wxNo" gorm:"comment:用户wx号"`                          // 微信号
-	HeaderImg  string    `json:"headerImg" gorm:"comment:用户头像"`                     // 头像
+	WxNo       string    `json:"wxNo" gorm:"comment:用户wx号"`                     // 微信号
+	HeaderImg  string    `json:"headerImg" gorm:"comment:用户头像"`                 // 头像
 	// 找房超市标识决定两件事：
 	// 1. 该用户发布的房源会被标记为团队房源
 	// 2. 该用户可以看到团队房源筛选和团队房源数据
@@ -36,14 +36,14 @@ type SysUser struct {
 	PublishQuotaTotal int  `json:"publishQuotaTotal" gorm:"default:30;comment:可上架房源总数"`
 	// 该次数用于房东房源联系方式查看扣减。
 	ContactViewQuotaTotal int            `json:"contactViewQuotaTotal" gorm:"default:0;comment:可查看联系方式次数"`
-	AuthorityId           uint           `json:"authorityId" gorm:"default:888;comment:用户角色ID"`                                                    // 用户角色ID
-	Authority             SysAuthority   `json:"authority" gorm:"foreignKey:AuthorityId;references:AuthorityId;comment:用户角色"`                      // 用户角色
-	Authorities           []SysAuthority `json:"authorities" gorm:"many2many:sys_user_authority;"`                                                     // 多用户角色
-	Phone                 string         `json:"phone"  gorm:"comment:用户手机号"`                                                                     // 用户手机号
-	Email                 string         `json:"email"  gorm:"comment:用户邮箱"`                                                                       // 用户邮箱
-	Enable                int            `json:"enable" gorm:"default:1;comment:用户是否被冻结 1正常 2冻结"`                                           // 是否冻结
-	Openid                string         `json:"openid"`                                                                                               // openid
-	BindAt                time.Time      `json:"bindAt" gorm:"comment:微信绑定时间"`                                                                   // 微信绑定时间
+	AuthorityId           uint           `json:"authorityId" gorm:"default:888;comment:用户角色ID"`                                                      // 用户角色ID
+	Authority             SysAuthority   `json:"authority" gorm:"foreignKey:AuthorityId;references:AuthorityId;comment:用户角色"`                        // 用户角色
+	Authorities           []SysAuthority `json:"authorities" gorm:"many2many:sys_user_authority;"`                                                   // 多用户角色
+	Phone                 string         `json:"phone"  gorm:"comment:用户手机号"`                                                                        // 用户手机号
+	Email                 string         `json:"email"  gorm:"comment:用户邮箱"`                                                                         // 用户邮箱
+	Enable                int            `json:"enable" gorm:"default:1;comment:用户是否被冻结 1正常 2冻结"`                                                    // 是否冻结
+	Openid                string         `json:"openid"`                                                                                             // openid
+	BindAt                time.Time      `json:"bindAt" gorm:"comment:微信绑定时间"`                                                                       // 微信绑定时间
 	OriginSetting         common.JSONMap `json:"originSetting" form:"originSetting" gorm:"type:text;default:null;column:origin_setting;comment:配置;"` //配置
 }
 

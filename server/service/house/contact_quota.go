@@ -8,6 +8,7 @@ import (
 	response2 "github.com/flipped-aurora/gin-vue-admin/server/model/house/response"
 	"github.com/flipped-aurora/gin-vue-admin/server/model/system"
 	"gorm.io/gorm"
+	"strings"
 	"time"
 )
 
@@ -145,7 +146,7 @@ func (service *ContactQuotaService) createLandlordContactViewRecord(tx *gorm.DB,
 	if err := tx.Where("id = ?", resourceID).First(&resource).Error; err != nil {
 		return err
 	}
-	if resource.HouseType != "房东房源" {
+	if !isLandlordResourceForQuota(resource) {
 		// 只有房东房源联系方式查看才会进入该记录表。
 		return nil
 	}
@@ -182,4 +183,10 @@ func preferredUserName(user system.SysUser) string {
 		return user.NickName
 	}
 	return user.Username
+}
+
+func isLandlordResourceForQuota(resource house.Resource) bool {
+	houseType := strings.TrimSpace(resource.HouseType)
+	rentType := strings.TrimSpace(resource.RentType)
+	return strings.Contains(houseType, "房东房源") || strings.Contains(rentType, "房东房源")
 }
