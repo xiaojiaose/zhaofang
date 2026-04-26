@@ -149,6 +149,42 @@ func (service *ResourceService) GetInfo(id uint) (resource *house.Resource, err 
 	return
 }
 
+func (service *ResourceService) SyncIndexByIDs(ids []uint) error {
+	// 任何“先改 DB，再查 Zinc”的链路都可能遇到索引延迟。
+	// 这里提供统一的按房源 ID 回写入口，确保状态/团队标识等关键字段能及时落到 Zinc。
+	if len(ids) == 0 {
+		return nil
+	}
+	var resources []house.Resource
+	if err := global.GVA_DB.Where("id IN ?", ids).Find(&resources).Error; err != nil {
+		return err
+	}
+	for _, item := range resources {
+		if err := global.Gva_ResourceSearch.Add(context.Background(), *search.FromDeviceDB(&item)); err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
+func (service *ResourceService) SyncIndexByOwner(owner uint) error {
+	// 用户维度变更（例如找房超市标识）会影响其名下全部房源在地图中的可见性。
+	// 该方法用于“按 owner 一次性全量回写索引”。
+	if owner == 0 {
+		return nil
+	}
+	var resources []house.Resource
+	if err := global.GVA_DB.Where("owner = ?", owner).Find(&resources).Error; err != nil {
+		return err
+	}
+	for _, item := range resources {
+		if err := global.Gva_ResourceSearch.Add(context.Background(), *search.FromDeviceDB(&item)); err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
 func (service *ResourceService) DelByUser(id, owner uint) (err error) {
 	err = global.GVA_DB.Where("id = ? and owner = ?", id, owner).Delete(&house.Resource{}).Error
 	if err == nil {
@@ -212,6 +248,39 @@ func (service *ResourceService) SetApprovalStatus(ids []uint, value string) (err
 
 func (service *ResourceService) GetListByIds(ids []uint) (resources []*house.Resource, err error) {
 	err = global.GVA_DB.Model(&house.Resource{}).Where("id in ?", ids).Order("updated_last_at desc").Find(&resources).Error
+	return
+}
+
+func (service *ResourceService) GetListByIdsSafe(ids []uint, status string, allowTeam bool) (resources []*house.Resource, err error) {
+	// 通过搜索引擎拿到 id 后，数据库层再做一次权限和状态兜底过滤，
+	// 防止索引延迟导致“已下架/无权限团队房源”被错误返回到小程序。
+	if len(ids) == 0 {
+		return []*house.Resource{}, nil
+	}
+	db := global.GVA_DB.Model(&house.Resource{}).Where("id in ?", ids)
+	if status != "" {
+		db = db.Where("status = ?", status)
+	}
+	if !allowTeam {
+		db = db.Where("is_team_house = ?", false)
+	}
+
+	var rows []*house.Resource
+	if err = db.Find(&rows).Error; err != nil {
+		return
+	}
+
+	// 回表后按 Zinc 返回的 id 顺序还原，避免数据库 in 查询打乱展示顺序。
+	rowMap := make(map[uint]*house.Resource, len(rows))
+	for _, row := range rows {
+		rowMap[row.ID] = row
+	}
+	resources = make([]*house.Resource, 0, len(rows))
+	for _, id := range ids {
+		if row, ok := rowMap[id]; ok {
+			resources = append(resources, row)
+		}
+	}
 	return
 }
 
@@ -307,7 +376,12 @@ func (service *ResourceService) CountOnShelfByUser(userID uint, excludeIDs ...ui
 func (service *ResourceService) RefreshUserTeamHouses(userID uint, isTeam bool) error {
 	// 团队房源虽然来源于用户的找房超市标识，
 	// 但最终在房源表上做了冗余存储，方便地图、ES 和后台列表直接查询。
-	return global.GVA_DB.Model(&house.Resource{}).Where("owner = ?", userID).Update("is_team_house", isTeam).Error
+	if err := global.GVA_DB.Model(&house.Resource{}).Where("owner = ?", userID).Update("is_team_house", isTeam).Error; err != nil {
+		return err
+	}
+	// 关键修复：用户标识变更后，立即同步其名下全部房源到 Zinc，
+	// 避免“DB 已改、索引未改”导致无权限用户仍看到团队房源。
+	return service.SyncIndexByOwner(userID)
 }
 
 func (service *ResourceService) fillUserRelatedFields(resource *house.Resource) error {
@@ -386,4 +460,39 @@ func (service *ResourceService) GetApprovalPage(xiaoquId, userId uint, appStatus
 		}
 	}
 	return apiList, total, err
+}
+
+func (service *ResourceService) RebuildAllResourceIndex(pageSize int) (count int, err error) {
+	// 一次性全量重建：用于清理历史脏索引。
+	// 按主键分页扫描 DB 全量房源，再逐条 Add 到 Zinc 覆盖旧文档。
+	if pageSize <= 0 {
+		pageSize = 1000
+	}
+	page := 1
+	for {
+		var rows []house.Resource
+		e := global.GVA_DB.
+			Model(&house.Resource{}).
+			Order("id asc").
+			Limit(pageSize).
+			Offset((page - 1) * pageSize).
+			Find(&rows).Error
+		if e != nil {
+			return count, e
+		}
+		if len(rows) == 0 {
+			break
+		}
+		for _, item := range rows {
+			if e = global.Gva_ResourceSearch.Add(context.Background(), *search.FromDeviceDB(&item)); e != nil {
+				return count, e
+			}
+			count++
+		}
+		if len(rows) < pageSize {
+			break
+		}
+		page++
+	}
+	return count, nil
 }

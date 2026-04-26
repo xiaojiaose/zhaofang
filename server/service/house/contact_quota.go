@@ -40,6 +40,14 @@ func (service *ContactQuotaService) Consume(userID, resourceID uint, remark stri
 	// 房东房源查看联系方式时按“查看一次扣一次”处理，
 	// 同时记录消耗流水，方便后台追踪剩余次数和使用次数。
 	return global.GVA_DB.Transaction(func(tx *gorm.DB) error {
+		var resource house.Resource
+		if err := tx.Where("id = ?", resourceID).First(&resource).Error; err != nil {
+			return err
+		}
+		// 业务约定：自己查看自己发布的房东房源不扣次数，也不生成查看记录。
+		if resource.Owner == userID {
+			return nil
+		}
 		var user system.SysUser
 		if err := tx.Where("id = ?", userID).First(&user).Error; err != nil {
 			return err

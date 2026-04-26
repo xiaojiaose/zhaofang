@@ -14,9 +14,9 @@ import (
 )
 
 var validRentTypes = map[string]struct{}{
-	"整租":     {},
-	"分整租":   {},
-	"合租":     {},
+	"整租":   {},
+	"分整租":  {},
+	"合租":   {},
 	"房东房源": {},
 }
 
@@ -25,10 +25,10 @@ var validHouseTypes = map[string]struct{}{
 	"2居":  {},
 	"3居":  {},
 	"4居+": {},
-	"开间": {},
-	"主卧": {},
-	"次卧": {},
-	"暗间": {},
+	"开间":  {},
+	"主卧":  {},
+	"次卧":  {},
+	"暗间":  {},
 	//"房东房源": {},
 }
 
@@ -71,7 +71,18 @@ func (service *ResourceService) BatchUpload(userID uint, header *multipart.FileH
 	}
 
 	// 这里先统一下架，最终以上传文件中的内容为准。
-	_ = global.GVA_DB.Model(&house.Resource{}).Where("owner = ? AND status = ?", userID, "待出租").Update("status", "已下架").Error
+	// 关键修复：下架前先拿到受影响 id，下架后立即按 id 回写 Zinc，
+	// 避免“数据库已下架但索引还是待出租”造成地图误展示。
+	var onShelfIDs []uint
+	_ = global.GVA_DB.Model(&house.Resource{}).Where("owner = ? AND status = ?", userID, "待出租").Pluck("id", &onShelfIDs).Error
+	if len(onShelfIDs) > 0 {
+		if err = global.GVA_DB.Model(&house.Resource{}).Where("id IN ?", onShelfIDs).Update("status", "已下架").Error; err != nil {
+			return nil, err
+		}
+		if err = service.SyncIndexByIDs(onShelfIDs); err != nil {
+			return nil, err
+		}
+	}
 
 	var failures []string
 	for idx, row := range rows[1:] {

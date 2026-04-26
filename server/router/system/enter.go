@@ -7,6 +7,7 @@ type RouterGroup struct {
 	JwtRouter
 	SysRouter
 	BaseRouter
+	XiaoQuRouter
 	InitRouter
 	MenuRouter
 	UserRouter
@@ -27,7 +28,8 @@ var (
 	dbApi               = api.ApiGroupApp.SystemApiGroup.DBApi
 	jwtApi              = api.ApiGroupApp.SystemApiGroup.JwtApi
 	baseApi             = api.ApiGroupApp.SystemApiGroup.BaseApi
-	xiaoquApi           = api.ApiGroupApp.XiaoQu
+	xiaoquApi           = api.ApiGroupApp.SystemApiGroup.XiaoQuApi
+	baseXiaoquApi       = api.ApiGroupApp.XiaoQu
 	casbinApi           = api.ApiGroupApp.SystemApiGroup.CasbinApi
 	systemApi           = api.ApiGroupApp.SystemApiGroup.SystemApi
 	sysParamsApi        = api.ApiGroupApp.SystemApiGroup.SysParamsApi

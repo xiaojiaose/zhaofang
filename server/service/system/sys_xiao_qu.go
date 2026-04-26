@@ -15,15 +15,29 @@ type XiaoQuService struct{}
 func (s *XiaoQuService) Edit(u system.XiaoQu) (xiaoQu system.XiaoQu, err error) {
 	var xq system.XiaoQu
 	tx := global.GVA_DB.Where("name = ?", u.Name).First(&xq)
-	if tx.Error != nil && !errors.Is(tx.Error, gorm.ErrRecordNotFound) { // 判断名是否被占用
-		if xq.ID != u.ID {
-			return xq, errors.New("小区名已占用")
+	if tx.Error != nil {
+		if !errors.Is(tx.Error, gorm.ErrRecordNotFound) {
+			return xq, tx.Error
 		}
-		return xq, err
+	} else if xq.ID != u.ID { // 判断名是否被占用
+		return xq, errors.New("小区名已占用")
 	}
 
 	tx = global.GVA_DB.Where("id = ?", u.ID).First(&xq)
 	err = tx.Updates(&u).Error
+	if err != nil {
+		return u, err
+	}
+	// 兼容历史数据：编辑后如果仍未配置 community_id，自动回填为小区ID。
+	if u.ID > 0 {
+		var latest system.XiaoQu
+		if e := global.GVA_DB.Where("id = ?", u.ID).First(&latest).Error; e == nil && latest.CommunityId == 0 {
+			latest.CommunityId = int(latest.ID)
+			if e2 := global.GVA_DB.Model(&system.XiaoQu{}).Where("id = ?", latest.ID).Update("community_id", latest.CommunityId).Error; e2 == nil {
+				u.CommunityId = latest.CommunityId
+			}
+		}
+	}
 
 	return u, err
 
@@ -39,13 +53,27 @@ func (s *XiaoQuService) EditNum(id uint, houseNum int) (err error) {
 func (s *XiaoQuService) Create(u system.XiaoQu) (xiaoQu system.XiaoQu, err error) {
 	var xq system.XiaoQu
 	tx := global.GVA_DB.Where("name = ?", u.Name).First(&xq)
-	if !errors.Is(tx.Error, gorm.ErrRecordNotFound) { // 判断名是否被占用
-		if xq.ID != u.ID {
-			return xq, errors.New("小区名已占用")
+	if tx.Error != nil {
+		if !errors.Is(tx.Error, gorm.ErrRecordNotFound) {
+			return xq, tx.Error
 		}
+	} else if xq.ID != u.ID { // 判断名是否被占用
+		return xq, errors.New("小区名已占用")
 	}
 
 	err = global.GVA_DB.Create(&u).Error
+	if err != nil {
+		return u, err
+	}
+	// 新增小区未传 community_id 时，自动回填为当前小区ID，
+	// 确保后续楼盘字典（dict_building/unit/house）可以直接按 community_id 关联。
+	if u.CommunityId == 0 {
+		u.CommunityId = int(u.ID)
+		err = global.GVA_DB.Model(&system.XiaoQu{}).Where("id = ?", u.ID).Update("community_id", u.CommunityId).Error
+		if err != nil {
+			return u, err
+		}
+	}
 	return u, err
 }
 

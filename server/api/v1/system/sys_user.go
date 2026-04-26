@@ -549,9 +549,11 @@ func (b *BaseApi) SetUserInfo(c *gin.Context) {
 		}
 	}
 	origin, _ := userService.FindUserById(int(user.ID))
+	isPublish := resolveIsPublish(user.IsPublish, user.IsPublishSnake, origin.IsPublish)
 	teamChanged := origin.IsFindHouseSupermarket != user.IsFindHouseSupermarket
 	if user.Enable > 0 && origin.Enable != user.Enable {
 		origin.Enable = user.Enable
+		origin.IsPublish = isPublish
 		origin.IsFindHouseSupermarket = user.IsFindHouseSupermarket
 		origin.PublishQuotaTotal = user.PublishQuotaTotal
 		origin.ContactViewQuotaTotal = user.ContactViewQuotaTotal
@@ -568,6 +570,7 @@ func (b *BaseApi) SetUserInfo(c *gin.Context) {
 			Phone:                  user.Phone,
 			Email:                  user.Email,
 			Enable:                 user.Enable,
+			IsPublish:              isPublish,
 			WxNickName:             user.WxNickName,
 			WxNo:                   user.WxNo,
 			Openid:                 origin.Openid,
@@ -610,6 +613,11 @@ func (b *BaseApi) SetSelfInfo(c *gin.Context) {
 		return
 	}
 	user.ID = utils.GetUserID(c)
+	origin, _ := userService.FindUserById(int(user.ID))
+	fallback := false
+	if origin != nil {
+		fallback = origin.IsPublish
+	}
 	err = userService.SetSelfInfo(system.SysUser{
 		GVA_MODEL: global.GVA_MODEL{
 			ID: user.ID,
@@ -618,6 +626,7 @@ func (b *BaseApi) SetSelfInfo(c *gin.Context) {
 		HeaderImg:              user.HeaderImg,
 		Phone:                  user.Phone,
 		Email:                  user.Email,
+		IsPublish:              resolveIsPublish(user.IsPublish, user.IsPublishSnake, fallback),
 		WxNickName:             user.WxNickName,
 		WxNo:                   user.WxNo,
 		IsFindHouseSupermarket: user.IsFindHouseSupermarket,
@@ -631,6 +640,16 @@ func (b *BaseApi) SetSelfInfo(c *gin.Context) {
 		return
 	}
 	response.OkWithMessage("设置成功", c)
+}
+
+func resolveIsPublish(isPublish, isPublishSnake *bool, fallback bool) bool {
+	if isPublish != nil {
+		return *isPublish
+	}
+	if isPublishSnake != nil {
+		return *isPublishSnake
+	}
+	return fallback
 }
 
 // SetSelfSetting

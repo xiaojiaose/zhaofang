@@ -1,13 +1,9 @@
 package main
 
 import (
-	"context"
 	"github.com/flipped-aurora/gin-vue-admin/server/core"
 	"github.com/flipped-aurora/gin-vue-admin/server/global"
 	"github.com/flipped-aurora/gin-vue-admin/server/initialize"
-	"github.com/flipped-aurora/gin-vue-admin/server/model/common/request"
-	"github.com/flipped-aurora/gin-vue-admin/server/model/house"
-	"github.com/flipped-aurora/gin-vue-admin/server/model/search"
 	service "github.com/flipped-aurora/gin-vue-admin/server/service/house"
 	"go.uber.org/zap"
 )
@@ -28,15 +24,10 @@ func Init() {
 func main() {
 	Init()
 	houseService := service.ResourceService{}
-	list, _, err := houseService.GetPage(0, 0, "", "", request.PageInfo{Page: 1, PageSize: 10000}, "", false, request.SearchOther{})
+	total, err := houseService.RebuildAllResourceIndex(1000)
 	if err != nil {
+		global.GVA_LOG.Error("重建房源索引失败", zap.Error(err))
 		return
 	}
-
-	for _, h := range list.([]house.Resource) {
-		func(hh house.Resource) {
-			err = global.Gva_ResourceSearch.Add(context.Background(), *search.FromDeviceDB(&hh))
-		}(h)
-	}
-
+	global.GVA_LOG.Info("重建房源索引完成", zap.Int("count", total))
 }

@@ -1142,7 +1142,7 @@
         },
         "/api/house/reward/action": {
             "post": {
-                "description": "[新增接口] 支持审核中、审通过待发放、已发放、未通过等后台状态流转。",
+                "description": "[新增接口] 支持审核中、审核通过待发放、已发放、未通过等后台状态流转。",
                 "consumes": [
                     "application/json"
                 ],
@@ -1604,6 +1604,155 @@
                                 {
                                     "type": "object",
                                     "properties": {
+                                        "msg": {
+                                            "type": "string"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                }
+            }
+        },
+        "/api/xiaoqu/dict/delete": {
+            "post": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "XiaoQu"
+                ],
+                "summary": "[修改] 删除楼盘字典节点",
+                "parameters": [
+                    {
+                        "description": "楼盘字典删除参数",
+                        "name": "data",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/request.XiaoQuDictDeleteRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "删除后的楼盘字典树",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/response.Response"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/response.XiaoQuDictTreeResponse"
+                                        },
+                                        "msg": {
+                                            "type": "string"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                }
+            }
+        },
+        "/api/xiaoqu/dict/tree": {
+            "get": {
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "XiaoQu"
+                ],
+                "summary": "[新增] 获取小区楼盘字典树",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "小区ID",
+                        "name": "id",
+                        "in": "query",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "楼盘字典树",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/response.Response"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/response.XiaoQuDictTreeResponse"
+                                        },
+                                        "msg": {
+                                            "type": "string"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                }
+            }
+        },
+        "/api/xiaoqu/dict/upsert": {
+            "post": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "XiaoQu"
+                ],
+                "summary": "[修改] 保存楼盘字典新增和修改",
+                "parameters": [
+                    {
+                        "description": "楼盘字典新增/修改参数",
+                        "name": "data",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/request.XiaoQuDictUpsertRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "保存后的楼盘字典树",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/response.Response"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/response.XiaoQuDictTreeResponse"
+                                        },
                                         "msg": {
                                             "type": "string"
                                         }
@@ -4837,6 +4986,70 @@
                 }
             }
         },
+        "/center/reward/my/list": {
+            "post": {
+                "description": "[新增接口] 申请人查看自己发起的申请记录列表，支持按发布人确认状态和后台审核状态筛选。",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Center"
+                ],
+                "summary": "[新增] 申请人查看我的申请有礼记录",
+                "parameters": [
+                    {
+                        "description": "查询参数",
+                        "name": "data",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/request.RewardApplicationSearch"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "我的申请记录",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/response.Response"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "allOf": [
+                                                {
+                                                    "$ref": "#/definitions/response.PageResult"
+                                                },
+                                                {
+                                                    "type": "object",
+                                                    "properties": {
+                                                        "list": {
+                                                            "type": "array",
+                                                            "items": {
+                                                                "$ref": "#/definitions/response.RewardApplicationResponse"
+                                                            }
+                                                        }
+                                                    }
+                                                }
+                                            ]
+                                        },
+                                        "msg": {
+                                            "type": "string"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                }
+            }
+        },
         "/center/reward/publisher/action": {
             "post": {
                 "description": "[新增接口] 发布人确认后，申请单才会进入后台审核状态。",
@@ -5444,756 +5657,6 @@
                                         "data": {
                                             "$ref": "#/definitions/response.PageResult"
                                         },
-                                        "msg": {
-                                            "type": "string"
-                                        }
-                                    }
-                                }
-                            ]
-                        }
-                    }
-                }
-            }
-        },
-        "/dictBuilding/createDictBuilding": {
-            "post": {
-                "security": [
-                    {
-                        "ApiKeyAuth": []
-                    }
-                ],
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "DictBuilding"
-                ],
-                "summary": "创建楼栋字典",
-                "parameters": [
-                    {
-                        "description": "楼栋字典模型",
-                        "name": "data",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/house.DictBuilding"
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "创建成功",
-                        "schema": {
-                            "allOf": [
-                                {
-                                    "$ref": "#/definitions/response.Response"
-                                },
-                                {
-                                    "type": "object",
-                                    "properties": {
-                                        "msg": {
-                                            "type": "string"
-                                        }
-                                    }
-                                }
-                            ]
-                        }
-                    }
-                }
-            }
-        },
-        "/dictBuilding/deleteDictBuilding": {
-            "delete": {
-                "security": [
-                    {
-                        "ApiKeyAuth": []
-                    }
-                ],
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "DictBuilding"
-                ],
-                "summary": "删除楼栋字典",
-                "parameters": [
-                    {
-                        "description": "楼栋字典模型",
-                        "name": "data",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/house.DictBuilding"
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "删除成功",
-                        "schema": {
-                            "allOf": [
-                                {
-                                    "$ref": "#/definitions/response.Response"
-                                },
-                                {
-                                    "type": "object",
-                                    "properties": {
-                                        "msg": {
-                                            "type": "string"
-                                        }
-                                    }
-                                }
-                            ]
-                        }
-                    }
-                }
-            }
-        },
-        "/dictBuilding/findDictBuilding": {
-            "get": {
-                "security": [
-                    {
-                        "ApiKeyAuth": []
-                    }
-                ],
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "DictBuilding"
-                ],
-                "summary": "根据ID获取楼栋字典",
-                "parameters": [
-                    {
-                        "description": "楼栋字典模型",
-                        "name": "data",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/house.DictBuilding"
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "查询成功",
-                        "schema": {
-                            "allOf": [
-                                {
-                                    "$ref": "#/definitions/response.Response"
-                                },
-                                {
-                                    "type": "object",
-                                    "properties": {
-                                        "data": {
-                                            "$ref": "#/definitions/house.DictBuilding"
-                                        }
-                                    }
-                                }
-                            ]
-                        }
-                    }
-                }
-            }
-        },
-        "/dictBuilding/getDictBuildingList": {
-            "post": {
-                "security": [
-                    {
-                        "ApiKeyAuth": []
-                    }
-                ],
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "DictBuilding"
-                ],
-                "summary": "分页获取楼栋字典列表",
-                "parameters": [
-                    {
-                        "description": "分页参数",
-                        "name": "data",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/request.PageInfo"
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "获取成功",
-                        "schema": {
-                            "allOf": [
-                                {
-                                    "$ref": "#/definitions/response.Response"
-                                },
-                                {
-                                    "type": "object",
-                                    "properties": {
-                                        "data": {
-                                            "$ref": "#/definitions/response.PageResult"
-                                        }
-                                    }
-                                }
-                            ]
-                        }
-                    }
-                }
-            }
-        },
-        "/dictBuilding/updateDictBuilding": {
-            "put": {
-                "security": [
-                    {
-                        "ApiKeyAuth": []
-                    }
-                ],
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "DictBuilding"
-                ],
-                "summary": "更新楼栋字典",
-                "parameters": [
-                    {
-                        "description": "楼栋字典模型",
-                        "name": "data",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/house.DictBuilding"
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "更新成功",
-                        "schema": {
-                            "allOf": [
-                                {
-                                    "$ref": "#/definitions/response.Response"
-                                },
-                                {
-                                    "type": "object",
-                                    "properties": {
-                                        "msg": {
-                                            "type": "string"
-                                        }
-                                    }
-                                }
-                            ]
-                        }
-                    }
-                }
-            }
-        },
-        "/dictHouse/createDictHouse": {
-            "post": {
-                "security": [
-                    {
-                        "ApiKeyAuth": []
-                    }
-                ],
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "DictHouse"
-                ],
-                "summary": "创建房屋字典",
-                "parameters": [
-                    {
-                        "description": "房屋字典模型",
-                        "name": "data",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/house.DictHouse"
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "创建成功",
-                        "schema": {
-                            "allOf": [
-                                {
-                                    "$ref": "#/definitions/response.Response"
-                                },
-                                {
-                                    "type": "object",
-                                    "properties": {
-                                        "msg": {
-                                            "type": "string"
-                                        }
-                                    }
-                                }
-                            ]
-                        }
-                    }
-                }
-            }
-        },
-        "/dictHouse/deleteDictHouse": {
-            "delete": {
-                "security": [
-                    {
-                        "ApiKeyAuth": []
-                    }
-                ],
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "DictHouse"
-                ],
-                "summary": "删除房屋字典",
-                "parameters": [
-                    {
-                        "description": "房屋字典模型",
-                        "name": "data",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/house.DictHouse"
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "删除成功",
-                        "schema": {
-                            "allOf": [
-                                {
-                                    "$ref": "#/definitions/response.Response"
-                                },
-                                {
-                                    "type": "object",
-                                    "properties": {
-                                        "msg": {
-                                            "type": "string"
-                                        }
-                                    }
-                                }
-                            ]
-                        }
-                    }
-                }
-            }
-        },
-        "/dictHouse/findDictHouse": {
-            "get": {
-                "security": [
-                    {
-                        "ApiKeyAuth": []
-                    }
-                ],
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "DictHouse"
-                ],
-                "summary": "根据ID获取房屋字典",
-                "parameters": [
-                    {
-                        "description": "房屋字典模型",
-                        "name": "data",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/house.DictHouse"
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "查询成功",
-                        "schema": {
-                            "allOf": [
-                                {
-                                    "$ref": "#/definitions/response.Response"
-                                },
-                                {
-                                    "type": "object",
-                                    "properties": {
-                                        "data": {
-                                            "$ref": "#/definitions/house.DictHouse"
-                                        }
-                                    }
-                                }
-                            ]
-                        }
-                    }
-                }
-            }
-        },
-        "/dictHouse/getDictHouseList": {
-            "post": {
-                "security": [
-                    {
-                        "ApiKeyAuth": []
-                    }
-                ],
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "DictHouse"
-                ],
-                "summary": "分页获取房屋字典列表",
-                "parameters": [
-                    {
-                        "description": "分页参数",
-                        "name": "data",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/request.PageInfo"
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "获取成功",
-                        "schema": {
-                            "allOf": [
-                                {
-                                    "$ref": "#/definitions/response.Response"
-                                },
-                                {
-                                    "type": "object",
-                                    "properties": {
-                                        "data": {
-                                            "$ref": "#/definitions/response.PageResult"
-                                        }
-                                    }
-                                }
-                            ]
-                        }
-                    }
-                }
-            }
-        },
-        "/dictHouse/updateDictHouse": {
-            "put": {
-                "security": [
-                    {
-                        "ApiKeyAuth": []
-                    }
-                ],
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "DictHouse"
-                ],
-                "summary": "更新房屋字典",
-                "parameters": [
-                    {
-                        "description": "房屋字典模型",
-                        "name": "data",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/house.DictHouse"
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "更新成功",
-                        "schema": {
-                            "allOf": [
-                                {
-                                    "$ref": "#/definitions/response.Response"
-                                },
-                                {
-                                    "type": "object",
-                                    "properties": {
-                                        "msg": {
-                                            "type": "string"
-                                        }
-                                    }
-                                }
-                            ]
-                        }
-                    }
-                }
-            }
-        },
-        "/dictUnit/createDictUnit": {
-            "post": {
-                "security": [
-                    {
-                        "ApiKeyAuth": []
-                    }
-                ],
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "DictUnit"
-                ],
-                "summary": "创建单元字典",
-                "parameters": [
-                    {
-                        "description": "单元字典模型",
-                        "name": "data",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/house.DictUnit"
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "创建成功",
-                        "schema": {
-                            "allOf": [
-                                {
-                                    "$ref": "#/definitions/response.Response"
-                                },
-                                {
-                                    "type": "object",
-                                    "properties": {
-                                        "msg": {
-                                            "type": "string"
-                                        }
-                                    }
-                                }
-                            ]
-                        }
-                    }
-                }
-            }
-        },
-        "/dictUnit/deleteDictUnit": {
-            "delete": {
-                "security": [
-                    {
-                        "ApiKeyAuth": []
-                    }
-                ],
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "DictUnit"
-                ],
-                "summary": "删除单元字典",
-                "parameters": [
-                    {
-                        "description": "单元字典模型",
-                        "name": "data",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/house.DictUnit"
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "删除成功",
-                        "schema": {
-                            "allOf": [
-                                {
-                                    "$ref": "#/definitions/response.Response"
-                                },
-                                {
-                                    "type": "object",
-                                    "properties": {
-                                        "msg": {
-                                            "type": "string"
-                                        }
-                                    }
-                                }
-                            ]
-                        }
-                    }
-                }
-            }
-        },
-        "/dictUnit/findDictUnit": {
-            "get": {
-                "security": [
-                    {
-                        "ApiKeyAuth": []
-                    }
-                ],
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "DictUnit"
-                ],
-                "summary": "根据ID获取单元字典",
-                "parameters": [
-                    {
-                        "description": "单元字典模型",
-                        "name": "data",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/house.DictUnit"
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "查询成功",
-                        "schema": {
-                            "allOf": [
-                                {
-                                    "$ref": "#/definitions/response.Response"
-                                },
-                                {
-                                    "type": "object",
-                                    "properties": {
-                                        "data": {
-                                            "$ref": "#/definitions/house.DictUnit"
-                                        }
-                                    }
-                                }
-                            ]
-                        }
-                    }
-                }
-            }
-        },
-        "/dictUnit/getDictUnitList": {
-            "post": {
-                "security": [
-                    {
-                        "ApiKeyAuth": []
-                    }
-                ],
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "DictUnit"
-                ],
-                "summary": "分页获取单元字典列表",
-                "parameters": [
-                    {
-                        "description": "分页参数",
-                        "name": "data",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/request.PageInfo"
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "获取成功",
-                        "schema": {
-                            "allOf": [
-                                {
-                                    "$ref": "#/definitions/response.Response"
-                                },
-                                {
-                                    "type": "object",
-                                    "properties": {
-                                        "data": {
-                                            "$ref": "#/definitions/response.PageResult"
-                                        }
-                                    }
-                                }
-                            ]
-                        }
-                    }
-                }
-            }
-        },
-        "/dictUnit/updateDictUnit": {
-            "put": {
-                "security": [
-                    {
-                        "ApiKeyAuth": []
-                    }
-                ],
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "DictUnit"
-                ],
-                "summary": "更新单元字典",
-                "parameters": [
-                    {
-                        "description": "单元字典模型",
-                        "name": "data",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/house.DictUnit"
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "更新成功",
-                        "schema": {
-                            "allOf": [
-                                {
-                                    "$ref": "#/definitions/response.Response"
-                                },
-                                {
-                                    "type": "object",
-                                    "properties": {
                                         "msg": {
                                             "type": "string"
                                         }
@@ -14087,6 +13550,125 @@
                 }
             }
         },
+        "request.XiaoQuDictBuildingOp": {
+            "type": "object",
+            "properties": {
+                "buildingOpenId": {
+                    "description": "楼栋OpenID（新增可选）",
+                    "type": "string"
+                },
+                "id": {
+                    "description": "楼栋记录ID（更新必填）",
+                    "type": "integer"
+                },
+                "name": {
+                    "description": "楼栋名称（必填）",
+                    "type": "string"
+                }
+            }
+        },
+        "request.XiaoQuDictDeleteRequest": {
+            "type": "object",
+            "properties": {
+                "buildingIds": {
+                    "description": "要删除的楼栋ID列表",
+                    "type": "array",
+                    "items": {
+                        "type": "integer"
+                    }
+                },
+                "houseIds": {
+                    "description": "要删除的房号ID列表",
+                    "type": "array",
+                    "items": {
+                        "type": "integer"
+                    }
+                },
+                "unitIds": {
+                    "description": "要删除的单元ID列表",
+                    "type": "array",
+                    "items": {
+                        "type": "integer"
+                    }
+                },
+                "xiaoquId": {
+                    "description": "小区ID",
+                    "type": "integer"
+                }
+            }
+        },
+        "request.XiaoQuDictHouseOp": {
+            "type": "object",
+            "properties": {
+                "houseOpenId": {
+                    "description": "房号OpenID（新增可选）",
+                    "type": "string"
+                },
+                "id": {
+                    "description": "房号记录ID（更新必填）",
+                    "type": "integer"
+                },
+                "name": {
+                    "description": "房号名称（必填）",
+                    "type": "string"
+                },
+                "unitOpenId": {
+                    "description": "所属单元OpenID（新增必填）",
+                    "type": "string"
+                }
+            }
+        },
+        "request.XiaoQuDictUnitOp": {
+            "type": "object",
+            "properties": {
+                "buildingOpenId": {
+                    "description": "所属楼栋OpenID（新增必填）",
+                    "type": "string"
+                },
+                "id": {
+                    "description": "单元记录ID（更新必填）",
+                    "type": "integer"
+                },
+                "name": {
+                    "description": "单元名称（必填）",
+                    "type": "string"
+                },
+                "unitOpenId": {
+                    "description": "单元OpenID（新增可选）",
+                    "type": "string"
+                }
+            }
+        },
+        "request.XiaoQuDictUpsertRequest": {
+            "type": "object",
+            "properties": {
+                "buildingOps": {
+                    "description": "楼栋新增/修改列表",
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/request.XiaoQuDictBuildingOp"
+                    }
+                },
+                "houseOps": {
+                    "description": "房号新增/修改列表",
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/request.XiaoQuDictHouseOp"
+                    }
+                },
+                "unitOps": {
+                    "description": "单元新增/修改列表",
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/request.XiaoQuDictUnitOp"
+                    }
+                },
+                "xiaoquId": {
+                    "description": "小区ID",
+                    "type": "integer"
+                }
+            }
+        },
         "response.Area": {
             "type": "object",
             "properties": {
@@ -14637,12 +14219,20 @@
                     "description": "主键ID",
                     "type": "integer"
                 },
+                "applyUserHeaderImg": {
+                    "description": "申请人头像",
+                    "type": "string"
+                },
                 "applyUserId": {
                     "description": "申请人ID",
                     "type": "integer"
                 },
                 "applyUserPhone": {
                     "description": "下面这些联系人信息是申请创建时的快照，\n避免用户后续修改手机号/微信号后，历史审核单展示被“穿透更新”。",
+                    "type": "string"
+                },
+                "applyUserWxNickName": {
+                    "description": "申请人微信昵称",
                     "type": "string"
                 },
                 "applyUserWxNo": {
@@ -14669,6 +14259,10 @@
                     "description": "发布人确认状态",
                     "type": "string"
                 },
+                "publisherHeaderImg": {
+                    "description": "发布人头像",
+                    "type": "string"
+                },
                 "publisherUserId": {
                     "description": "发布人ID",
                     "type": "integer"
@@ -14679,6 +14273,14 @@
                 },
                 "publisherUserWxNo": {
                     "description": "发布人微信号快照",
+                    "type": "string"
+                },
+                "publisherWxNickName": {
+                    "description": "发布人微信昵称",
+                    "type": "string"
+                },
+                "publisherWxNo": {
+                    "description": "发布人微信号",
                     "type": "string"
                 },
                 "remark": {
@@ -14858,6 +14460,91 @@
             "properties": {
                 "user": {
                     "$ref": "#/definitions/system.SysUser"
+                }
+            }
+        },
+        "response.XiaoQuDictBuildingNode": {
+            "type": "object",
+            "properties": {
+                "buildingOpenId": {
+                    "description": "楼栋OpenID",
+                    "type": "string"
+                },
+                "id": {
+                    "description": "楼栋记录ID",
+                    "type": "integer"
+                },
+                "name": {
+                    "description": "楼栋名称",
+                    "type": "string"
+                },
+                "units": {
+                    "description": "单元列表",
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/response.XiaoQuDictUnitNode"
+                    }
+                }
+            }
+        },
+        "response.XiaoQuDictHouseNode": {
+            "type": "object",
+            "properties": {
+                "houseOpenId": {
+                    "description": "房号OpenID",
+                    "type": "string"
+                },
+                "id": {
+                    "description": "房号记录ID",
+                    "type": "integer"
+                },
+                "name": {
+                    "description": "房号名称",
+                    "type": "string"
+                }
+            }
+        },
+        "response.XiaoQuDictTreeResponse": {
+            "type": "object",
+            "properties": {
+                "buildings": {
+                    "description": "楼栋树",
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/response.XiaoQuDictBuildingNode"
+                    }
+                },
+                "communityId": {
+                    "description": "社区ID",
+                    "type": "integer"
+                },
+                "xiaoquId": {
+                    "description": "小区ID",
+                    "type": "integer"
+                }
+            }
+        },
+        "response.XiaoQuDictUnitNode": {
+            "type": "object",
+            "properties": {
+                "houses": {
+                    "description": "房号列表",
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/response.XiaoQuDictHouseNode"
+                    }
+                },
+                "id": {
+                    "description": "单元记录ID",
+                    "type": "integer"
+                },
+                "name": {
+                    "description": "单元名称",
+                    "type": "string"
+                },
+                "unitOpenId": {
+                    "description": "单元OpenID",
+                    "type": "string"
                 }
             }
         },

@@ -40,7 +40,7 @@ func (h *HouseResourceApi) RewardAdminList(c *gin.Context) {
 // RewardAdminAction
 // @Tags     Admin
 // @Summary  [新增] 后台操作成交有礼审核状态
-// @Description [新增接口] 支持审核中、审通过待发放、已发放、未通过等后台状态流转。
+// @Description [新增接口] 支持审核中、审核通过待发放、已发放、未通过等后台状态流转。
 // @Accept   application/json
 // @Produce  application/json
 // @Param    data  body      request.RewardApplicationAction  true  "操作参数"

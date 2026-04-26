@@ -21,4 +21,7 @@ type RewardApplicationResponse struct {
 	DoorNo              string `json:"doorNo"`              // 户室号
 	ApplyUserHeaderImg  string `json:"applyUserHeaderImg"`  // 申请人头像
 	ApplyUserWxNickName string `json:"applyUserWxNickName"` // 申请人微信昵称
+	PublisherHeaderImg  string `json:"publisherHeaderImg"`  // 发布人头像
+	PublisherWxNickName string `json:"publisherWxNickName"` // 发布人微信昵称
+	PublisherWxNo       string `json:"publisherWxNo"`       // 发布人微信号
 }

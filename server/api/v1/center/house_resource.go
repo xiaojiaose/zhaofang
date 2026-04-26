@@ -383,7 +383,7 @@ func (h *HouseResourceApi) ListByXiaoquAggList(c *gin.Context) {
 
 	var resources []*house.Resource
 	if len(houseIds) > 0 {
-		resources, err = ResourceService.GetListByIds(houseIds)
+		resources, err = ResourceService.GetListByIdsSafe(houseIds, "待出租", userHasTeamPermission(utils.GetUserID(c)))
 		if err != nil {
 			return
 		}

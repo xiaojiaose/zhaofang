@@ -17,7 +17,7 @@ const (
 	RewardAuditNone            = "未进入审核"
 	RewardAuditPending         = "待审核"
 	RewardAuditProcessing      = "审核中"
-	RewardAuditApprovedPending = "审通过待发放"
+	RewardAuditApprovedPending = "审核通过待发放"
 	RewardAuditPaid            = "已发放"
 	RewardAuditRejected        = "未通过"
 )

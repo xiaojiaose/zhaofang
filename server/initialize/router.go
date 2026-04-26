@@ -102,6 +102,7 @@ func Routers() *gin.Engine {
 		systemRouter.InitApiRouter(PrivateGroup, PublicGroup)               // 注册功能api路由
 		systemRouter.InitJwtRouter(PrivateGroup)                            // jwt相关路由
 		houseResourceRouter.InitApiAuthRouter(PrivateGroup)                 //房源相关路由
+		systemRouter.InitXiaoQuRouter(PrivateGroup)                         // 小区与楼盘字典管理
 		systemRouter.InitUserRouter(PrivateGroup)                           // 注册用户路由
 		systemRouter.InitMenuRouter(PrivateGroup)                           // 注册menu路由
 		systemRouter.InitSystemRouter(PrivateGroup)                         // system相关路由

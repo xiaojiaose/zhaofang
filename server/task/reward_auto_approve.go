@@ -11,5 +11,5 @@ func RewardAutoApprove(db *gorm.DB) error {
 	return db.Table("house_reward_applications").
 		Where("publisher_confirm_status = ? AND audit_status IN ?", "已确认", []string{"待审核", "审核中"}).
 		Where("last_operated_at_unix_milli < ?", cutoff).
-		Update("audit_status", "审通过待发放").Error
+		Update("audit_status", "审核通过待发放").Error
 }

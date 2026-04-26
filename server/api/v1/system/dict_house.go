@@ -19,7 +19,6 @@ type DictHouseApi struct{}
 // @Produce   application/json
 // @Param     data  body      house.DictHouse                true  "房屋字典模型"
 // @Success   200   {object}  response.Response{msg=string}  "创建成功"
-// @Router    /dictHouse/createDictHouse [post]
 func (d *DictHouseApi) CreateDictHouse(c *gin.Context) {
 	var dictHouse house.DictHouse
 	err := c.ShouldBindJSON(&dictHouse)
@@ -44,7 +43,6 @@ func (d *DictHouseApi) CreateDictHouse(c *gin.Context) {
 // @Produce   application/json
 // @Param     data  body      house.DictHouse                true  "房屋字典模型"
 // @Success   200   {object}  response.Response{msg=string}  "删除成功"
-// @Router    /dictHouse/deleteDictHouse [delete]
 func (d *DictHouseApi) DeleteDictHouse(c *gin.Context) {
 	var dictHouse house.DictHouse
 	err := c.ShouldBindJSON(&dictHouse)
@@ -69,7 +67,6 @@ func (d *DictHouseApi) DeleteDictHouse(c *gin.Context) {
 // @Produce   application/json
 // @Param     data  body      house.DictHouse                true  "房屋字典模型"
 // @Success   200   {object}  response.Response{msg=string}  "更新成功"
-// @Router    /dictHouse/updateDictHouse [put]
 func (d *DictHouseApi) UpdateDictHouse(c *gin.Context) {
 	var dictHouse house.DictHouse
 	err := c.ShouldBindJSON(&dictHouse)
@@ -94,7 +91,6 @@ func (d *DictHouseApi) UpdateDictHouse(c *gin.Context) {
 // @Produce   application/json
 // @Param     data  body      house.DictHouse                   true  "房屋字典模型"
 // @Success   200   {object}  response.Response{data=house.DictHouse}  "查询成功"
-// @Router    /dictHouse/findDictHouse [get]
 func (d *DictHouseApi) FindDictHouse(c *gin.Context) {
 	var dictHouse house.DictHouse
 	err := c.ShouldBindJSON(&dictHouse)
@@ -119,7 +115,6 @@ func (d *DictHouseApi) FindDictHouse(c *gin.Context) {
 // @Produce   application/json
 // @Param     data  body      request.PageInfo                        true  "分页参数"
 // @Success   200   {object}  response.Response{data=response.PageResult}  "获取成功"
-// @Router    /dictHouse/getDictHouseList [post]
 func (d *DictHouseApi) GetDictHouseList(c *gin.Context) {
 	var pageInfo request.PageInfo
 	err := c.ShouldBindJSON(&pageInfo)
@@ -127,13 +122,13 @@ func (d *DictHouseApi) GetDictHouseList(c *gin.Context) {
 		response.FailWithMessage(err.Error(), c)
 		return
 	}
-	
+
 	limit := pageInfo.PageSize
 	offset := pageInfo.PageSize * (pageInfo.Page - 1)
-	
+
 	var dictHouses []house.DictHouse
 	var total int64
-	
+
 	db := global.GVA_DB.Model(&house.DictHouse{})
 	err = db.Count(&total).Error
 	if err != nil {
@@ -141,14 +136,14 @@ func (d *DictHouseApi) GetDictHouseList(c *gin.Context) {
 		response.FailWithMessage("获取总数失败", c)
 		return
 	}
-	
+
 	err = db.Limit(limit).Offset(offset).Find(&dictHouses).Error
 	if err != nil {
 		global.GVA_LOG.Error("获取数据失败!", zap.Error(err))
 		response.FailWithMessage("获取数据失败", c)
 		return
 	}
-	
+
 	response.OkWithDetailed(response.PageResult{
 		List:     dictHouses,
 		Total:    total,

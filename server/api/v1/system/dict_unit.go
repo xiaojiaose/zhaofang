@@ -19,7 +19,6 @@ type DictUnitApi struct{}
 // @Produce   application/json
 // @Param     data  body      house.DictUnit                 true  "单元字典模型"
 // @Success   200   {object}  response.Response{msg=string}  "创建成功"
-// @Router    /dictUnit/createDictUnit [post]
 func (d *DictUnitApi) CreateDictUnit(c *gin.Context) {
 	var dictUnit house.DictUnit
 	err := c.ShouldBindJSON(&dictUnit)
@@ -44,7 +43,6 @@ func (d *DictUnitApi) CreateDictUnit(c *gin.Context) {
 // @Produce   application/json
 // @Param     data  body      house.DictUnit                 true  "单元字典模型"
 // @Success   200   {object}  response.Response{msg=string}  "删除成功"
-// @Router    /dictUnit/deleteDictUnit [delete]
 func (d *DictUnitApi) DeleteDictUnit(c *gin.Context) {
 	var dictUnit house.DictUnit
 	err := c.ShouldBindJSON(&dictUnit)
@@ -69,7 +67,6 @@ func (d *DictUnitApi) DeleteDictUnit(c *gin.Context) {
 // @Produce   application/json
 // @Param     data  body      house.DictUnit                 true  "单元字典模型"
 // @Success   200   {object}  response.Response{msg=string}  "更新成功"
-// @Router    /dictUnit/updateDictUnit [put]
 func (d *DictUnitApi) UpdateDictUnit(c *gin.Context) {
 	var dictUnit house.DictUnit
 	err := c.ShouldBindJSON(&dictUnit)
@@ -94,7 +91,6 @@ func (d *DictUnitApi) UpdateDictUnit(c *gin.Context) {
 // @Produce   application/json
 // @Param     data  body      house.DictUnit                    true  "单元字典模型"
 // @Success   200   {object}  response.Response{data=house.DictUnit}  "查询成功"
-// @Router    /dictUnit/findDictUnit [get]
 func (d *DictUnitApi) FindDictUnit(c *gin.Context) {
 	var dictUnit house.DictUnit
 	err := c.ShouldBindJSON(&dictUnit)
@@ -119,7 +115,6 @@ func (d *DictUnitApi) FindDictUnit(c *gin.Context) {
 // @Produce   application/json
 // @Param     data  body      request.PageInfo                        true  "分页参数"
 // @Success   200   {object}  response.Response{data=response.PageResult}  "获取成功"
-// @Router    /dictUnit/getDictUnitList [post]
 func (d *DictUnitApi) GetDictUnitList(c *gin.Context) {
 	var pageInfo request.PageInfo
 	err := c.ShouldBindJSON(&pageInfo)
@@ -127,13 +122,13 @@ func (d *DictUnitApi) GetDictUnitList(c *gin.Context) {
 		response.FailWithMessage(err.Error(), c)
 		return
 	}
-	
+
 	limit := pageInfo.PageSize
 	offset := pageInfo.PageSize * (pageInfo.Page - 1)
-	
+
 	var dictUnits []house.DictUnit
 	var total int64
-	
+
 	db := global.GVA_DB.Model(&house.DictUnit{})
 	err = db.Count(&total).Error
 	if err != nil {
@@ -141,14 +136,14 @@ func (d *DictUnitApi) GetDictUnitList(c *gin.Context) {
 		response.FailWithMessage("获取总数失败", c)
 		return
 	}
-	
+
 	err = db.Limit(limit).Offset(offset).Find(&dictUnits).Error
 	if err != nil {
 		global.GVA_LOG.Error("获取数据失败!", zap.Error(err))
 		response.FailWithMessage("获取数据失败", c)
 		return
 	}
-	
+
 	response.OkWithDetailed(response.PageResult{
 		List:     dictUnits,
 		Total:    total,

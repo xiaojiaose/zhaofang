@@ -34,18 +34,53 @@ func (service *RewardService) RecentContacts(userID uint) (list []response2.Rewa
 	if err != nil {
 		return
 	}
+	if len(rows) == 0 {
+		return
+	}
+
+	resourceIDs := make([]uint, 0, len(rows))
+	for _, row := range rows {
+		resourceIDs = append(resourceIDs, row.ResourceID)
+	}
+	var resources []house.Resource
+	if err = global.GVA_DB.Where("id IN ?", resourceIDs).Find(&resources).Error; err != nil {
+		return
+	}
+	resourceMap := make(map[uint]house.Resource, len(resources))
+	publisherIDs := make([]uint, 0, len(resources))
+	publisherSeen := make(map[uint]struct{}, len(resources))
+	for _, resource := range resources {
+		resourceMap[resource.ID] = resource
+		if _, ok := publisherSeen[resource.Owner]; !ok {
+			publisherSeen[resource.Owner] = struct{}{}
+			publisherIDs = append(publisherIDs, resource.Owner)
+		}
+	}
+	var publishers []system.SysUser
+	if len(publisherIDs) > 0 {
+		if err = global.GVA_DB.Where("id IN ?", publisherIDs).Find(&publishers).Error; err != nil {
+			return
+		}
+	}
+	publisherMap := make(map[uint]system.SysUser, len(publishers))
+	for _, publisher := range publishers {
+		publisherMap[publisher.ID] = publisher
+	}
+
 	type contactEntry struct {
 		item response2.RewardRecentContact
 		at   time.Time
 	}
 	latestByPhoneAndStatus := make(map[string]contactEntry)
 	for _, row := range rows {
-		var resource house.Resource
-		if e := global.GVA_DB.Where("id = ?", row.ResourceID).First(&resource).Error; e != nil {
+		resource, ok := resourceMap[row.ResourceID]
+		if !ok {
 			continue
 		}
-		var publisher system.SysUser
-		_ = global.GVA_DB.Where("id = ?", resource.Owner).First(&publisher).Error
+		publisher, ok := publisherMap[resource.Owner]
+		if !ok {
+			continue
+		}
 		if publisher.Phone == "" {
 			continue
 		}
@@ -246,7 +281,7 @@ func (service *RewardService) AdminAction(req request.RewardApplicationAction) e
 
 func (service *RewardService) AutoApproveExpired() {
 	// 业务要求：发布人确认后，如果后台 48 小时内没有处理，
-	// 系统默认流转为“审通过待发放”。
+	// 系统默认流转为“审核通过待发放”。
 	cutoff := time.Now().Add(-48 * time.Hour).UnixMilli()
 	_ = global.GVA_DB.Model(&house.RewardApplication{}).
 		Where("publisher_confirm_status = ? AND audit_status IN ?", house.RewardPublisherApproved, []string{house.RewardAuditPending, house.RewardAuditProcessing}).
@@ -264,20 +299,55 @@ func (service *RewardService) CountByDate(start, end time.Time, phone string) (c
 }
 
 func (service *RewardService) attachResourceInfo(apps []house.RewardApplication) []response2.RewardApplicationResponse {
-	// 审核列表需要展示小区和户室号，这些字段来源仍然是房源表，
-	// 所以这里在返回前做一次轻量拼装。
+	// 这里做批量查询，避免按记录循环导致 N+1 查询问题。
+	// 1 次查房源，1 次查申请人，1 次查发布人，然后用 map 回填。
 	list := make([]response2.RewardApplicationResponse, 0, len(apps))
+	if len(apps) == 0 {
+		return list
+	}
+
+	resourceIDs := make([]uint, 0, len(apps))
+	userIDs := make([]uint, 0, len(apps)*2)
+	userSeen := make(map[uint]struct{}, len(apps)*2)
 	for _, app := range apps {
-		var resource house.Resource
-		_ = global.GVA_DB.Where("id = ?", app.ResourceID).First(&resource).Error
-		var applyUser system.SysUser
-		_ = global.GVA_DB.Where("id = ?", app.ApplyUserID).First(&applyUser).Error
+		resourceIDs = append(resourceIDs, app.ResourceID)
+		if _, ok := userSeen[app.ApplyUserID]; !ok {
+			userSeen[app.ApplyUserID] = struct{}{}
+			userIDs = append(userIDs, app.ApplyUserID)
+		}
+		if _, ok := userSeen[app.PublisherUserID]; !ok {
+			userSeen[app.PublisherUserID] = struct{}{}
+			userIDs = append(userIDs, app.PublisherUserID)
+		}
+	}
+
+	var resources []house.Resource
+	_ = global.GVA_DB.Where("id IN ?", resourceIDs).Find(&resources).Error
+	resourceMap := make(map[uint]house.Resource, len(resources))
+	for _, resource := range resources {
+		resourceMap[resource.ID] = resource
+	}
+
+	var users []system.SysUser
+	_ = global.GVA_DB.Where("id IN ?", userIDs).Find(&users).Error
+	userMap := make(map[uint]system.SysUser, len(users))
+	for _, user := range users {
+		userMap[user.ID] = user
+	}
+
+	for _, app := range apps {
+		resource := resourceMap[app.ResourceID]
+		applyUser := userMap[app.ApplyUserID]
+		publisher := userMap[app.PublisherUserID]
 		list = append(list, response2.RewardApplicationResponse{
 			RewardApplication:   app,
 			Xiaoqu:              resource.Xiaoqu,
 			DoorNo:              resource.DoorNo,
 			ApplyUserHeaderImg:  applyUser.HeaderImg,
 			ApplyUserWxNickName: applyUser.WxNickName,
+			PublisherHeaderImg:  publisher.HeaderImg,
+			PublisherWxNickName: publisher.WxNickName,
+			PublisherWxNo:       publisher.WxNo,
 		})
 	}
 	return list
