@@ -13010,6 +13010,10 @@ const docTemplate = `{
                     "description": "找房超市标识",
                     "type": "boolean"
                 },
+                "isPublish": {
+                    "description": "上架权限 true有 false没有",
+                    "type": "boolean"
+                },
                 "nickName": {
                     "description": "昵称",
                     "type": "string",

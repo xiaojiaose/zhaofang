@@ -43,7 +43,7 @@ type SysUser struct {
 	Email                 string         `json:"email"  gorm:"comment:用户邮箱"`                                                                         // 用户邮箱
 	Enable                int            `json:"enable" gorm:"default:1;comment:用户是否被冻结 1正常 2冻结"`                                                    // 是否冻结
 	Openid                string         `json:"openid"`                                                                                             // openid
-	BindAt                time.Time      `json:"bindAt" gorm:"comment:微信绑定时间"`                                                                       // 微信绑定时间
+	BindAt                *time.Time     `json:"bindAt" gorm:"comment:微信绑定时间"`                                                                       // 微信绑定时间
 	OriginSetting         common.JSONMap `json:"originSetting" form:"originSetting" gorm:"type:text;default:null;column:origin_setting;comment:配置;"` //配置
 }
 

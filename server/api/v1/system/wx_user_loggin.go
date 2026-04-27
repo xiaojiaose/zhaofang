@@ -212,7 +212,8 @@ func findUser(openID, mobile string, userInfo *systemReq.UserInfo, c *gin.Contex
 		} else {
 			global.GVA_LOG.Debug("2,再通过手机号查找用户，找到了，需要更新用户的openid", zap.String("mobile", mobile), zap.String("openid", openID))
 			h.Openid = openID
-			h.BindAt = time.Now()
+			now := time.Now()
+			h.BindAt = &now
 			if userInfo != nil {
 				if userInfo.AvatarURL != "" {
 					h.HeaderImg = userInfo.AvatarURL

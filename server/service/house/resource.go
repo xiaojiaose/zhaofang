@@ -262,7 +262,8 @@ func (service *ResourceService) GetListByIdsSafe(ids []uint, status string, allo
 		db = db.Where("status = ?", status)
 	}
 	if !allowTeam {
-		db = db.Where("is_team_house = ?", false)
+		// 兼容历史数据：老数据可能没有回填 is_team_house，按空值视作非团队房源。
+		db = db.Where("(is_team_house = ? OR is_team_house IS NULL)", false)
 	}
 
 	var rows []*house.Resource

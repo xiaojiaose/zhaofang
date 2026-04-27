@@ -16,9 +16,11 @@ type Register struct {
 	AuthorityIds           []uint `json:"authorityIds" swaggertype:"string" example:"[]uint 角色id"` // 角色ID列表
 	Phone                  string `json:"phone" example:"电话号码"`                                    // 手机号
 	Email                  string `json:"email" example:"电子邮箱"`                                    // 邮箱
+	IsPublish              bool   `json:"isPublish"`                                               // 上架权限 true有 false没有
 	IsFindHouseSupermarket bool   `json:"isFindHouseSupermarket"`                                  // 找房超市标识
 	PublishQuotaTotal      int    `json:"publishQuotaTotal"`                                       // 可上架总数
-	ContactViewQuotaTotal  int    `json:"contactViewQuotaTotal"`                                   // 可查看联系方式次数
+
+	ContactViewQuotaTotal int `json:"contactViewQuotaTotal"` // 可查看联系方式次数
 }
 
 // Login User login structure
