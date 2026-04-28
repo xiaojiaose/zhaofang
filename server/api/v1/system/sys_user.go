@@ -292,11 +292,11 @@ func (b *BaseApi) SalesRegister(c *gin.Context) {
 		AuthorityId:            r.AuthorityId,
 		Authorities:            authorities,
 		Enable:                 r.Enable,
-		IsPublish:              r.IsPublish,
+		IsPublish:              false,
 		Phone:                  r.Phone,
 		Email:                  r.Email,
 		IsFindHouseSupermarket: r.IsFindHouseSupermarket,
-		PublishQuotaTotal:      r.PublishQuotaTotal,
+		PublishQuotaTotal:      0,
 		ContactViewQuotaTotal:  r.ContactViewQuotaTotal,
 	}
 	userReturn, err := userService.Register(*user)
@@ -551,11 +551,13 @@ func (b *BaseApi) SetUserInfo(c *gin.Context) {
 		}
 	}
 	origin, _ := userService.FindUserById(int(user.ID))
-	isPublish := resolveIsPublish(user.IsPublish, user.IsPublishSnake, origin.IsPublish)
+	if !origin.IsPublish && user.IsPublish {
+		user.PublishQuotaTotal = 30
+	}
 	teamChanged := origin.IsFindHouseSupermarket != user.IsFindHouseSupermarket
 	if user.Enable > 0 && origin.Enable != user.Enable {
 		origin.Enable = user.Enable
-		origin.IsPublish = isPublish
+		origin.IsPublish = user.IsPublish
 		origin.IsFindHouseSupermarket = user.IsFindHouseSupermarket
 		origin.PublishQuotaTotal = user.PublishQuotaTotal
 		origin.ContactViewQuotaTotal = user.ContactViewQuotaTotal
@@ -572,7 +574,7 @@ func (b *BaseApi) SetUserInfo(c *gin.Context) {
 			Phone:                  user.Phone,
 			Email:                  user.Email,
 			Enable:                 user.Enable,
-			IsPublish:              isPublish,
+			IsPublish:              user.IsPublish,
 			WxNickName:             user.WxNickName,
 			WxNo:                   user.WxNo,
 			Openid:                 origin.Openid,
@@ -615,26 +617,22 @@ func (b *BaseApi) SetSelfInfo(c *gin.Context) {
 		return
 	}
 	user.ID = utils.GetUserID(c)
-	origin, _ := userService.FindUserById(int(user.ID))
-	fallback := false
-	if origin != nil {
-		fallback = origin.IsPublish
-	}
+
 	err = userService.SetSelfInfo(system.SysUser{
 		GVA_MODEL: global.GVA_MODEL{
 			ID: user.ID,
 		},
-		NickName:               user.NickName,
-		HeaderImg:              user.HeaderImg,
-		Phone:                  user.Phone,
-		Email:                  user.Email,
-		IsPublish:              resolveIsPublish(user.IsPublish, user.IsPublishSnake, fallback),
-		WxNickName:             user.WxNickName,
-		WxNo:                   user.WxNo,
-		IsFindHouseSupermarket: user.IsFindHouseSupermarket,
-		PublishQuotaTotal:      user.PublishQuotaTotal,
-		ContactViewQuotaTotal:  user.ContactViewQuotaTotal,
-		Enable:                 user.Enable,
+		NickName:  user.NickName,
+		HeaderImg: user.HeaderImg,
+		Phone:     user.Phone,
+		Email:     user.Email,
+		//IsPublish:              user.IsPublish,
+		WxNickName: user.WxNickName,
+		WxNo:       user.WxNo,
+		//IsFindHouseSupermarket: user.IsFindHouseSupermarket,
+		//PublishQuotaTotal:      user.PublishQuotaTotal,
+		//ContactViewQuotaTotal:  user.ContactViewQuotaTotal,
+		//Enable:                 user.Enable,
 	})
 	if err != nil {
 		global.GVA_LOG.Error("设置失败!", zap.Error(err))
@@ -642,16 +640,6 @@ func (b *BaseApi) SetSelfInfo(c *gin.Context) {
 		return
 	}
 	response.OkWithMessage("设置成功", c)
-}
-
-func resolveIsPublish(isPublish, isPublishSnake *bool, fallback bool) bool {
-	if isPublish != nil {
-		return *isPublish
-	}
-	if isPublishSnake != nil {
-		return *isPublishSnake
-	}
-	return fallback
 }
 
 // SetSelfSetting

@@ -71,8 +71,7 @@ type ChangeUserInfo struct {
 	HeaderImg              string                `json:"headerImg" gorm:"default:https://qmplusimg.henrongyi.top/gva_header.jpg;comment:用户头像"` // 用户头像
 	WxNickName             string                `json:"wxNickName" gorm:"comment:用户微信昵称"`                                                     // 微信昵称
 	WxNo                   string                `json:"wxNo" gorm:"comment:用户微信号"`                                                            // 微信号
-	IsPublish              *bool                 `json:"isPublish" form:"isPublish"`                                                           // 上架权限 true有 false没有 nil不改
-	IsPublishSnake         *bool                 `json:"is_publish" form:"is_publish"`                                                         // 上架权限(兼容字段) true有 false没有 nil不改
+	IsPublish              bool                  `json:"isPublish" form:"isPublish"`                                                           // 上架权限 true有 false没有 nil不改
 	IsFindHouseSupermarket bool                  `json:"isFindHouseSupermarket"`                                                               // 找房超市标识
 	PublishQuotaTotal      int                   `json:"publishQuotaTotal"`                                                                    // 可上架总数
 	ContactViewQuotaTotal  int                   `json:"contactViewQuotaTotal"`                                                                // 可查看联系方式次数
