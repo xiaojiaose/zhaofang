@@ -2,26 +2,26 @@
   <div>
     <div class="gva-search-box">
       <el-form :inline="true" :model="searchInfo">
-        <el-form-item label="发布人确认">
+        <!-- <el-form-item label="发布人确认">
           <el-select v-model="searchInfo.publisherConfirmStatus" clearable>
             <el-option label="待确认" value="待确认" />
             <el-option label="已拒绝" value="已拒绝" />
             <el-option label="已确认" value="已确认" />
           </el-select>
-        </el-form-item>
+        </el-form-item> -->
         <el-form-item label="审核状态">
           <el-select v-model="searchInfo.auditStatus" clearable>
-            <el-option label="未进入审核" value="未进入审核" />
+            <!-- <el-option label="未进入审核" value="未进入审核" /> -->
             <el-option label="待审核" value="待审核" />
             <el-option label="审核中" value="审核中" />
-            <el-option label="审通过待发放" value="审通过待发放" />
+            <el-option label="审核通过待发放" value="审核通过待发放" />
             <el-option label="已发放" value="已发放" />
             <el-option label="未通过" value="未通过" />
           </el-select>
         </el-form-item>
         <el-form-item>
-          <el-button type="primary" @click="handleSearch">查询</el-button>
-          <el-button @click="handleReset">重置</el-button>
+          <el-button type="primary" icon="search" @click="handleSearch">查询</el-button>
+          <el-button icon="refresh" @click="handleReset">重置</el-button>
         </el-form-item>
       </el-form>
     </div>
@@ -30,14 +30,14 @@
         <el-button type="primary" :disabled="!multipleSelection.length" @click="handleBatchAction('processing')">
           批量设为审核中
         </el-button>
-        <el-button type="success" :disabled="!multipleSelection.length" @click="handleBatchAction('approve')">
-          批量通过
+        <el-button type="warning" :disabled="!multipleSelection.length" @click="handleBatchAction('approve')">
+          批量设为审通过待发放
         </el-button>
-        <el-button type="warning" :disabled="!multipleSelection.length" @click="handleBatchAction('paid')">
-          批量已发放
+        <el-button type="success" :disabled="!multipleSelection.length" @click="handleBatchAction('paid')">
+          批量设为已发放
         </el-button>
         <el-button type="danger" :disabled="!multipleSelection.length" @click="handleBatchAction('reject')">
-          批量未通过
+          批量设为未通过
         </el-button>
       </div>
       <el-table :data="tableData" @selection-change="handleSelectionChange">
@@ -61,11 +61,11 @@
           </template>
         </el-table-column>
         <el-table-column prop="remark" label="备注" min-width="220" show-overflow-tooltip />
-        <el-table-column label="操作" min-width="260" fixed="right">
+        <el-table-column label="操作" min-width="400" fixed="right">
           <template #default="scope">
             <el-button link type="primary" @click="handleAction(scope.row, 'processing')">审核中</el-button>
-            <el-button link type="success" @click="handleAction(scope.row, 'approve')">通过</el-button>
-            <el-button link type="warning" @click="handleAction(scope.row, 'paid')">已发放</el-button>
+            <el-button link type="warning" @click="handleAction(scope.row, 'approve')">审核通过待发放</el-button>
+            <el-button link type="success" @click="handleAction(scope.row, 'paid')">已发放</el-button>
             <el-button link type="danger" @click="handleAction(scope.row, 'reject')">未通过</el-button>
           </template>
         </el-table-column>

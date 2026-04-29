@@ -56,7 +56,7 @@
         <el-table-column align="left" label="房源信息" min-width="300">
           <template #default="scope">
             <el-image
-              :src="scope.row.attachments?.house[0]?.url"
+              :src="scope.row.attachments?.house?.[0]?.url"
               fit="cover"
               style="width: 250px; height: 150px"
             >
