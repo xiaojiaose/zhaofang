@@ -49,7 +49,11 @@
         <el-table-column prop="publisherUserPhone" label="发布人手机号" min-width="140" />
         <el-table-column prop="publisherUserWxNo" label="发布人微信号" min-width="140" />
         <el-table-column prop="publisherConfirmStatus" label="发布人确认状态" min-width="140" />
-        <el-table-column prop="auditStatus" label="审核状态" min-width="140" />
+        <el-table-column prop="auditStatus" label="审核状态" min-width="140">
+          <template #default="scope">
+           {{ scope.row.auditStatus === "未进入审核" ? scope.row.publisherConfirmStatus : scope.row.auditStatus }}
+          </template>
+        </el-table-column>
         <el-table-column label="申请时间" min-width="180">
           <template #default="scope">
             {{ formatTime(scope.row.CreatedAt) }}

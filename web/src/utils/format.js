@@ -1,5 +1,6 @@
 import { formatTimeToStr } from '@/utils/date'
 import { getDict } from '@/utils/dictionary'
+import dayjs from 'dayjs'
 import { ref } from 'vue'
 
 export const formatBoolean = (bool) => {
@@ -12,6 +13,9 @@ export const formatBoolean = (bool) => {
 export const formatDate = (time) => {
   if (time !== null && time !== '') {
     var date = new Date(time)
+    if(dayjs(date).isBefore([2025, 1, 1])){
+      return ''
+    }
     return formatTimeToStr(date, 'yyyy-MM-dd hh:mm:ss')
   } else {
     return ''

@@ -193,9 +193,9 @@
         <el-form-item label="找房超市">
           <el-switch v-model="editSalerForm.isFindHouseSupermarket" />
         </el-form-item>
-        <el-form-item label="联系次数">
+        <!-- <el-form-item label="联系次数">
           <el-input-number v-model="editSalerForm.contactViewQuotaTotal" :min="0" />
-        </el-form-item>
+        </el-form-item> -->
       </el-form>
     </el-drawer>
   </div>
@@ -383,7 +383,7 @@ const enterEditSalerDialog = async (formEl) => {
 const rules = ref({
   phone: [{ required: true, message: "请输入手机号", trigger: "change" }],
   userName: [{ required: true, message: "请输入称呼", trigger: "change" }],
-  wxNo: [{ required: true, message: "请输入微信号", trigger: "change" }],
+  // wxNo: [{ required: true, message: "请输入微信号", trigger: "change" }],
   enable: [{ required: true, message: "请选择上架和录入房源权限", trigger: "change" }],
   isFindHouseSupermarket: [
     { required: true, message: "请选择找房超市", trigger: "change" },

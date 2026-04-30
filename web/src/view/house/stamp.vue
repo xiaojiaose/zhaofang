@@ -169,7 +169,7 @@
           sortable
         >
           <template #default="scope">
-            {{ dayjs(scope.row.created_at).format("YYYY-MM-DD HH:mm:ss") }}
+            {{ dayjs(scope.row.CreatedAt).format("YYYY-MM-DD HH:mm:ss") }}
           </template>
         </el-table-column>
       </el-table>

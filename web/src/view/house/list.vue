@@ -510,6 +510,7 @@
         title="上传前会先把你当前已上架房源全部下架，再按本次 Excel 内容重新上架。"
         class="mb-4"
       />
+      <el-link underline="always" type="primary" href="http://img.zhaofangjishi.com/house/house-batch-upload-example.xlsx" target="_blank" class="mb-4">下载模板</el-link>
       <el-upload
         drag
         :auto-upload="false"

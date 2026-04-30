@@ -271,9 +271,9 @@
         <el-form-item label="上架额度" v-if="userInfo.isPublish === true">
           <el-input-number v-model="userInfo.publishQuotaTotal" :min="0" />
         </el-form-item>
-        <el-form-item label="联系次数">
+        <!-- <el-form-item label="联系次数">
           <el-input-number v-model="userInfo.contactViewQuotaTotal" :min="0" />
-        </el-form-item>
+        </el-form-item> -->
       </el-form>
     </el-drawer>
   </div>

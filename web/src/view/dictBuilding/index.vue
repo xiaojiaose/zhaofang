@@ -27,7 +27,11 @@
         <el-table-column align="left" label="小区名称" prop="name" min-width="200" />
         <el-table-column align="left" label="所属区域" prop="area" min-width="120" />
         <el-table-column align="left" label="所属商圈" prop="districts" min-width="150" />
-        <el-table-column align="left" label="小区坐标" prop="latitude" min-width="100" />
+        <el-table-column align="left" label="小区坐标" prop="latitude" min-width="200" >
+          <template #default="scope">
+            {{ scope.row.latitude }}, {{ scope.row.longitude }}
+          </template>
+        </el-table-column>
         <el-table-column align="center" label="房间数据" prop="roomData" width="200" />
         <el-table-column label="操作" align="center" width="200">
           <template #default="scope">
@@ -39,9 +43,13 @@
         <el-table-column
           align="center"
           label="最后操作时间"
-          prop="lastOperationTime"
+          prop="UpdatedAt"
           width="200"
-        />
+        >
+          <template #default="scope">
+            {{ formatDate(scope.row.UpdatedAt) }}
+          </template>
+        </el-table-column>
       </el-table>
       <div class="gva-pagination">
         <el-pagination
@@ -56,14 +64,14 @@
       </div>
     </div>
 
-    <el-dialog
+    <el-drawer
       :title="dialogTitle"
       v-model="dialogVisible"
-      width="700px"
+      :size="appStore.drawerSize"
       :close-on-click-modal="false"
       @close="closeDialog"
     >
-      <el-form ref="form" :model="form" :rules="rules" label-width="100px">
+      <el-form ref="formRef" :model="form" :rules="rules" label-width="100px">
         <el-form-item label="小区名称" prop="name">
           <el-input v-model="form.name" placeholder="请输入小区名称" />
         </el-form-item>
@@ -100,22 +108,24 @@
           </el-col>
         </el-row>
         <el-form-item label="是否启用" prop="able">
-          <el-switch v-model="form.able" active-text="启用" inactive-text="禁用" />
+          <el-switch v-model="form.able" />
         </el-form-item>
       </el-form>
       <span slot="footer" class="dialog-footer">
         <el-button @click="closeDialog">取 消</el-button>
         <el-button type="primary" @click="submitForm">确 定</el-button>
       </span>
-    </el-dialog>
+    </el-drawer>
   </div>
 </template>
 
 <script setup>
 import { ref } from "vue";
 import { ElMessage } from "element-plus";
+import { useAppStore } from "@/pinia";
+import {formatDate} from '@/utils/format'
 import {
-  getDictBuildingList,
+  getxiaoquList,
   getDictBuildingInfo,
   editXiaoqu as editXiaoquApi,
   addDictBuilding,
@@ -124,6 +134,8 @@ import {
 defineOptions({
   name: "DictBuilding",
 });
+
+const appStore = useAppStore();
 
 const defaultForm = () => ({
   ID: undefined,
@@ -139,6 +151,7 @@ const defaultForm = () => ({
 });
 
 const form = ref(defaultForm());
+const formRef = ref(null);
 const searchInfo = ref({
   keyword: "",
 });
@@ -157,37 +170,13 @@ const rules = {
 const getTableData = async () => {
   loading.value = true;
   try {
-    // const _res = await getDictBuildingList({
-    //   page: page.value,
-    //   pageSize: pageSize.value,
-    //   ...searchInfo.value,
-    // });
+    const res = await getxiaoquList({
+      page: page.value,
+      pageSize: pageSize.value,
+      ...searchInfo.value,
+      cityId: "1",
+    });
 
-    const res = {
-      code: 0,
-      data: {
-        list: [
-          {
-            ID: 1,
-            buildingName: "小区1",
-            city: "城市1",
-            area: "区域1",
-            position: "位置1",
-            districts: "行政区1",
-            address: "地址1",
-            latitude: "纬度1",
-            longitude: "经度1",
-            able: true,
-            createTime: "2023-01-01 00:00:00",
-            updateTime: "2023-01-01 00:00:00",
-          },
-        ],
-        page: 1,
-        pageSize: 10,
-        total: 100,
-      },
-      msg: "success",
-    };
     if (res.code === 0) {
       tableData.value = res.data.list;
       total.value = res.data.total;
@@ -229,14 +218,10 @@ const handleSizeChange = (val) => {
 };
 
 const editDictBuilding = (row) => {
+  form.value = { ...row };
+  console.log(form.value)
   dialogTitle.value = "编辑小区";
   dialogVisible.value = true;
-  // getDictBuildingInfo(row.ID).then((res) => {
-  //   if (res.code === 0) {
-  //     form.value = { ...res.data };
-  //     dialogVisible.value = true;
-  //   }
-  // });
 };
 
 const closeDialog = () => {

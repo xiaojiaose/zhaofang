@@ -1,8 +1,8 @@
 import service from '@/utils/request'
 
-export const getDictBuildingList = (data) => {
+export const getxiaoquList = (data) => {
   return service({
-    url: '/dictBuilding/getDictBuildingList',
+    url: '/xiaoqu/list',
     method: 'post',
     data: data
   })
