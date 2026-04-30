@@ -217,7 +217,7 @@ func (service *RewardService) GetPageForAdmin(req request.RewardApplicationSearc
 	// 后台只处理“发布人已经确认”的申请，
 	// 所以这里默认过滤掉还没到后台审核阶段的数据。
 	service.AutoApproveExpired()
-	db := global.GVA_DB.Model(&house.RewardApplication{}).Where("publisher_confirm_status = ?", house.RewardPublisherApproved)
+	db := global.GVA_DB.Model(&house.RewardApplication{})
 	if req.AuditStatus != "" {
 		db = db.Where("audit_status = ?", req.AuditStatus)
 	}
