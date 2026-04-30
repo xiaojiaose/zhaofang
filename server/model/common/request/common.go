@@ -90,6 +90,7 @@ type SearchXiaoqu struct {
 	CityId    string `json:"cityId"`    // 城市id
 	AreaId    string `json:"areaId"`    // 区id
 	Districts []int  `json:"districts"` //
+	Able      bool   `json:"able"`
 }
 type SearchResource struct {
 	PageInfo

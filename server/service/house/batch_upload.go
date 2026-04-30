@@ -146,11 +146,16 @@ func (service *ResourceService) BatchUpload(userID uint, header *multipart.FileH
 		}
 
 		var entity house.Resource
-		findErr := global.GVA_DB.Where("owner = ? AND xiaoqu_id = ? AND door_no = ? AND room_code = ?", userID, xq.ID, doorNo, roomCode).First(&entity).Error
+		// 批量导入的“同一条房源”判定：同账号 + 小区 + 楼栋 + 单元 + 门牌号。
+		// 这里使用楼盘字典 openId 匹配，避免“1号楼/1”等展示文本差异导致误新增。
+		findErr := global.GVA_DB.Where(
+			"owner = ? AND xiaoqu_id = ? AND building_id = ? AND unit_id = ? AND house_id = ?",
+			userID, xq.ID, buildingID, unitID, houseID,
+		).First(&entity).Error
 		if findErr != nil {
 			// 首次导入的新房源，尽量复用历史模板补齐更多字段（楼层、面积、字典ID、联系方式、图片等），
 			// 减少批量导入后需要手工二次编辑的成本。
-			if template, ok := findHistoricalTemplateResource(userID, xq.ID, doorNo, roomCode); ok {
+			if template, ok := findHistoricalTemplateResource(userID, xq.ID, buildingID, unitID, houseID); ok {
 				entity = template
 				// 新建时需要清掉主键和时间戳，避免把模板记录覆盖掉。
 				entity.ID = 0
@@ -163,10 +168,10 @@ func (service *ResourceService) BatchUpload(userID uint, header *multipart.FileH
 				entity.Click = 0
 			} else {
 				entity = house.Resource{
-					Attachments: findHistoricalAttachments(userID, xq.ID, doorNo, roomCode),
+					Attachments: findHistoricalAttachments(userID, xq.ID, buildingID, unitID, houseID),
 				}
 			}
-			// 关键归属和定位字段以本次 Excel + 小区数据为准，覆盖模板值。
+			// 新建记录时，定位字段以本次 Excel + 小区/楼盘字典数据为准。
 			entity.Owner = userID
 			entity.XiaoquId = xq.ID
 			entity.Xiaoqu = xq.Name
@@ -176,11 +181,10 @@ func (service *ResourceService) BatchUpload(userID uint, header *multipart.FileH
 			entity.Region = xq.Area
 			entity.DoorNo = doorNo
 			entity.RoomCode = roomCode
+			entity.BuildingId = buildingID
+			entity.UnitId = unitID
+			entity.HouseId = houseID
 		}
-		// 每次导入都按楼盘字典回填三段 openId，避免依赖历史模板或前端传值。
-		entity.BuildingId = buildingID
-		entity.UnitId = unitID
-		entity.HouseId = houseID
 
 		entity.RentType = defaultString(rentType, entity.RentType)
 		entity.HouseType = defaultString(houseType, entity.HouseType)
@@ -268,44 +272,36 @@ func composeDoorNoFromParts(building, unit, houseNo string) string {
 	return strings.Join([]string{b, u, h}, " ")
 }
 
-func findHistoricalAttachments(userID, xiaoquID uint, doorNo, roomCode string) common.AttachmentMap {
-	// 图片复用只在“同账号 + 同小区 + 同户室 + 同房间号”范围内查找，
-	// 避免把其他账号的历史图片错误带入当前导入结果。
+func findHistoricalAttachments(userID, xiaoquID uint, buildingID, unitID, houseID string) common.AttachmentMap {
+	// 图片复用在“同账号 + 小区 + 楼栋 + 单元 + 门牌号”范围内查找，
+	// 与导入主匹配键保持一致。
 	var resource house.Resource
-	if err := global.GVA_DB.Where("owner = ? AND xiaoqu_id = ? AND door_no = ? AND room_code = ?", userID, xiaoquID, doorNo, roomCode).Order("id desc").First(&resource).Error; err == nil {
+	if err := global.GVA_DB.Where(
+		"owner = ? AND xiaoqu_id = ? AND building_id = ? AND unit_id = ? AND house_id = ?",
+		userID, xiaoquID, buildingID, unitID, houseID,
+	).Order("id desc").First(&resource).Error; err == nil {
 		return resource.Attachments
 	}
 	return common.AttachmentMap{}
 }
 
-func findHistoricalTemplateResource(userID, xiaoquID uint, doorNo, roomCode string) (resource house.Resource, ok bool) {
+func findHistoricalTemplateResource(userID, xiaoquID uint, buildingID, unitID, houseID string) (resource house.Resource, ok bool) {
 	// 模板优先级：
-	// 1) 同账号+同小区+同户室+同房间号
-	// 2) 同账号+同小区+同户室（roomCode 可变）
-	// 3) 同账号+同小区最近一条
-	queries := []struct {
-		sql  string
-		args []interface{}
-	}{
-		{
-			sql:  "owner = ? AND xiaoqu_id = ? AND door_no = ? AND room_code = ?",
-			args: []interface{}{userID, xiaoquID, doorNo, roomCode},
-		},
-		{
-			sql:  "owner = ? AND xiaoqu_id = ? AND door_no = ?",
-			args: []interface{}{userID, xiaoquID, doorNo},
-		},
-		{
-			sql:  "owner = ? AND xiaoqu_id = ?",
-			args: []interface{}{userID, xiaoquID},
-		},
+	// 1) 同账号+小区+楼栋+单元+门牌号
+	// 2) 同账号+同小区最近一条，用于复用该账号在该小区的历史录入信息和图片。
+	err := global.GVA_DB.Where(
+		"owner = ? AND xiaoqu_id = ? AND building_id = ? AND unit_id = ? AND house_id = ?",
+		userID, xiaoquID, buildingID, unitID, houseID,
+	).Order("updated_last_at desc, id desc").First(&resource).Error
+	if err == nil {
+		return resource, true
 	}
-	for _, q := range queries {
-		err := global.GVA_DB.Where(q.sql, q.args...).Order("updated_last_at desc, id desc").First(&resource).Error
-		if err == nil {
-			return resource, true
-		}
+
+	err = global.GVA_DB.Where("owner = ? AND xiaoqu_id = ?", userID, xiaoquID).Order("updated_last_at desc, id desc").First(&resource).Error
+	if err == nil {
+		return resource, true
 	}
+
 	return house.Resource{}, false
 }
 

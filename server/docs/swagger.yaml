@@ -1953,6 +1953,8 @@ definitions:
     type: object
   request.SearchXiaoqu:
     properties:
+      able:
+        type: boolean
       areaId:
         description: 区id
         type: string

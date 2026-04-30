@@ -13323,6 +13323,9 @@ const docTemplate = `{
         "request.SearchXiaoqu": {
             "type": "object",
             "properties": {
+                "able": {
+                    "type": "boolean"
+                },
                 "areaId": {
                     "description": "区id",
                     "type": "string"
