@@ -103,6 +103,9 @@ func (s *XiaoQuService) GetList(info request.SearchXiaoqu) (list []system.XiaoQu
 	if info.Keyword != "" {
 		db = db.Where(" name LIKE ?", "%"+info.Keyword+"%")
 	}
+	if info.Able == true {
+		db = db.Where(" able = 1")
+	}
 	if info.CityId != "" {
 		db = db.Where(" city = ?", info.CityId)
 	}
