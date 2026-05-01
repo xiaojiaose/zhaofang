@@ -134,15 +134,15 @@ func (service *RewardService) Create(userID uint, req request.RewardApplicationC
 		return errors.New("不能对自己的房源申请出房有礼")
 	}
 	// 同一用户对同一套房源只允许申请一次，避免重复提交把审核列表刷脏。
-	var exists int64
-	if err := global.GVA_DB.Model(&house.RewardApplication{}).
-		Where("apply_user_id = ? AND resource_id = ?", userID, req.ResourceID).
-		Count(&exists).Error; err != nil {
-		return err
-	}
-	if exists > 0 {
-		return errors.New("你已经申请过这套房源了")
-	}
+	//var exists int64
+	//if err := global.GVA_DB.Model(&house.RewardApplication{}).
+	//	Where("apply_user_id = ? AND resource_id = ?", userID, req.ResourceID).
+	//	Count(&exists).Error; err != nil {
+	//	return err
+	//}
+	//if exists > 0 {
+	//	return errors.New("你已经申请过这套房源了")
+	//}
 	var applyUser system.SysUser
 	var publisher system.SysUser
 	if err := global.GVA_DB.Where("id = ?", userID).First(&applyUser).Error; err != nil {
