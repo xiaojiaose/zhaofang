@@ -22,10 +22,13 @@ func (s *XiaoQuService) Edit(u system.XiaoQu) (xiaoQu system.XiaoQu, err error) 
 	} else if xq.ID != u.ID { // 判断名是否被占用
 		return xq, errors.New("小区名已占用")
 	}
-
-	tx = global.GVA_DB.Where("id = ?", u.ID).First(&xq)
-	err = tx.Updates(&u).Error
+	// 注意：GORM 使用结构体 Updates 时会忽略零值，bool=false 会被跳过。
+	// 这里先更新普通字段，再单独强制更新 able，确保前端传 false 时能正确落库。
+	err = global.GVA_DB.Model(&system.XiaoQu{}).Where("id = ?", u.ID).Updates(&u).Error
 	if err != nil {
+		return u, err
+	}
+	if err = global.GVA_DB.Model(&system.XiaoQu{}).Where("id = ?", u.ID).Update("able", u.Able).Error; err != nil {
 		return u, err
 	}
 	// 兼容历史数据：编辑后如果仍未配置 community_id，自动回填为小区ID。
