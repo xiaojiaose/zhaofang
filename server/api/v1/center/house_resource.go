@@ -25,10 +25,10 @@ var houseType = map[string]string{
 	"2居":  "2居",
 	"3居":  "3居",
 	"4居+": "4居+",
-	"开间":  "开间",
-	"主卧":  "主卧",
-	"次卧":  "次卧",
-	"暗间":  "暗间",
+	"开间": "开间",
+	"主卧": "主卧",
+	"次卧": "次卧",
+	"暗间": "暗间",
 }
 
 // View
@@ -753,7 +753,7 @@ func (h *HouseResourceApi) FilterOptions(c *gin.Context) {
 	response.OkWithDetailed(map[string]interface{}{
 		"houseType":        options,
 		"price":            map[string]string{"1": "500以下", "2": "500-1000元", "3": "1000-1500元", "4": "1500-2000元", "5": "2000-2500元", "6": "2500-3000元", "7": "3000元以上"},
-		"houseSource":      map[string]string{"1": "不限", "2": "有返佣", "3": "房东房源", "4": "团队房源"},
+		"houseSource":      map[string]string{"2": "有返佣", "3": "房东房源", "4": "团队房源"},
 		"canViewTeamHouse": userHasTeamPermission(utils.GetUserID(c)),
 	}, "获取成功", c)
 
@@ -776,10 +776,10 @@ func (h *HouseResourceApi) FilterTypeOptions(c *gin.Context) {
 	re := map[string]interface{}{
 		"houseType":   options,
 		"price":       map[string]string{"1": "500以下", "2": "500-1000元", "3": "1000-1500元", "4": "1500-2000元", "5": "2000-2500元", "6": "2500-3000元", "7": "3000元以上"},
-		"houseSource": map[string]string{"1": "不限", "2": "有返佣", "3": "房东房源"},
+		"houseSource": map[string]string{"2": "有返佣", "3": "房东房源"},
 	}
 	if userHasTeamPermission(utils.GetUserID(c)) {
-		re["houseSource"] = map[string]string{"1": "不限", "2": "有返佣", "3": "房东房源", "4": "团队房源"}
+		re["houseSource"] = map[string]string{"2": "有返佣", "3": "房东房源", "4": "团队房源"}
 	}
 	response.OkWithDetailed(re, "获取成功", c)
 
