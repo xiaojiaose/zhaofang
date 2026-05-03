@@ -28,3 +28,11 @@ export const uploadFile = (data) => { //上传文件
     data: data
   })
 }
+
+export const getAreaOptions = () => { //筛选用到的筛选项
+    return service({
+        url: '/center/area',
+        method: 'get',
+        params: { cityId: "1" }
+    })
+}

@@ -259,16 +259,7 @@
             >注：自进门右手起，逆时针数，不区分空间功能，第一间为1号，房间有门即算。</el-text
           >
         </el-form-item>
-        <el-form-item label="户型" prop="house_type" v-if="form.rent_type !== '合租'">
-          <el-radio-group v-model="form.house_type" @change="handleHouseTypeChange">
-            <el-radio
-              v-for="item in houseTypeOptions[form.rent_type]"
-              :key="item.value"
-              :label="item.label"
-            />
-          </el-radio-group>
-        </el-form-item>
-        <el-form-item label="户型" prop="house_type" v-else>
+        <el-form-item label="户型" prop="house_type">
           <el-radio-group v-model="form.house_type" @change="handleHouseTypeChange">
             <el-radio
               v-for="item in houseTypeOptions[form.rent_type]"
@@ -414,21 +405,12 @@
           </el-select>
           <el-text class="mx-1" type="info">注：自进门右手起，逆时针数，不区分空间功能，第一间为1号，房间有门即算。</el-text>
         </el-form-item> -->
-        <el-form-item label="户型" prop="house_type" v-if="form.rent_type !== '合租'">
+        <el-form-item label="户型" prop="house_type">
           <el-radio-group v-model="form.house_type" disabled>
             <el-radio
               v-for="item in houseTypeOptions[form.rent_type]"
               :key="item.value"
               :label="item.label"
-            />
-          </el-radio-group>
-        </el-form-item>
-        <el-form-item label="户型" prop="house_type" v-else>
-          <el-radio-group v-model="form.house_type" disabled>
-            <el-radio
-              v-for="item in houseTypeOptions[form.rent_type]"
-              :key="item"
-              :label="item"
             />
           </el-radio-group>
         </el-form-item>
@@ -1004,6 +986,9 @@ const handleEditHouse = (row) => {
   featureOptions.value[row.rent_type].map((f) => {
     f.disabled = row.rent_type === '房东房源' && (f.value === '协助对接房东' || f.value === '可带看分佣');
   })
+
+  console.log(houseTypeOptions.value);
+  console.log(form.value);
 };
 //关闭编辑房源弹框
 const closeEditHouseDialog = () => {

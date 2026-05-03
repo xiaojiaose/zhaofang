@@ -45,9 +45,9 @@
         <el-table-column prop="xiaoqu" label="小区" min-width="160" />
         <el-table-column prop="doorNo" label="户室号" min-width="120" />
         <el-table-column prop="applyUserPhone" label="申请人手机号" min-width="140" />
-        <el-table-column prop="applyUserWxNo" label="申请人微信号" min-width="140" />
+        <el-table-column prop="applyUserWxNickName" label="申请人微信昵称" min-width="140" />
         <el-table-column prop="publisherUserPhone" label="发布人手机号" min-width="140" />
-        <el-table-column prop="publisherUserWxNo" label="发布人微信号" min-width="140" />
+        <el-table-column prop="publisherWxNickName" label="发布人微信昵称" min-width="140" />
         <el-table-column prop="publisherConfirmStatus" label="发布人确认状态" min-width="140" />
         <el-table-column prop="auditStatus" label="审核状态" min-width="140">
           <template #default="scope">

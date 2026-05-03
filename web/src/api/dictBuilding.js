@@ -16,17 +16,33 @@ export const getDictBuildingInfo = (id) => {
   })
 }
 
-export const editXiaoqu = (data) => {
+export const addOrEditDictBuilding = (data) => {
   return service({
-    url: '/api/xiaoqu/edit',
+    url: '/xiaoqu/edit',
     method: 'post',
     data: data
   })
 }
 
-export const addDictBuilding = (data) => {
+export const getXiaoquDictTree = (xiaoquId) => {
   return service({
-    url: '/dictBuilding/createDictBuilding',
+    url: '/xiaoqu/dict/tree',
+    method: 'get',
+    params: { id: xiaoquId }
+  })
+}
+
+export const upsertXiaoquDict = (data) => {
+  return service({
+    url: '/xiaoqu/dict/upsert',
+    method: 'post',
+    data: data
+  })
+}
+
+export const deleteXiaoquDict = (data) => {
+  return service({
+    url: '/xiaoqu/dict/delete',
     method: 'post',
     data: data
   })
