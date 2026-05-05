@@ -112,8 +112,8 @@ func (s *StatisDataApi) VisitRecord(c *gin.Context) {
 	userMap := make(map[uint]system.SysUser)
 	if len(userIds) > 0 {
 		users, _ := UserService.GetUsersByIds(userIds)
-		for i, user := range users {
-			userMap[userIds[i]] = user
+		for _, user := range users {
+			userMap[user.ID] = user
 		}
 	}
 
@@ -190,8 +190,8 @@ func (s *StatisDataApi) VisitHouse(c *gin.Context) {
 	userMap := make(map[uint]system.SysUser)
 	if len(userIds) > 0 {
 		users, _ := UserService.GetUsersByIds(userIds)
-		for i, user := range users {
-			userMap[userIds[i]] = user
+		for _, user := range users {
+			userMap[user.ID] = user
 		}
 	}
 
