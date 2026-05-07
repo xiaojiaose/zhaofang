@@ -58,7 +58,7 @@
         <el-button type="primary" icon="plus" @click="addHouse"> 新增房源 </el-button>
         <el-button type="success" @click="batchUploadDialog = true"> 批量上传 </el-button>
         <el-tag type="info" v-if="tableData.length">
-          已上架 {{ tableData[0].publishQuotaUsed }} / {{ tableData[0].publishQuotaTotal }}，剩余 {{ tableData[0].publishQuotaRemain }}
+          已上架 {{ tableData[0]?.publishQuotaUsed || 0 }} / {{ tableData[0]?.publishQuotaTotal || 0 }}，剩余 {{ tableData[0]?.publishQuotaRemain || 0 }}
         </el-tag>
       </div>
       <el-table :data="tableData" row-key="ID" v-loading="false">
@@ -66,7 +66,7 @@
         <el-table-column align="left" label="房源信息" min-width="300">
           <template #default="scope">
             <el-image
-              :src="scope.row.attachments?.house[0]?.url"
+              :src="scope.row.attachments?.house?.[0]?.url"
               fit="cover"
               style="width: 250px; height: 150px"
             >
@@ -82,8 +82,8 @@
           <template #default="scope">
             <el-text size="large" tag="b">{{ scope.row.xiaoqu }}</el-text>
             <div>{{ scope.row.door_no }}</div>
-            <div class="mt-1">
-              <el-tag v-if="scope.row.house_type === '房东房源'" type="warning" size="small">房东房源</el-tag>
+            <div class="mt-1 flex items-center">
+              <el-tag v-if="scope.row.rent_type === '房东房源'" type="warning" size="small">房东房源</el-tag>
               <el-tag v-if="scope.row.is_team_house" type="success" size="small" class="ml-1">团队房源</el-tag>
             </div>
           </template>
@@ -241,7 +241,7 @@
           <br />
           <el-text class="mx-1" type="info">户室信息将不在用户端展示具体信息</el-text>
         </el-form-item>
-        <el-form-item label="房间号" prop="room_code" v-if="form.rent_type !== '整租'">
+        <el-form-item label="房间号" prop="room_code" v-if="form.rent_type !== '整租' && form.rent_type !== '房东房源'">
           <el-select
             v-model="form.room_code"
             class="m-2"
@@ -259,16 +259,7 @@
             >注：自进门右手起，逆时针数，不区分空间功能，第一间为1号，房间有门即算。</el-text
           >
         </el-form-item>
-        <el-form-item label="户型" prop="house_type" v-if="form.rent_type !== '合租'">
-          <el-radio-group v-model="form.house_type" @change="handleHouseTypeChange">
-            <el-radio
-              v-for="item in houseTypeOptions[form.rent_type]"
-              :key="item.value"
-              :label="item.label"
-            />
-          </el-radio-group>
-        </el-form-item>
-        <el-form-item label="户型" prop="house_type" v-else>
+        <el-form-item label="户型" prop="house_type">
           <el-radio-group v-model="form.house_type" @change="handleHouseTypeChange">
             <el-radio
               v-for="item in houseTypeOptions[form.rent_type]"
@@ -301,6 +292,7 @@
               :key="item.value"
               :label="item.label"
               name="feature"
+              :disabled="!!item.disabled"
             />
           </el-checkbox-group>
         </el-form-item>
@@ -397,37 +389,31 @@
           <br />
           <el-text class="mx-1" type="info">户室信息将不在用户端展示具体信息</el-text>
         </el-form-item>
-        <!-- <el-form-item label="房间号" prop="house_id" v-if="form.rent_type === '合租'">
+        <el-form-item label="房间号" prop="room_code" v-if="form.rent_type !== '整租' && form.rent_type !== '房东房源'">
           <el-select
-            v-model="form.house_id"
+            v-model="form.room_code"
             class="m-2"
             placeholder="请选择房间号"
             style="width: 240px"
+            disabled
           >
             <el-option
-              v-for="item in [1,2,3,4,5,6,7,8,9,10]"
+              v-for="item in ['1', '2', '3', '4', '5', '6', '7', '8']"
               :key="item"
               :label="item"
               :value="item"
             />
           </el-select>
-          <el-text class="mx-1" type="info">注：自进门右手起，逆时针数，不区分空间功能，第一间为1号，房间有门即算。</el-text>
-        </el-form-item> -->
-        <el-form-item label="户型" prop="house_type" v-if="form.rent_type !== '合租'">
+          <el-text class="mx-1" type="info"
+            >注：自进门右手起，逆时针数，不区分空间功能，第一间为1号，房间有门即算。</el-text
+          >
+        </el-form-item>
+        <el-form-item label="户型" prop="house_type">
           <el-radio-group v-model="form.house_type" disabled>
             <el-radio
               v-for="item in houseTypeOptions[form.rent_type]"
               :key="item.value"
               :label="item.label"
-            />
-          </el-radio-group>
-        </el-form-item>
-        <el-form-item label="户型" prop="house_type" v-else>
-          <el-radio-group v-model="form.house_type" disabled>
-            <el-radio
-              v-for="item in houseTypeOptions[form.rent_type]"
-              :key="item"
-              :label="item"
             />
           </el-radio-group>
         </el-form-item>
@@ -455,6 +441,7 @@
               :key="item.value"
               :label="item.label"
               name="feature"
+              :disabled="!!item.disabled"
             />
           </el-checkbox-group>
         </el-form-item>
@@ -508,6 +495,7 @@
         title="上传前会先把你当前已上架房源全部下架，再按本次 Excel 内容重新上架。"
         class="mb-4"
       />
+      <el-link underline="always" type="primary" href="http://img.zhaofangjishi.com/house/house-batch-upload-example.xlsx" target="_blank" class="mb-4">下载模板</el-link>
       <el-upload
         drag
         :auto-upload="false"
@@ -539,7 +527,7 @@
       <template #footer>
         <div class="dialog-footer">
           <el-button @click="closeBatchUploadDialog">取 消</el-button>
-          <el-button type="primary" :disabled="!batchFile" @click="submitBatchUpload">开始导入</el-button>
+          <el-button type="primary" :disabled="!batchFile || batchUploadLoading" @click="submitBatchUpload" :loading="batchUploadLoading">开始导入</el-button>
         </div>
       </template>
     </el-dialog>
@@ -596,6 +584,7 @@ const batchUploadDialog = ref(false);
 const batchFileList = ref([]);
 const batchFile = ref(null);
 const batchUploadResult = ref(null);
+const batchUploadLoading = ref(false);
 
 // 分页
 const handleSizeChange = (val) => {
@@ -635,10 +624,11 @@ const getTableData = async () => {
     page: page.value,
     pageSize: pageSize.value,
     ...searchInfo.value,
+    xiaoquId: Number(searchInfo.value.xiaoquId),
   });
 
   if (table.code === 0) {
-    tableData.value = table.data.list;
+    tableData.value = table.data.list || [];
     total.value = table.data.total;
     page.value = table.data.page;
     pageSize.value = table.data.pageSize;
@@ -723,6 +713,7 @@ const selectXiaoQu = (val) => {
     xiaoqu: "",
     xiaoqu_id: "",
     door_no: "",
+    feature: preForm.rent_type === '房东房源' ? ['协助对接房东', '可带看分佣'] : [],
   };
   setTimeout(() => {
     form.value.xiaoqu = xiaoquOptions.value.find((item) => item.value === val).label;
@@ -830,14 +821,20 @@ const submitBatchUpload = async () => {
     ElMessage.warning("请先选择 Excel 文件");
     return;
   }
-  // 走 FormData 上传，直接对接后端的 /house/batchUpload。
-  const payload = new FormData();
-  payload.append("file", batchFile.value);
-  const res = await batchUploadHouse(payload);
-  if (res.code === 0) {
-    batchUploadResult.value = res.data;
-    ElMessage.success("批量上传完成");
-    getTableData();
+  
+  batchUploadLoading.value = true;
+  
+  try {
+    const payload = new FormData();
+    payload.append("file", batchFile.value);
+    const res = await batchUploadHouse(payload);
+    if (res.code === 0) {
+      batchUploadResult.value = res.data;
+      ElMessage.success("批量上传完成");
+      getTableData();
+    }
+  } finally {
+    batchUploadLoading.value = false;
   }
 };
 
@@ -864,7 +861,7 @@ const handeleGetHouseOptions = async () => {
           .feature.map((f) => {
             return {
               value: f,
-              label: f,
+              label: f
             };
           });
 
@@ -886,6 +883,12 @@ const handleRentTypeChange = (value) => {
     xiaoqu: "",
     door_no: "",
   };
+  if (value === "房东房源") {
+    form.value.feature = ['协助对接房东', '可带看分佣'];
+    featureOptions.value[value].map((f) => {
+      f.disabled = (f.value === '协助对接房东' || f.value === '可带看分佣');
+    })
+   }
 };
 
 const handleDoorNoChange = (value) => {
@@ -901,6 +904,7 @@ const handleDoorNoChange = (value) => {
     unit_id: value[1],
     house_id: value[2],
     door_no: value,
+    feature: preForm.rent_type === '房东房源' ? ['协助对接房东', '可带看分佣'] : [],
   };
 };
 
@@ -918,6 +922,7 @@ const handleHouseTypeChange = (value) => {
     house_type: value,
     house_id: preForm.house_id,
     room_code: preForm.room_code,
+    feature: preForm.rent_type === '房东房源' ? ['协助对接房东', '可带看分佣'] : [],
   };
 };
 
@@ -984,10 +989,16 @@ const handleEditHouse = (row) => {
   form.value = {
     ...row,
     feature: row.feature.split(","),
-    fileList: row.attachments.house.map((item) => ({
+    fileList: row.attachments.house?.map((item) => ({
       url: item.url,
     })),
   };
+  featureOptions.value[row.rent_type].map((f) => {
+    f.disabled = row.rent_type === '房东房源' && (f.value === '协助对接房东' || f.value === '可带看分佣');
+  })
+
+  console.log(houseTypeOptions.value);
+  console.log(form.value);
 };
 //关闭编辑房源弹框
 const closeEditHouseDialog = () => {
