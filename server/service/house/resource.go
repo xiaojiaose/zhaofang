@@ -44,11 +44,11 @@ func (service *ResourceService) FilterOptions1() (list []request.RentType, err e
 			HouseType: []string{"2居", "3居", "4居+"}, // 可短租、有电梯，有独卫，有阳台，可做饭、纯女生
 			Feature:   []string{"带阳台", "可短租", "有电梯", "有独卫", "可做饭", "纯女生", "协助对接房东", "可带看分佣"},
 		},
-		request.RentType{
-			Name:      "房东房源",
-			HouseType: []string{"1居", "2居", "3居", "4居+", "开间"}, // 可短租，有电梯，可注册办公，密码看房、包物业
-			Feature:   []string{"可短租", "包物业", "有电梯", "密码看房", "可办公注册", "协助对接房东", "可带看分佣"},
-		},
+		//request.RentType{
+		//	Name:      "房东房源",
+		//	HouseType: []string{"1居", "2居", "3居", "4居+", "开间"}, // 可短租，有电梯，可注册办公，密码看房、包物业
+		//	Feature:   []string{"可短租", "包物业", "有电梯", "密码看房", "可办公注册", "协助对接房东", "可带看分佣"},
+		//},
 	)
 
 	return
