@@ -649,8 +649,6 @@ const submitEdit = async () => {
       } else {
         await loadDictTree(currentXiaoqu.value.ID);
       }
-    } else {
-      ElMessage.error(res.msg || "操作失败");
     }
   } catch (error) {
     if (error !== false) {

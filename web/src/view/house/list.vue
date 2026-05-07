@@ -389,22 +389,25 @@
           <br />
           <el-text class="mx-1" type="info">户室信息将不在用户端展示具体信息</el-text>
         </el-form-item>
-        <!-- <el-form-item label="房间号" prop="house_id" v-if="form.rent_type === '合租'">
+        <el-form-item label="房间号" prop="room_code" v-if="form.rent_type !== '整租' && form.rent_type !== '房东房源'">
           <el-select
-            v-model="form.house_id"
+            v-model="form.room_code"
             class="m-2"
             placeholder="请选择房间号"
             style="width: 240px"
+            disabled
           >
             <el-option
-              v-for="item in [1,2,3,4,5,6,7,8,9,10]"
+              v-for="item in ['1', '2', '3', '4', '5', '6', '7', '8']"
               :key="item"
               :label="item"
               :value="item"
             />
           </el-select>
-          <el-text class="mx-1" type="info">注：自进门右手起，逆时针数，不区分空间功能，第一间为1号，房间有门即算。</el-text>
-        </el-form-item> -->
+          <el-text class="mx-1" type="info"
+            >注：自进门右手起，逆时针数，不区分空间功能，第一间为1号，房间有门即算。</el-text
+          >
+        </el-form-item>
         <el-form-item label="户型" prop="house_type">
           <el-radio-group v-model="form.house_type" disabled>
             <el-radio
@@ -524,7 +527,7 @@
       <template #footer>
         <div class="dialog-footer">
           <el-button @click="closeBatchUploadDialog">取 消</el-button>
-          <el-button type="primary" :disabled="!batchFile" @click="submitBatchUpload">开始导入</el-button>
+          <el-button type="primary" :disabled="!batchFile || batchUploadLoading" @click="submitBatchUpload" :loading="batchUploadLoading">开始导入</el-button>
         </div>
       </template>
     </el-dialog>
@@ -581,6 +584,7 @@ const batchUploadDialog = ref(false);
 const batchFileList = ref([]);
 const batchFile = ref(null);
 const batchUploadResult = ref(null);
+const batchUploadLoading = ref(false);
 
 // 分页
 const handleSizeChange = (val) => {
@@ -817,14 +821,20 @@ const submitBatchUpload = async () => {
     ElMessage.warning("请先选择 Excel 文件");
     return;
   }
-  // 走 FormData 上传，直接对接后端的 /house/batchUpload。
-  const payload = new FormData();
-  payload.append("file", batchFile.value);
-  const res = await batchUploadHouse(payload);
-  if (res.code === 0) {
-    batchUploadResult.value = res.data;
-    ElMessage.success("批量上传完成");
-    getTableData();
+  
+  batchUploadLoading.value = true;
+  
+  try {
+    const payload = new FormData();
+    payload.append("file", batchFile.value);
+    const res = await batchUploadHouse(payload);
+    if (res.code === 0) {
+      batchUploadResult.value = res.data;
+      ElMessage.success("批量上传完成");
+      getTableData();
+    }
+  } finally {
+    batchUploadLoading.value = false;
   }
 };
 
