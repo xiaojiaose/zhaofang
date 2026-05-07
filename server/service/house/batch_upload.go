@@ -146,11 +146,12 @@ func (service *ResourceService) BatchUpload(userID uint, header *multipart.FileH
 		}
 
 		var entity house.Resource
-		// 批量导入的“同一条房源”判定：同账号 + 小区 + 楼栋 + 单元 + 门牌号。
+		// 批量导入的“同一条房源”判定：同账号 + 小区 + 楼栋 + 单元 + 门牌号 + 房间号。
+		// 这样同一户室下的多条合租（房间号不同）不会互相覆盖。
 		// 这里使用楼盘字典 openId 匹配，避免“1号楼/1”等展示文本差异导致误新增。
 		findErr := global.GVA_DB.Where(
-			"owner = ? AND xiaoqu_id = ? AND building_id = ? AND unit_id = ? AND house_id = ?",
-			userID, xq.ID, buildingID, unitID, houseID,
+			"owner = ? AND xiaoqu_id = ? AND building_id = ? AND unit_id = ? AND house_id = ? AND room_code = ?",
+			userID, xq.ID, buildingID, unitID, houseID, roomCode,
 		).First(&entity).Error
 		if findErr != nil {
 			// 首次导入的新房源，尽量复用历史模板补齐更多字段（楼层、面积、字典ID、联系方式、图片等），

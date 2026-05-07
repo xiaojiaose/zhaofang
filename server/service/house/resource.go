@@ -18,8 +18,9 @@ type ResourceService struct{}
 
 func (service *ResourceService) FilterOptions() (list map[string]map[string]string, err error) {
 	list = make(map[string]map[string]string)
-	list["rentType"] = map[string]string{"1": "整租", "2": "分整租", "3": "合租", "4": "房东房源"}
-	list["houseType"] = map[string]string{"1": "1居", "2": "2居", "3": "3居", "4": "4居+", "5": "开间", "6": "主卧", "7": "次卧", "8": "暗间", "9": "房东房源"}
+	//list["rentType"] = map[string]string{"1": "整租", "2": "分整租", "3": "合租", "4": "房东房源"}
+	list["rentType"] = map[string]string{"1": "整租", "2": "分整租", "3": "合租"}
+	list["houseType"] = map[string]string{"1": "1居", "2": "2居", "3": "3居", "4": "4居+", "5": "开间", "6": "主卧", "7": "次卧", "8": "暗间"}
 	list["feature"] = map[string]string{"1": "可短租", "2": "包物业", "3": "南北通透", "4": "全南项", "5": "协助对接房东", "6": "可带看分佣"}
 	list["price"] = map[string]string{"1": "500以下", "2": "500-1000元", "3": "1000-1500元", "4": "1500-2000元", "5": "2000-2500元", "6": "2500-3000元", "7": "3000元以上"}
 

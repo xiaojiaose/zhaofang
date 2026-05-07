@@ -171,6 +171,20 @@ func isLandlordResource(resource house.Resource) bool {
 	rentType := strings.TrimSpace(resource.RentType)
 	return strings.Contains(houseTyp, "房东房源") || strings.Contains(rentType, "房东房源")
 }
+func applyHouseSourceCondition(condition *searchx.Condition, houseSource string, allowTeam bool) {
+	for _, item := range strings.Split(houseSource, ",") {
+		switch strings.TrimSpace(item) {
+		case "commission", "有返佣":
+			condition.Ranges = append(condition.Ranges, searchx.Range{Field: "commission_price", GreatEqual: "1"})
+		case "landlord", "房东房源":
+			condition.Terms = append(condition.Terms, searchx.Term{Field: "rent_type", Value: "房东房源"})
+		case "team", "团队房源":
+			if allowTeam {
+				condition.Terms = append(condition.Terms, searchx.Term{Field: "is_team_house", Value: "1"})
+			}
+		}
+	}
+}
 
 // @Tags      Center
 // @Summary   [变更] 地图聚合查询房源小区列表
@@ -231,19 +245,7 @@ func (h *HouseResourceApi) ListByXiaoquAgg(c *gin.Context) {
 	}
 
 	if len(req.HouseSource) > 0 {
-		for _, f := range strings.Split(req.HouseSource, ",") {
-			switch f {
-			case "commission":
-				condition.Ranges = append(condition.Ranges, searchx.Range{Field: "commission_price", GreatEqual: "1"})
-			case "landlord":
-				condition.Terms = append(condition.Terms, searchx.Term{Field: "house_type", Value: "房东房源"})
-			case "team":
-				if userHasTeamPermission(utils.GetUserID(c)) {
-					// 只有带找房超市标识的用户，才允许主动筛团队房源。
-					condition.Terms = append(condition.Terms, searchx.Term{Field: "is_team_house", Value: "1"})
-				}
-			}
-		}
+		applyHouseSourceCondition(&condition, req.HouseSource, userHasTeamPermission(utils.GetUserID(c)))
 	}
 
 	if req.Price > 0 {
@@ -340,15 +342,8 @@ func (h *HouseResourceApi) ListByXiaoquAggList(c *gin.Context) {
 		// 聚合接口和列表接口都需要做同样的权限兜底，避免两边数据口径不一致。
 		condition.Terms = append(condition.Terms, searchx.Term{Field: "is_team_house", Value: "0"})
 	}
-	switch req.HouseSource {
-	case "commission":
-		condition.Ranges = append(condition.Ranges, searchx.Range{Field: "commission_price", GreatEqual: "1"})
-	case "landlord":
-		condition.Terms = append(condition.Terms, searchx.Term{Field: "house_type", Value: "房东房源"})
-	case "team":
-		if userHasTeamPermission(utils.GetUserID(c)) {
-			condition.Terms = append(condition.Terms, searchx.Term{Field: "is_team_house", Value: "1"})
-		}
+	if len(req.HouseSource) > 0 {
+		applyHouseSourceCondition(&condition, req.HouseSource, userHasTeamPermission(utils.GetUserID(c)))
 	}
 	if req.Price > 0 {
 		priceOption := ResourceService.GetPriceByOption(strconv.Itoa(req.Price))
@@ -756,9 +751,10 @@ func (h *HouseResourceApi) FilterOptions(c *gin.Context) {
 	}
 
 	response.OkWithDetailed(map[string]interface{}{
-		"houseType":        options,
-		"price":            map[string]string{"1": "500以下", "2": "500-1000元", "3": "1000-1500元", "4": "1500-2000元", "5": "2000-2500元", "6": "2500-3000元", "7": "3000元以上"},
-		"houseSource":      map[string]string{"1": "不限", "2": "有返佣", "3": "房东房源", "4": "团队房源"},
+		"houseType": options,
+		"price":     map[string]string{"1": "500以下", "2": "500-1000元", "3": "1000-1500元", "4": "1500-2000元", "5": "2000-2500元", "6": "2500-3000元", "7": "3000元以上"},
+		//"houseSource":      map[string]string{"2": "有返佣", "3": "房东房源", "4": "团队房源"},
+		"houseSource":      map[string]string{"2": "有返佣", "4": "团队房源"},
 		"canViewTeamHouse": userHasTeamPermission(utils.GetUserID(c)),
 	}, "获取成功", c)
 
@@ -779,12 +775,14 @@ func (h *HouseResourceApi) FilterTypeOptions(c *gin.Context) {
 	}
 
 	re := map[string]interface{}{
-		"houseType":   options,
-		"price":       map[string]string{"1": "500以下", "2": "500-1000元", "3": "1000-1500元", "4": "1500-2000元", "5": "2000-2500元", "6": "2500-3000元", "7": "3000元以上"},
-		"houseSource": map[string]string{"1": "不限", "2": "有返佣", "3": "房东房源"},
+		"houseType": options,
+		"price":     map[string]string{"1": "500以下", "2": "500-1000元", "3": "1000-1500元", "4": "1500-2000元", "5": "2000-2500元", "6": "2500-3000元", "7": "3000元以上"},
+		//"houseSource": map[string]string{"2": "有返佣", "3": "房东房源"},
+		"houseSource": map[string]string{"2": "有返佣"},
 	}
 	if userHasTeamPermission(utils.GetUserID(c)) {
-		re["houseSource"] = map[string]string{"1": "不限", "2": "有返佣", "3": "房东房源", "4": "团队房源"}
+		//re["houseSource"] = map[string]string{"2": "有返佣", "3": "房东房源", "4": "团队房源"}
+		re["houseSource"] = map[string]string{"2": "有返佣", "4": "团队房源"}
 	}
 	response.OkWithDetailed(re, "获取成功", c)
 

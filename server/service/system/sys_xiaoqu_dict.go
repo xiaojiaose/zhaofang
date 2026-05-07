@@ -167,6 +167,10 @@ func (s *XiaoQuService) upsertBuilding(tx *gorm.DB, communityID int, op sysReq.X
 		return errors.New("楼栋名称不能为空")
 	}
 	if op.ID == 0 {
+		var existing houseModel.DictBuilding
+		if err := tx.Where("community_id = ? AND encrypt_building_name = ?", communityID, name).First(&existing).Error; err == nil {
+			return errors.New("楼栋名称已存在")
+		}
 		record := houseModel.DictBuilding{
 			CommunityID:         communityID,
 			EncryptBuildingName: name,
@@ -180,6 +184,10 @@ func (s *XiaoQuService) upsertBuilding(tx *gorm.DB, communityID int, op sysReq.X
 	var record houseModel.DictBuilding
 	if err := tx.Where("id = ? AND community_id = ?", op.ID, communityID).First(&record).Error; err != nil {
 		return fmt.Errorf("楼栋ID不存在: %d", op.ID)
+	}
+	var existing houseModel.DictBuilding
+	if err := tx.Where("community_id = ? AND encrypt_building_name = ? AND id != ?", communityID, name, op.ID).First(&existing).Error; err == nil {
+		return errors.New("楼栋名称已存在")
 	}
 	record.EncryptBuildingName = name
 	return tx.Save(&record).Error
@@ -199,6 +207,10 @@ func (s *XiaoQuService) upsertUnit(tx *gorm.DB, communityID int, op sysReq.XiaoQ
 		if err := tx.Where("building_open_id = ? AND community_id = ?", buildingOpenID, communityID).First(&building).Error; err != nil {
 			return fmt.Errorf("楼栋OpenID不存在: %s", buildingOpenID)
 		}
+		var existing houseModel.DictUnit
+		if err := tx.Where("building_open_id = ? AND encrypt_unit_name = ?", buildingOpenID, name).First(&existing).Error; err == nil {
+			return errors.New("单元名称已存在")
+		}
 		record := houseModel.DictUnit{
 			BuildingOpenID:  building.BuildingOpenID,
 			EncryptUnitName: name,
@@ -216,6 +228,10 @@ func (s *XiaoQuService) upsertUnit(tx *gorm.DB, communityID int, op sysReq.XiaoQ
 	var building houseModel.DictBuilding
 	if err := tx.Where("building_open_id = ? AND community_id = ?", record.BuildingOpenID, communityID).First(&building).Error; err != nil {
 		return fmt.Errorf("单元ID不存在: %d", op.ID)
+	}
+	var existing houseModel.DictUnit
+	if err := tx.Where("building_open_id = ? AND encrypt_unit_name = ? AND id != ?", record.BuildingOpenID, name, op.ID).First(&existing).Error; err == nil {
+		return errors.New("单元名称已存在")
 	}
 	record.EncryptUnitName = name
 	return tx.Save(&record).Error
@@ -239,6 +255,10 @@ func (s *XiaoQuService) upsertHouse(tx *gorm.DB, communityID int, op sysReq.Xiao
 		if err := tx.Where("building_open_id = ? AND community_id = ?", unit.BuildingOpenID, communityID).First(&building).Error; err != nil {
 			return fmt.Errorf("单元OpenID不存在: %s", unitOpenID)
 		}
+		var existing houseModel.DictHouse
+		if err := tx.Where("unit_open_id = ? AND encrypt_house_name = ?", unitOpenID, name).First(&existing).Error; err == nil {
+			return errors.New("房号名称已存在")
+		}
 		record := houseModel.DictHouse{
 			UnitOpenId:       unit.UnitOpenID,
 			EncryptHouseName: name,
@@ -260,6 +280,10 @@ func (s *XiaoQuService) upsertHouse(tx *gorm.DB, communityID int, op sysReq.Xiao
 	var building houseModel.DictBuilding
 	if err := tx.Where("building_open_id = ? AND community_id = ?", unit.BuildingOpenID, communityID).First(&building).Error; err != nil {
 		return fmt.Errorf("房号ID不存在: %d", op.ID)
+	}
+	var existing houseModel.DictHouse
+	if err := tx.Where("unit_open_id = ? AND encrypt_house_name = ? AND id != ?", record.UnitOpenId, name, op.ID).First(&existing).Error; err == nil {
+		return errors.New("房号名称已存在")
 	}
 	record.EncryptHouseName = name
 	return tx.Save(&record).Error
