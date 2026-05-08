@@ -6,7 +6,7 @@ import (
 
 type XiaoQu struct {
 	global.GVA_MODEL
-	Name        string `json:"name"`                   // name
+	Name        string `json:"name" gorm:"index"`     // name
 	City        string `json:"city"  gorm:"default:1"` // city
 	Area        string `json:"area"`                   // area
 	AreaId      int    `json:"area_id"`                // area_id

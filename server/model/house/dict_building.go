@@ -8,8 +8,8 @@ import (
 type DictBuilding struct {
 	ID uint `gorm:"primarykey" json:"ID"` // 主键ID
 
-	BuildingOpenID      string `json:"buildingOpenId"`
-	CommunityID         int    `json:"communityId"`
+	BuildingOpenID      string `json:"buildingOpenId" gorm:"index:idx_building_open_id"`
+	CommunityID         int    `json:"communityId" gorm:"index:idx_community_id"`
 	EncryptBuildingName string `json:"buildingName"` // 注意：这里包含 Unicode 转义序列
 
 	CreatedAt time.Time      // 创建时间

@@ -8,9 +8,9 @@ import (
 type DictUnit struct {
 	ID uint `gorm:"primarykey" json:"ID"` // 主键ID
 
-	BuildingOpenID  string `json:"buildingOpenId"`
+	BuildingOpenID  string `json:"buildingOpenId" gorm:"index:idx_building_open_id"`
 	EncryptUnitName string `json:"encryptUnitName"` // 包含 Unicode 转义序列
-	UnitOpenID      string `json:"unitOpenId"`
+	UnitOpenID      string `json:"unitOpenId" gorm:"index:idx_unit_open_id"`
 
 	CreatedAt time.Time      // 创建时间
 	UpdatedAt time.Time      // 更新时间
