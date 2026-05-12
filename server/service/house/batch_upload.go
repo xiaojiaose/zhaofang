@@ -58,6 +58,9 @@ func (service *ResourceService) BatchUpload(userID uint, header *multipart.FileH
 	if len(rows) < 2 {
 		return nil, fmt.Errorf("excel 没有可导入数据")
 	}
+	if len(rows)-1 > 600 {
+		return nil, fmt.Errorf("单次导入不超过 600 条，已导入 %d 条", len(rows)-1)
+	}
 
 	headers := normalizeHeaders(rows[0])
 	batchNo := fmt.Sprintf("batch-%d", time.Now().UnixNano())

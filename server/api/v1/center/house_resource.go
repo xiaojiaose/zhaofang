@@ -171,6 +171,7 @@ func isLandlordResource(resource house.Resource) bool {
 	rentType := strings.TrimSpace(resource.RentType)
 	return strings.Contains(houseTyp, "房东房源") || strings.Contains(rentType, "房东房源")
 }
+// applyHouseSourceCondition moved to service/house/share_map.go
 func applyHouseSourceCondition(condition *searchx.Condition, houseSource string, allowTeam bool) {
 	for _, item := range strings.Split(houseSource, ",") {
 		switch strings.TrimSpace(item) {
@@ -186,7 +187,6 @@ func applyHouseSourceCondition(condition *searchx.Condition, houseSource string,
 	}
 }
 
-// @Tags      Center
 // @Summary   [变更] 地图聚合查询房源小区列表
 // @Description [变更接口] 支持返佣、房东房源、团队房源筛选；普通用户后端默认过滤团队房源。
 // @accept    application/json

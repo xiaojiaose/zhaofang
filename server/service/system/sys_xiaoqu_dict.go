@@ -190,7 +190,7 @@ func (s *XiaoQuService) upsertBuilding(tx *gorm.DB, communityID int, op sysReq.X
 		return errors.New("楼栋名称已存在")
 	}
 	record.EncryptBuildingName = name
-	return tx.Save(&record).Error
+	return tx.Model(&record).Select("encrypt_building_name").Updates(record).Error
 }
 
 func (s *XiaoQuService) upsertUnit(tx *gorm.DB, communityID int, op sysReq.XiaoQuDictUnitOp) error {
@@ -234,7 +234,7 @@ func (s *XiaoQuService) upsertUnit(tx *gorm.DB, communityID int, op sysReq.XiaoQ
 		return errors.New("单元名称已存在")
 	}
 	record.EncryptUnitName = name
-	return tx.Save(&record).Error
+	return tx.Model(&record).Select("encrypt_unit_name").Updates(record).Error
 }
 
 func (s *XiaoQuService) upsertHouse(tx *gorm.DB, communityID int, op sysReq.XiaoQuDictHouseOp) error {
@@ -286,7 +286,7 @@ func (s *XiaoQuService) upsertHouse(tx *gorm.DB, communityID int, op sysReq.Xiao
 		return errors.New("房号名称已存在")
 	}
 	record.EncryptHouseName = name
-	return tx.Save(&record).Error
+	return tx.Model(&record).Select("encrypt_house_name").Updates(record).Error
 }
 
 func (s *XiaoQuService) deleteBuilding(tx *gorm.DB, communityID int, buildingID uint) error {

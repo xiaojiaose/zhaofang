@@ -32,11 +32,20 @@ func NewGeoService() *GeoService {
 		Min: orb.Point{73.0, 18.0},  // 中国大致最西和最南
 		Max: orb.Point{135.0, 54.0}, // 中国大致最东和最北
 	}
-	//bound := orb.Bound{orb.Point{-180, -90}, orb.Point{180, 90}}
 	GeoSearch = &GeoService{
 		communityTree: quadtree.New(bound),
 	}
 	return GeoSearch
+}
+
+func NewGeoServiceWithoutGlobal() *GeoService {
+	bound := orb.Bound{
+		Min: orb.Point{73.0, 18.0},
+		Max: orb.Point{135.0, 54.0},
+	}
+	return &GeoService{
+		communityTree: quadtree.New(bound),
+	}
 }
 
 func (g *GeoService) AddCommunity(community *Community) error {

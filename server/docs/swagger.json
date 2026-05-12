@@ -4398,48 +4398,6 @@
             }
         },
         "/center/house/share": {
-            "get": {
-                "description": "[新增接口] 未登录也可访问；先返回按小区聚合后的地图点位，前端点击点位后再调用 /center/house/share/list 查看该小区下的房源。",
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "Center"
-                ],
-                "summary": "[新增] 通过分享token获取地图点位列表",
-                "parameters": [
-                    {
-                        "type": "string",
-                        "description": "分享token",
-                        "name": "token",
-                        "in": "query",
-                        "required": true
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "分享房源地图点位",
-                        "schema": {
-                            "allOf": [
-                                {
-                                    "$ref": "#/definitions/response.Response"
-                                },
-                                {
-                                    "type": "object",
-                                    "properties": {
-                                        "data": {
-                                            "$ref": "#/definitions/response.SharedMapResponse"
-                                        },
-                                        "msg": {
-                                            "type": "string"
-                                        }
-                                    }
-                                }
-                            ]
-                        }
-                    }
-                }
-            },
             "post": {
                 "description": "[新增接口] 为当前登录用户生成 7 天有效的房源地图分享 token。",
                 "consumes": [
@@ -4489,41 +4447,24 @@
             }
         },
         "/center/house/share/list": {
-            "get": {
-                "description": "[新增接口] 地图点位点击后调用，仍然通过 ZincSearch 按 owner + xiaoqu_id 过滤，再回表补全房源详情。",
+            "post": {
+                "description": "[变更接口] 地图点位点击后调用，仍然通过 ZincSearch 按 owner + xiaoqu_id 过滤，再回表补全房源详情。支持筛选条件。",
                 "produces": [
                     "application/json"
                 ],
                 "tags": [
                     "Center"
                 ],
-                "summary": "[新增] 通过分享token和小区ID获取点位下房源列表",
+                "summary": "[变更] 通过分享token和小区ID获取点位下房源列表（支持筛选）",
                 "parameters": [
                     {
-                        "type": "string",
-                        "description": "分享token",
-                        "name": "token",
-                        "in": "query",
-                        "required": true
-                    },
-                    {
-                        "type": "integer",
-                        "description": "小区ID",
-                        "name": "xiaoquId",
-                        "in": "query",
-                        "required": true
-                    },
-                    {
-                        "type": "integer",
-                        "description": "页码",
-                        "name": "page",
-                        "in": "query"
-                    },
-                    {
-                        "type": "integer",
-                        "description": "每页数量",
-                        "name": "pageSize",
-                        "in": "query"
+                        "description": "分享token、小区ID和筛选条件",
+                        "name": "data",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/request.ResourceShareListSearch"
+                        }
                     }
                 ],
                 "responses": {
@@ -4554,6 +4495,52 @@
                                                     }
                                                 }
                                             ]
+                                        },
+                                        "msg": {
+                                            "type": "string"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                }
+            }
+        },
+        "/center/house/share/map": {
+            "post": {
+                "description": "[变更接口] 未登录也可访问；先返回按小区聚合后的地图点位，前端点击点位后再调用 /center/house/share/list 查看该小区下的房源。支持筛选条件。",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Center"
+                ],
+                "summary": "[变更] 通过分享token获取地图点位列表（支持筛选）",
+                "parameters": [
+                    {
+                        "description": "分享token和筛选条件",
+                        "name": "data",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/request.ResourceShareSearch"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "分享房源地图点位",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/response.Response"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/response.SharedMapResponse"
                                         },
                                         "msg": {
                                             "type": "string"
@@ -4673,9 +4660,6 @@
                 ],
                 "produces": [
                     "application/json"
-                ],
-                "tags": [
-                    "Center"
                 ],
                 "summary": "[变更] 地图聚合查询房源小区列表",
                 "parameters": [
@@ -13078,6 +13062,98 @@
                 "expireDays": {
                     "description": "有效天数",
                     "type": "integer"
+                }
+            }
+        },
+        "request.ResourceShareListSearch": {
+            "type": "object",
+            "properties": {
+                "feature": {
+                    "description": "有无电梯",
+                    "type": "string"
+                },
+                "houseSource": {
+                    "description": "commission \\ landlord \\ team",
+                    "type": "string"
+                },
+                "houseType": {
+                    "description": "1居室、2居室",
+                    "type": "string"
+                },
+                "page": {
+                    "description": "页码",
+                    "type": "integer"
+                },
+                "pageSize": {
+                    "description": "每页大小",
+                    "type": "integer"
+                },
+                "price": {
+                    "description": "价格 1580",
+                    "type": "integer"
+                },
+                "rentType": {
+                    "description": "整租、合租、分整租",
+                    "type": "string"
+                },
+                "token": {
+                    "description": "分享token",
+                    "type": "string"
+                },
+                "xiaoquId": {
+                    "description": "小区ID",
+                    "type": "integer"
+                },
+                "xiaoquIds": {
+                    "description": "商圈ids",
+                    "type": "array",
+                    "items": {
+                        "type": "integer"
+                    }
+                }
+            }
+        },
+        "request.ResourceShareSearch": {
+            "type": "object",
+            "properties": {
+                "feature": {
+                    "description": "有无电梯",
+                    "type": "string"
+                },
+                "houseSource": {
+                    "description": "commission \\ landlord \\ team",
+                    "type": "string"
+                },
+                "houseType": {
+                    "description": "1居室、2居室",
+                    "type": "string"
+                },
+                "page": {
+                    "description": "页码",
+                    "type": "integer"
+                },
+                "pageSize": {
+                    "description": "每页大小",
+                    "type": "integer"
+                },
+                "price": {
+                    "description": "价格 1580",
+                    "type": "integer"
+                },
+                "rentType": {
+                    "description": "整租、合租、分整租",
+                    "type": "string"
+                },
+                "token": {
+                    "description": "分享token",
+                    "type": "string"
+                },
+                "xiaoquIds": {
+                    "description": "商圈ids",
+                    "type": "array",
+                    "items": {
+                        "type": "integer"
+                    }
                 }
             }
         },

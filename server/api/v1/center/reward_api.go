@@ -1,12 +1,14 @@
 package center
 
 import (
+	"fmt"
+	"github.com/flipped-aurora/gin-vue-admin/server/global"
 	"github.com/flipped-aurora/gin-vue-admin/server/model/common/request"
 	"github.com/flipped-aurora/gin-vue-admin/server/model/common/response"
 	response2 "github.com/flipped-aurora/gin-vue-admin/server/model/house/response"
 	"github.com/flipped-aurora/gin-vue-admin/server/utils"
 	"github.com/gin-gonic/gin"
-	"strconv"
+	"go.uber.org/zap"
 )
 
 // RewardRecent
@@ -166,21 +168,27 @@ func (h *HouseResourceApi) CreateShare(c *gin.Context) {
 
 // SharedMap
 // @Tags     Center
-// @Summary  [新增] 通过分享token获取地图点位列表
-// @Description [新增接口] 未登录也可访问；先返回按小区聚合后的地图点位，前端点击点位后再调用 /center/house/share/list 查看该小区下的房源。
+// @Summary  [变更] 通过分享token获取地图点位列表（支持筛选）
+// @Description [变更接口] 未登录也可访问；先返回按小区聚合后的地图点位，前端点击点位后再调用 /center/house/share/list 查看该小区下的房源。支持筛选条件。
 // @Produce  application/json
-// @Param    token  query     string  true  "分享token"
+// @Param    data  body      request.ResourceShareSearch  true  "分享token和筛选条件"
 // @Success  200    {object}  response.Response{data=response2.SharedMapResponse,msg=string}  "分享房源地图点位"
-// @Router   /center/house/share [get]
+// @Router   /center/house/share/map [post]
 func (h *HouseResourceApi) SharedMap(c *gin.Context) {
-	// 分享页未登录可访问，所以这里只依赖 token，不读登录态。
-	token := c.Query("token")
-	entity, err := ShareService.GetByToken(token)
+	var req request.ResourceShareSearch
+	if err := c.ShouldBindJSON(&req); err != nil {
+		response.FailWithMessage(err.Error(), c)
+		return
+	}
+	entity, err := ShareService.GetByToken(req.Token)
 	if err != nil {
 		response.FailWithMessage(err.Error(), c)
 		return
 	}
-	list, err := ResourceService.SharedMapAgg(entity.UserID)
+	global.GVA_LOG.Debug("sharedMap", zap.String("req", fmt.Sprintf("%+v", req)))
+	list, err := ResourceService.SharedMapAgg(entity.UserID, &req.ResourceSearch)
+	global.GVA_LOG.Debug("sharedMap list", zap.String("list", fmt.Sprintf("%+v", list)))
+
 	if err != nil {
 		response.FailWithMessage(err.Error(), c)
 		return
@@ -198,24 +206,20 @@ func (h *HouseResourceApi) SharedMap(c *gin.Context) {
 
 // SharedMapList
 // @Tags     Center
-// @Summary  [新增] 通过分享token和小区ID获取点位下房源列表
-// @Description [新增接口] 地图点位点击后调用，仍然通过 ZincSearch 按 owner + xiaoqu_id 过滤，再回表补全房源详情。
+// @Summary  [变更] 通过分享token和小区ID获取点位下房源列表（支持筛选）
+// @Description [变更接口] 地图点位点击后调用，仍然通过 ZincSearch 按 owner + xiaoqu_id 过滤，再回表补全房源详情。支持筛选条件。
 // @Produce  application/json
-// @Param    token    query     string  true  "分享token"
-// @Param    xiaoquId  query     int     true  "小区ID"
-// @Param    page      query     int     false "页码"
-// @Param    pageSize  query     int     false "每页数量"
+// @Param    data  body      request.ResourceShareListSearch  true  "分享token、小区ID和筛选条件"
 // @Success  200    {object}  response.Response{data=response.PageResult{list=[]house.Resource},msg=string}  "分享小区房源列表"
-// @Router   /center/house/share/list [get]
+// @Router   /center/house/share/list [post]
 func (h *HouseResourceApi) SharedMapList(c *gin.Context) {
-	token := c.Query("token")
-	entity, err := ShareService.GetByToken(token)
-	if err != nil {
+	var req request.ResourceShareListSearch
+	if err := c.ShouldBindJSON(&req); err != nil {
 		response.FailWithMessage(err.Error(), c)
 		return
 	}
-	var req request.PageInfo
-	if err := c.ShouldBindQuery(&req); err != nil {
+	entity, err := ShareService.GetByToken(req.Token)
+	if err != nil {
 		response.FailWithMessage(err.Error(), c)
 		return
 	}
@@ -225,9 +229,7 @@ func (h *HouseResourceApi) SharedMapList(c *gin.Context) {
 	if req.PageSize <= 0 {
 		req.PageSize = 20
 	}
-	xiaoquID := c.Query("xiaoquId")
-	xID, _ := strconv.Atoi(xiaoquID)
-	list, total, err := ResourceService.SharedMapList(entity.UserID, uint(xID), req)
+	list, total, err := ResourceService.SharedMapList(entity.UserID, req.XiaoquID, request.PageInfo{Page: req.Page, PageSize: req.PageSize}, &req.ResourceSearch)
 	if err != nil {
 		response.FailWithMessage(err.Error(), c)
 		return

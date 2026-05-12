@@ -66,7 +66,7 @@ func (receiver *XiaoQuApi) Distance(c *gin.Context) {
 	// 1. 定义目标点
 	point := orb.Point{lat, lng} // orb使用[Lng, Lat]顺序
 	//point := orb.Point{116.3974, 39.9093} // 北京
-	radius := 1000.0 // 1公里
+	radius := 2000.0 // 2公里
 
 	results, err := test12.GeoSearch.FindNearbyCommunities(point, radius)
 	if err != nil {

@@ -84,17 +84,20 @@ func (h *HouseResourceApi) ApprovalStatus(c *gin.Context) {
 	}
 
 	approvalStatus := "未通过"
+	status := ""
 	if req.State == 1 {
 		approvalStatus = "通过"
+		status = "待出租" // 上架
+	} else if req.State == 2 {
+		status = "已下架" // 下架
 	}
-	err = ResourceService.SetApprovalStatus(req.Ids, approvalStatus)
+	err = ResourceService.SetApprovalStatus(req.Ids, approvalStatus, status)
 	if err != nil {
 		global.GVA_LOG.Error("获取失败!", zap.Error(err))
 		response.FailWithMessage(err.Error(), c)
 		return
 	}
 	response.Ok(c)
-	return
 }
 
 // @Tags      Admin

@@ -33,20 +33,20 @@ func (s *CenterRouter) InitCenterAuthRouter(Router *gin.RouterGroup, publicRoute
 		houseRouterRecord.POST("profile", centerApi.SetWxProfile)
 		houseRouterRecord.POST("xiaoqu/list", xiaoQuApi.List) //
 		houseRouterRecord.GET("xiaoqu/show", xiaoQuApi.Show)
-		houseRouter.GET("distance", xiaoQuApi.Distance)         //
-		houseRouter.GET("distanceTree", xiaoQuApi.DistanceTree) //
+		public.GET("distance", xiaoQuApi.Distance)         //
+		public.GET("distanceTree", xiaoQuApi.DistanceTree) //
 
 		houseRouter.GET("test", resourceApi.Test) //
-		houseRouter.GET("area", resourceApi.FilterArea)
-		houseRouter.GET("options", resourceApi.FilterOptions)
-		houseRouter.GET("/type/options", resourceApi.FilterTypeOptions)
+		public.GET("area", resourceApi.FilterArea)
+		public.GET("options", resourceApi.FilterOptions)
+		public.GET("/type/options", resourceApi.FilterTypeOptions)
 		houseRouterRecord.POST("house/create", resourceApi.Create)
 		houseRouterRecord.POST("/house/del", resourceApi.DeleteByUserId)
 		public.GET("/house/view", resourceApi.View)
 		public.GET("/house/shared", resourceApi.Shared)
 		houseRouterRecord.GET("house/mobile", resourceApi.GetMobile)
-		public.GET("/house/share", resourceApi.SharedMap)
-		public.GET("/house/share/list", resourceApi.SharedMapList)
+		public.POST("/house/share/map", resourceApi.SharedMap)
+		public.POST("/house/share/list", resourceApi.SharedMapList)
 		houseRouterRecord.POST("house/share", resourceApi.CreateShare)
 		houseRouter.POST("house/xiaoquAgg", resourceApi.ListByXiaoquAgg)
 		houseRouter.POST("house/xiaoquAggList", resourceApi.ListByXiaoquAggList)

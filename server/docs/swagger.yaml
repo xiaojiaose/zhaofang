@@ -1783,6 +1783,73 @@ definitions:
         description: 有效天数
         type: integer
     type: object
+  request.ResourceShareListSearch:
+    properties:
+      feature:
+        description: 有无电梯
+        type: string
+      houseSource:
+        description: commission \ landlord \ team
+        type: string
+      houseType:
+        description: 1居室、2居室
+        type: string
+      page:
+        description: 页码
+        type: integer
+      pageSize:
+        description: 每页大小
+        type: integer
+      price:
+        description: 价格 1580
+        type: integer
+      rentType:
+        description: 整租、合租、分整租
+        type: string
+      token:
+        description: 分享token
+        type: string
+      xiaoquId:
+        description: 小区ID
+        type: integer
+      xiaoquIds:
+        description: 商圈ids
+        items:
+          type: integer
+        type: array
+    type: object
+  request.ResourceShareSearch:
+    properties:
+      feature:
+        description: 有无电梯
+        type: string
+      houseSource:
+        description: commission \ landlord \ team
+        type: string
+      houseType:
+        description: 1居室、2居室
+        type: string
+      page:
+        description: 页码
+        type: integer
+      pageSize:
+        description: 每页大小
+        type: integer
+      price:
+        description: 价格 1580
+        type: integer
+      rentType:
+        description: 整租、合租、分整租
+        type: string
+      token:
+        description: 分享token
+        type: string
+      xiaoquIds:
+        description: 商圈ids
+        items:
+          type: integer
+        type: array
+    type: object
   request.RewardApplicationAction:
     properties:
       action:
@@ -6003,32 +6070,6 @@ paths:
       tags:
       - Center
   /center/house/share:
-    get:
-      description: '[新增接口] 未登录也可访问；先返回按小区聚合后的地图点位，前端点击点位后再调用 /center/house/share/list
-        查看该小区下的房源。'
-      parameters:
-      - description: 分享token
-        in: query
-        name: token
-        required: true
-        type: string
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: 分享房源地图点位
-          schema:
-            allOf:
-            - $ref: '#/definitions/response.Response'
-            - properties:
-                data:
-                  $ref: '#/definitions/response.SharedMapResponse'
-                msg:
-                  type: string
-              type: object
-      summary: '[新增] 通过分享token获取地图点位列表'
-      tags:
-      - Center
     post:
       consumes:
       - application/json
@@ -6058,27 +6099,15 @@ paths:
       tags:
       - Center
   /center/house/share/list:
-    get:
-      description: '[新增接口] 地图点位点击后调用，仍然通过 ZincSearch 按 owner + xiaoqu_id 过滤，再回表补全房源详情。'
+    post:
+      description: '[变更接口] 地图点位点击后调用，仍然通过 ZincSearch 按 owner + xiaoqu_id 过滤，再回表补全房源详情。支持筛选条件。'
       parameters:
-      - description: 分享token
-        in: query
-        name: token
+      - description: 分享token、小区ID和筛选条件
+        in: body
+        name: data
         required: true
-        type: string
-      - description: 小区ID
-        in: query
-        name: xiaoquId
-        required: true
-        type: integer
-      - description: 页码
-        in: query
-        name: page
-        type: integer
-      - description: 每页数量
-        in: query
-        name: pageSize
-        type: integer
+        schema:
+          $ref: '#/definitions/request.ResourceShareListSearch'
       produces:
       - application/json
       responses:
@@ -6100,7 +6129,35 @@ paths:
                 msg:
                   type: string
               type: object
-      summary: '[新增] 通过分享token和小区ID获取点位下房源列表'
+      summary: '[变更] 通过分享token和小区ID获取点位下房源列表（支持筛选）'
+      tags:
+      - Center
+  /center/house/share/map:
+    post:
+      description: '[变更接口] 未登录也可访问；先返回按小区聚合后的地图点位，前端点击点位后再调用 /center/house/share/list
+        查看该小区下的房源。支持筛选条件。'
+      parameters:
+      - description: 分享token和筛选条件
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/request.ResourceShareSearch'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 分享房源地图点位
+          schema:
+            allOf:
+            - $ref: '#/definitions/response.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/response.SharedMapResponse'
+                msg:
+                  type: string
+              type: object
+      summary: '[变更] 通过分享token获取地图点位列表（支持筛选）'
       tags:
       - Center
   /center/house/shared:
@@ -6191,8 +6248,6 @@ paths:
                   type: array
               type: object
       summary: '[变更] 地图聚合查询房源小区列表'
-      tags:
-      - Center
   /center/house/xiaoquAggList:
     post:
       consumes:

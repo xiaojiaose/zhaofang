@@ -167,9 +167,23 @@ type ResourceSearch struct {
 	Price       int    `json:"price"`       // 价格 1580
 	Feature     string `json:"feature"`     // 有无电梯
 	HouseSource string `json:"houseSource"` // commission \ landlord \ team
+	Page        int    `json:"page"`        // 页码
+	PageSize    int    `json:"pageSize"`    // 每页大小
+}
 
-	Page     int `json:"page" form:"page"`         // 页码
-	PageSize int `json:"pageSize" form:"pageSize"` // 每页大小
+type ResourceShareSearch struct {
+	Token string `json:"token"` // 分享token
+	ResourceSearch
+	Page     int `json:"page"`         // 页码
+	PageSize int `json:"pageSize"`     // 每页大小
+}
+
+type ResourceShareListSearch struct {
+	Token    string `json:"token"`    // 分享token
+	XiaoquID uint   `json:"xiaoquId"` // 小区ID
+	ResourceSearch
+	Page     int `json:"page"`         // 页码
+	PageSize int `json:"pageSize"`     // 每页大小
 }
 
 type RewardApplicationCreate struct {
