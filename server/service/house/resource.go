@@ -204,7 +204,7 @@ func (service *ResourceService) FollowViewClickAdd(id uint, field string) (err e
 }
 
 func (service *ResourceService) FollowViewClickSub(id uint, field string) (err error) {
-	err = global.GVA_DB.Model(&house.Resource{}).Where("id = ? ", id).UpdateColumn(field, gorm.Expr(fmt.Sprintf("%s - ?", field), 1)).Error
+	err = global.GVA_DB.Model(&house.Resource{}).Where("id = ? AND "+field+" > 0", id).UpdateColumn(field, gorm.Expr(fmt.Sprintf("%s - ?", field), 1)).Error
 	return
 }
 
