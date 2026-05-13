@@ -69,7 +69,7 @@ func (service *ResourceService) GetPriceByOption(key string) []int {
 }
 
 func (service *ResourceService) CreateOrUpdate(resource *house.Resource) (err error) {
-	// 房源的“团队房源标识”和默认联系方式都依赖发布人资料，
+	// 房源的"团队房源标识"和默认联系方式都依赖发布人资料，
 	// 每次保存前都重新补齐，避免前端漏传或传了旧值。
 	if err = service.fillUserRelatedFields(resource); err != nil {
 		return err
@@ -151,7 +151,7 @@ func (service *ResourceService) GetInfo(id uint) (resource *house.Resource, err 
 }
 
 func (service *ResourceService) SyncIndexByIDs(ids []uint) error {
-	// 任何“先改 DB，再查 Zinc”的链路都可能遇到索引延迟。
+	// 任何"先改 DB，再查 Zinc"的链路都可能遇到索引延迟。
 	// 这里提供统一的按房源 ID 回写入口，确保状态/团队标识等关键字段能及时落到 Zinc。
 	if len(ids) == 0 {
 		return nil
@@ -170,7 +170,7 @@ func (service *ResourceService) SyncIndexByIDs(ids []uint) error {
 
 func (service *ResourceService) SyncIndexByOwner(owner uint) error {
 	// 用户维度变更（例如找房超市标识）会影响其名下全部房源在地图中的可见性。
-	// 该方法用于“按 owner 一次性全量回写索引”。
+	// 该方法用于"按 owner 一次性全量回写索引"。
 	if owner == 0 {
 		return nil
 	}
@@ -233,9 +233,13 @@ func (service *ResourceService) SetState(ids []uint, value string) (err error) {
 	}
 	return
 }
-func (service *ResourceService) SetApprovalStatus(ids []uint, value string) (err error) {
-	// 现有审核通过逻辑会顺带把状态切回“待出租”，保持和原有后台审核行为一致。
-	err = global.GVA_DB.Model(&house.Resource{}).Where("id in ? ", ids).Updates(map[string]interface{}{"approval_status": value, "status": "待出租"}).Error
+func (service *ResourceService) SetApprovalStatus(ids []uint, approvalStatus string, status string) (err error) {
+	updates := make(map[string]interface{})
+	updates["approval_status"] = approvalStatus
+	if status != "" {
+		updates["status"] = status
+	}
+	err = global.GVA_DB.Model(&house.Resource{}).Where("id in ?", ids).Updates(updates).Error
 	if err == nil {
 		for _, id := range ids {
 			info, e := service.GetInfo(id)
@@ -254,7 +258,7 @@ func (service *ResourceService) GetListByIds(ids []uint) (resources []*house.Res
 
 func (service *ResourceService) GetListByIdsSafe(ids []uint, status string, allowTeam bool) (resources []*house.Resource, err error) {
 	// 通过搜索引擎拿到 id 后，数据库层再做一次权限和状态兜底过滤，
-	// 防止索引延迟导致“已下架/无权限团队房源”被错误返回到小程序。
+	// 防止索引延迟导致"已下架/无权限团队房源"被错误返回到小程序。
 	if len(ids) == 0 {
 		return []*house.Resource{}, nil
 	}
@@ -288,7 +292,7 @@ func (service *ResourceService) GetListByIdsSafe(ids []uint, status string, allo
 
 func (service *ResourceService) GetPage(xiaoquId, userId uint, appStatus string, status string, info request.PageInfo, order string, desc bool, Other request.SearchOther) (list interface{}, total int64, err error) {
 	// 这里是后台和若干业务列表共用的数据库查询入口；
-	// ES 地图检索走另一条链路，但“我的房源”“后台审核列表”等仍然依赖这里的条件拼装。
+	// ES 地图检索走另一条链路，但"我的房源""后台审核列表"等仍然依赖这里的条件拼装。
 	limit := info.PageSize
 	offset := info.PageSize * (info.Page - 1)
 	db := global.GVA_DB.Model(&house.Resource{})
@@ -382,7 +386,7 @@ func (service *ResourceService) RefreshUserTeamHouses(userID uint, isTeam bool) 
 		return err
 	}
 	// 关键修复：用户标识变更后，立即同步其名下全部房源到 Zinc，
-	// 避免“DB 已改、索引未改”导致无权限用户仍看到团队房源。
+	// 避免"DB 已改、索引未改"导致无权限用户仍看到团队房源。
 	return service.SyncIndexByOwner(userID)
 }
 
@@ -414,7 +418,7 @@ func (service *ResourceService) ensurePublishQuota(userID uint, resourceID uint)
 	if user.PublishQuotaTotal <= 0 {
 		return errors.New("当前账号未开通上架权限")
 	}
-	// 编辑已上架房源时需要把自己排除掉，否则会把“保存已有房源”误判成超额。
+	// 编辑已上架房源时需要把自己排除掉，否则会把"保存已有房源"误判成超额。
 	count, err := service.CountOnShelfByUser(userID, resourceID)
 	if err != nil {
 		return err
