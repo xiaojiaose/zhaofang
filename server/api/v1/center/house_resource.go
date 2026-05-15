@@ -171,6 +171,7 @@ func isLandlordResource(resource house.Resource) bool {
 	rentType := strings.TrimSpace(resource.RentType)
 	return strings.Contains(houseTyp, "房东房源") || strings.Contains(rentType, "房东房源")
 }
+
 // applyHouseSourceCondition moved to service/house/share_map.go
 func applyHouseSourceCondition(condition *searchx.Condition, houseSource string, allowTeam bool) {
 	for _, item := range strings.Split(houseSource, ",") {
@@ -255,16 +256,60 @@ func (h *HouseResourceApi) ListByXiaoquAgg(c *gin.Context) {
 		condition.Ranges = append(condition.Ranges, searchx.Range{Field: "price", GreatEqual: fmt.Sprintf("%d", g), LessEqual: fmt.Sprintf("%d", l)})
 	}
 
-	for _, i := range req.XiaoquId {
-		condition.Ors[0].Terms = append(condition.Ors[0].Terms, searchx.Term{Field: "xiaoqu_id", Value: strconv.Itoa(i)})
+	xiaoquAgg := map[string]int{}
+	searchAgg := func(searchCondition searchx.Condition) error {
+		_, _, agg, searchErr := global.Gva_ResourceSearch.SearchAgg(context.Background(), searchCondition, searchx.QueryParams{
+			Fields: []string{"id", "xiaoqu", "xiaoqu_id"},
+			Size:   0,
+		})
+		if searchErr != nil {
+			return searchErr
+		}
+		for id, num := range agg["xiaoqu_id"] {
+			xiaoquAgg[id] += num
+		}
+		return nil
 	}
-	_, _, agg, err := global.Gva_ResourceSearch.SearchAgg(context.Background(), condition, searchx.QueryParams{
-		Fields: []string{"id", "xiaoqu", "xiaoqu_id"},
-		Size:   0,
-	})
+
+	if len(req.XiaoquId) > 0 {
+		xiaoquIds := make([]int, 0, len(req.XiaoquId))
+		seenXiaoquIds := map[int]struct{}{}
+		for _, id := range req.XiaoquId {
+			if _, ok := seenXiaoquIds[id]; ok {
+				continue
+			}
+			seenXiaoquIds[id] = struct{}{}
+			xiaoquIds = append(xiaoquIds, id)
+		}
+
+		const xiaoquAggChunkSize = 30
+		for start := 0; start < len(xiaoquIds); start += xiaoquAggChunkSize {
+			end := start + xiaoquAggChunkSize
+			if end > len(xiaoquIds) {
+				end = len(xiaoquIds)
+			}
+
+			chunkCondition := condition
+			chunkCondition.Ors = []searchx.Condition{{Terms: []searchx.Term{}}}
+			for _, i := range xiaoquIds[start:end] {
+				chunkCondition.Ors[0].Terms = append(chunkCondition.Ors[0].Terms, searchx.Term{Field: "xiaoqu_id", Value: strconv.Itoa(i)})
+			}
+			err = searchAgg(chunkCondition)
+			if err != nil {
+				response.FailWithMessage(err.Error(), c)
+				return
+			}
+		}
+	} else {
+		err = searchAgg(condition)
+		if err != nil {
+			response.FailWithMessage(err.Error(), c)
+			return
+		}
+	}
 
 	var list []response.XiaoquRsp
-	for id, num := range agg["xiaoqu_id"] {
+	for id, num := range xiaoquAgg {
 		xId, _ := strconv.Atoi(id)
 		var name string
 		xiaoq, e := XiaoQuService.GetInfo(uint(xId))
@@ -277,10 +322,6 @@ func (h *HouseResourceApi) ListByXiaoquAgg(c *gin.Context) {
 			Name: name,
 			Num:  num,
 		})
-	}
-	if err != nil {
-		response.FailWithMessage(err.Error(), c)
-		return
 	}
 	response.OkWithDetailed(list, "获取成功", c)
 }

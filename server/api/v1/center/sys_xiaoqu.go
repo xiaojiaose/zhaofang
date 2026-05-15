@@ -63,15 +63,25 @@ func (receiver *XiaoQuApi) DistanceTree(c *gin.Context) {
 func (receiver *XiaoQuApi) Distance(c *gin.Context) {
 	lat, _ := strconv.ParseFloat(c.Query("lat"), 64)
 	lng, _ := strconv.ParseFloat(c.Query("lng"), 64)
-	// 1. 定义目标点
+	// 历史前端参数名是 lat/lng，但实际传入的是经度/纬度，这里按 orb 的 [经度, 纬度] 顺序兼容。
 	point := orb.Point{lat, lng} // orb使用[Lng, Lat]顺序
-	//point := orb.Point{116.3974, 39.9093} // 北京
-	radius := 2000.0 // 2公里
+	radius := 1000.0
+	limit := 30
+	if v, err := strconv.Atoi(c.Query("limit")); err == nil && v > 0 {
+		limit = v
+	}
+	if limit > 60 {
+		limit = 60
+	}
 
 	results, err := test12.GeoSearch.FindNearbyCommunities(point, radius)
 	if err != nil {
 		fmt.Println("Error:", err)
 		return
+	}
+	total := len(results)
+	if total > limit {
+		results = results[:limit]
 	}
 
 	var xqList []system.XiaoQu
@@ -81,7 +91,7 @@ func (receiver *XiaoQuApi) Distance(c *gin.Context) {
 		x.ID = uint(id)
 		xqList = append(xqList, x)
 	}
-	fmt.Printf("找到 %d 个社区在 %.0f 米范围内\n", len(results), radius)
+	fmt.Printf("找到 %d 个社区在 %.0f 米范围内，返回 %d 个\n", total, radius, len(results))
 	response.OkWithDetailed(xqList, "获取成功", c)
 }
 

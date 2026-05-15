@@ -26,7 +26,7 @@ func GeoXiaoqu() {
 func loadGeoXiaoqu() {
 	global.GVA_LOG.Info("正在加载小区地理数据...")
 	var xqList []system.XiaoQu
-	tx := global.GVA_DB.Raw("SELECT id,name, longitude, latitude FROM xiao_qu;").Find(&xqList)
+	tx := global.GVA_DB.Raw("SELECT id,name, longitude, latitude FROM xiao_qu WHERE able = 1 and house_num > 0;").Find(&xqList)
 	if tx.Error != nil && !errors.Is(tx.Error, sql.ErrNoRows) {
 		global.GVA_LOG.Error("小区地理数据加载失败!", zap.Error(tx.Error))
 		return
