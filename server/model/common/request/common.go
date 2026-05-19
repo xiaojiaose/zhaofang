@@ -38,9 +38,9 @@ type GetByIdStr struct {
 }
 
 type GetStatis struct {
-	Start time.Time `form:"start" binding:"required" time_format:"2006-01-02T15:04:05Z"` // 开始时间
-	End   time.Time `form:"end" binding:"required" time_format:"2006-01-02T15:04:05Z"`   // 结束时间
-	Phone string    `form:"phone"`                                                       // 手机号筛选
+	Start string `form:"start" binding:"required"` // 开始时间
+	End   string `form:"end" binding:"required"`   // 结束时间
+	Phone string `form:"phone"`                    // 手机号筛选
 }
 
 type VisitReq struct {

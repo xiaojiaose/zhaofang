@@ -551,7 +551,7 @@ func (b *BaseApi) SetUserInfo(c *gin.Context) {
 		}
 	}
 	origin, _ := userService.FindUserById(int(user.ID))
-	if !origin.IsPublish && user.IsPublish {
+	if !origin.IsPublish && user.IsPublish && user.PublishQuotaTotal <= 0 {
 		user.PublishQuotaTotal = 30
 	}
 	teamChanged := origin.IsFindHouseSupermarket != user.IsFindHouseSupermarket

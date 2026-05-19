@@ -15,15 +15,12 @@ import (
 func StatisticVisits(db *gorm.DB) error {
 	fmt.Println("定时统计访问量 start")
 
-	now := time.Now().Local()
-	yesterdayStart := time.Date(now.Year(), now.Month(), now.Day()-1, 0, 0, 0, 0, time.Local)
-	// 更精确地表示为23:59:59.999999999
-	yesterdayEndExact := yesterdayStart.Add(24*time.Hour - 1*time.Nanosecond)
+	yesterdayStart, todayStart := yesterdayRange()
 
 	var totalViews, totalShared, totalFollow, totalClick int64
 
 	// 方法3.1: 使用 Raw 和 Scan
-	err := db.Raw("SELECT COALESCE(SUM(view), 0), COALESCE(SUM(shared), 0), COALESCE(SUM(follow), 0), COALESCE(SUM(click), 0) FROM visit_daily where date > ? and date < ?", yesterdayStart, yesterdayEndExact).Row().
+	err := db.Raw("SELECT COALESCE(SUM(view), 0), COALESCE(SUM(shared), 0), COALESCE(SUM(follow), 0), COALESCE(SUM(click), 0) FROM visit_daily where date >= ? and date < ?", yesterdayStart, todayStart).Row().
 		Scan(&totalViews, &totalShared, &totalFollow, &totalClick)
 	if err != nil {
 		global.GVA_LOG.Error("统计访问量失败!", zap.Error(err))
@@ -31,24 +28,24 @@ func StatisticVisits(db *gorm.DB) error {
 	}
 
 	var AddSaler int64
-	err = db.Model(&sysModel.SysUser{}).Where("authority_id = ? and created_at > ? and created_at < ?", 555, yesterdayStart, yesterdayEndExact).Count(&AddSaler).Error
+	err = db.Model(&sysModel.SysUser{}).Where("authority_id = ? and created_at >= ? and created_at < ?", 555, yesterdayStart, todayStart).Count(&AddSaler).Error
 	if err != nil {
 		global.GVA_LOG.Error("统计sys_user失败!", zap.Error(err))
 	}
 
 	var AddHouse int64
-	err = db.Model(&house.Resource{}).Where("created_at > ? and created_at < ?", yesterdayStart, yesterdayEndExact).Count(&AddHouse).Error
+	err = db.Model(&house.Resource{}).Where("created_at >= ? and created_at < ?", yesterdayStart, todayStart).Count(&AddHouse).Error
 	if err != nil {
 		global.GVA_LOG.Error("统计house_resources失败!", zap.Error(err))
 	}
 
 	var userIDs []uint
-	err = db.Raw("select user_id from sys_operation_records where created_at > ? and created_at < ? group by user_id", yesterdayStart, yesterdayEndExact).Pluck("user_id", &userIDs).Error
+	err = db.Raw("select user_id from sys_operation_records where created_at >= ? and created_at < ? group by user_id", yesterdayStart, todayStart).Pluck("user_id", &userIDs).Error
 	if err != nil {
 		global.GVA_LOG.Error("统计sys_operation_records失败!", zap.Error(err))
 	}
 
-	db.Model(&search.StatisData{}).Where("date = ?", yesterdayStart).Save(&search.StatisData{
+	statis := search.StatisData{
 		View:     int(totalViews),
 		Shared:   int(totalShared),
 		Follow:   int(totalFollow),
@@ -57,7 +54,12 @@ func StatisticVisits(db *gorm.DB) error {
 		AddSaler: int(AddSaler),
 		UseSaler: len(userIDs),
 		Add:      int(AddHouse),
-	})
+	}
+	err = db.Where("date = ?", yesterdayStart).Assign(statis).FirstOrCreate(&search.StatisData{}).Error
+	if err != nil {
+		global.GVA_LOG.Error("保存统计数据失败!", zap.Error(err))
+		return err
+	}
 	fmt.Println("定时统计访问量 end")
 
 	return err
@@ -65,10 +67,7 @@ func StatisticVisits(db *gorm.DB) error {
 
 func StatisticSalerVisit(db *gorm.DB) error {
 
-	now := time.Now().Local()
-	yesterdayStart := time.Date(now.Year(), now.Month(), now.Day()-1, 0, 0, 0, 0, time.Local)
-	// 更精确地表示为23:59:59.999999999
-	yesterdayEndExact := yesterdayStart.Add(24*time.Hour - 1*time.Nanosecond)
+	yesterdayStart, todayStart := yesterdayRange()
 
 	//err := db.Raw("select user_id from sys_operation_records where created_at > ? and created_at < ? order by created_at desc ", yesterdayStart, yesterdayEndExact).Error
 	//if err != nil {
@@ -77,7 +76,6 @@ func StatisticSalerVisit(db *gorm.DB) error {
 
 	var lastID uint = 0
 	batchSize := 1000
-	var allUserIDs []uint
 
 	visitRecordMap := make(map[uint]search.VisitRecord)
 	for {
@@ -89,7 +87,7 @@ func StatisticSalerVisit(db *gorm.DB) error {
 
 		query := db.Table("sys_operation_records").
 			Select("id, user_id, created_at").
-			Where("created_at > ? AND created_at < ?", yesterdayStart, yesterdayEndExact).
+			Where("created_at >= ? AND created_at < ?", yesterdayStart, todayStart).
 			Order("id DESC").
 			Limit(batchSize)
 
@@ -119,7 +117,7 @@ func StatisticSalerVisit(db *gorm.DB) error {
 			lastID = record.ID // 更新最后一条记录的ID
 		}
 
-		fmt.Printf("已处理批次，获取 %d 条记录，总计: %d\n", len(records), len(allUserIDs))
+		fmt.Printf("已处理批次，获取 %d 条记录，总计: %d\n", len(records), len(visitRecordMap))
 
 		if len(records) < batchSize {
 			break // 最后一页
@@ -131,10 +129,14 @@ func StatisticSalerVisit(db *gorm.DB) error {
 	fmt.Printf("总共获取 %d 个用户\n", len(visitRecordMap))
 
 	if len(visitRecordMap) > 0 {
+		if err := db.Where("date >= ? AND date < ?", yesterdayStart, todayStart).Delete(&search.VisitRecord{}).Error; err != nil {
+			log.Println("清理旧visitRecord失败:", err)
+			return err
+		}
 		for _, record := range visitRecordMap {
 			record.CreatedAt = time.Now()
 			err := db.Model(&search.VisitRecord{}).Create(&record).Error
-			if err == nil {
+			if err != nil {
 				log.Println("visitRecord失败:", err)
 			} else {
 				log.Println(fmt.Sprintf("visitRecord info: %v :", record))
@@ -142,4 +144,14 @@ func StatisticSalerVisit(db *gorm.DB) error {
 		}
 	}
 	return nil
+}
+
+func yesterdayRange() (time.Time, time.Time) {
+	loc, err := time.LoadLocation("Asia/Shanghai")
+	if err != nil {
+		loc = time.Local
+	}
+	now := time.Now().In(loc)
+	todayStart := time.Date(now.Year(), now.Month(), now.Day(), 0, 0, 0, 0, loc)
+	return todayStart.AddDate(0, 0, -1), todayStart
 }

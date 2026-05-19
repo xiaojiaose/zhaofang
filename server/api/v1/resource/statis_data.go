@@ -10,6 +10,7 @@ import (
 	"github.com/flipped-aurora/gin-vue-admin/server/model/system"
 	"github.com/gin-gonic/gin"
 	"go.uber.org/zap"
+	"time"
 )
 
 type StatisDataApi struct {
@@ -31,7 +32,12 @@ func (s *StatisDataApi) View(c *gin.Context) {
 		return
 	}
 
-	list, err := StatisService.ByDate(req.Start, req.End)
+	start, end, err := parseShanghaiLocalRange(req.Start, req.End)
+	if err != nil {
+		response.FailWithMessage(err.Error(), c)
+		return
+	}
+	list, err := StatisService.ByDate(start, end)
 	if err != nil {
 		response.FailWithMessage(err.Error(), c)
 		return
@@ -46,7 +52,7 @@ func (s *StatisDataApi) View(c *gin.Context) {
 		re.Follow += data.Follow
 		re.Shared += data.Shared
 	}
-	rewardCount, _ := RewardService.CountByDate(req.Start, req.End, req.Phone)
+	rewardCount, _ := RewardService.CountByDate(start, end, req.Phone)
 	re.RewardApply = int(rewardCount)
 	payload := gin.H{
 		"summary": re,
@@ -57,6 +63,31 @@ func (s *StatisDataApi) View(c *gin.Context) {
 	}
 	response.OkWithData(payload, c)
 	return
+}
+
+func parseShanghaiLocalRange(startText, endText string) (time.Time, time.Time, error) {
+	// 前端传入的是 UTC ISO 字符串，数据库 DATETIME 按北京时间裸存。
+	// 查询前转成北京时间，避免 2026-05-17T16:00:00Z 被当成 16 点去查。
+	loc, err := time.LoadLocation("Asia/Shanghai")
+	if err != nil {
+		loc = time.Local
+	}
+	start, err := parseStatisTime(startText, loc)
+	if err != nil {
+		return time.Time{}, time.Time{}, err
+	}
+	end, err := parseStatisTime(endText, loc)
+	if err != nil {
+		return time.Time{}, time.Time{}, err
+	}
+	return start.In(loc), end.In(loc), nil
+}
+
+func parseStatisTime(value string, loc *time.Location) (time.Time, error) {
+	if t, err := time.Parse(time.RFC3339Nano, value); err == nil {
+		return t, nil
+	}
+	return time.ParseInLocation("2006-01-02 15:04:05", value, loc)
 }
 
 // View

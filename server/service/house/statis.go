@@ -13,7 +13,7 @@ type StatisService struct {
 
 func (s StatisService) ByDate(start, end time.Time) (list []search.StatisData, err error) {
 	db := global.GVA_DB.Model(&search.StatisData{})
-	db.Where("date > ? and date < ?", start, end)
+	db.Where("date >= ? and date < ?", start, end)
 	err = db.Find(&list).Error
 	return
 }

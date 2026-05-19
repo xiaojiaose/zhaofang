@@ -102,8 +102,8 @@ func (service *ResourceService) BatchUpload(userID uint, header *multipart.FileH
 		housePart := firstNonEmpty(values["门牌号"], values["户号"])
 		doorNo := composeDoorNoFromParts(buildingPart, unitPart, housePart)
 		roomCode := values["房间号"]
-		price := atoi(values["价格"])
-		commission := atoi(values["返佣金额"])
+		priceText := values["价格"]
+		commissionText := firstNonEmpty(values["返佣金额"], values["返佣价格"], values["佣金"], values["返佣"])
 		remarks := values["备注"]
 		feature := values["标签"]
 		rentType := values["出租类型"]
@@ -192,8 +192,12 @@ func (service *ResourceService) BatchUpload(userID uint, header *multipart.FileH
 
 		entity.RentType = defaultString(rentType, entity.RentType)
 		entity.HouseType = defaultString(houseType, entity.HouseType)
-		entity.Price = price
-		entity.CommissionPrice = commission
+		if priceText != "" {
+			entity.Price = atoi(priceText)
+		}
+		if commissionText != "" {
+			entity.CommissionPrice = atoi(commissionText)
+		}
 		entity.Feature = feature
 		entity.Remarks = remarks
 		entity.Status = "待出租"
@@ -204,6 +208,20 @@ func (service *ResourceService) BatchUpload(userID uint, header *multipart.FileH
 			record.FailedCount++
 			failures = append(failures, fmt.Sprintf("第%d行导入失败:%s", idx+2, err.Error()))
 			continue
+		}
+		// GORM 使用结构体 Updates 时会跳过空字符串。
+		// 批量导入以 Excel 为准，所以备注留空也要显式清空旧备注。
+		if remarks == "" {
+			if err = global.GVA_DB.Model(&house.Resource{}).Where("id = ?", entity.ID).Update("remarks", "").Error; err != nil {
+				record.FailedCount++
+				failures = append(failures, fmt.Sprintf("第%d行备注清空失败:%s", idx+2, err.Error()))
+				continue
+			}
+			if err = service.SyncIndexByIDs([]uint{entity.ID}); err != nil {
+				record.FailedCount++
+				failures = append(failures, fmt.Sprintf("第%d行索引同步失败:%s", idx+2, err.Error()))
+				continue
+			}
 		}
 		record.SuccessCount++
 	}

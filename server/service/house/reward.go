@@ -290,7 +290,7 @@ func (service *RewardService) AutoApproveExpired() {
 }
 
 func (service *RewardService) CountByDate(start, end time.Time, phone string) (count int64, err error) {
-	db := global.GVA_DB.Model(&house.RewardApplication{}).Where("created_at > ? AND created_at < ?", start, end)
+	db := global.GVA_DB.Model(&house.RewardApplication{}).Where("created_at >= ? AND created_at < ?", start, end)
 	if phone != "" {
 		db = db.Where("publisher_user_phone = ? OR apply_user_phone = ?", phone, phone)
 	}
