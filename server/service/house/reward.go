@@ -353,28 +353,46 @@ func (service *RewardService) attachResourceInfo(apps []house.RewardApplication)
 	return list
 }
 
-func (service *RewardService) BuildPhoneSummary(phone string) (summary search.StatisData, err error) {
-	// 数据中心的手机号维度统计，是先用房源手机号反查房源，
-	// 再把这些房源的浏览、分享、点击和奖励申请汇总出来。
-	var resources []house.Resource
-	err = global.GVA_DB.Where("phone = ?", phone).Find(&resources).Error
+func (service *RewardService) BuildPhoneSummary(phone string, start, end time.Time) (summary search.StatisData, err error) {
+	// 数据中心的手机号维度统计按“房源手机号”筛选，
+	// 并且必须和全站统计使用同一段日期区间。
+	var addCount int64
+	err = global.GVA_DB.Model(&house.Resource{}).
+		Where("phone = ? AND created_at >= ? AND created_at < ?", phone, start, end).
+		Count(&addCount).Error
 	if err != nil {
 		return
 	}
-	summary.Add = len(resources)
-	var resourceIDs []uint
-	for _, resource := range resources {
-		summary.View += resource.View
-		summary.Follow += resource.Follow
-		summary.Shared += resource.Shared
-		summary.Click += resource.Click
-		resourceIDs = append(resourceIDs, resource.ID)
+	summary.Add = int(addCount)
+
+	type visitSum struct {
+		View   int
+		Follow int
+		Shared int
+		Click  int
 	}
-	if len(resourceIDs) == 0 {
+	var visits visitSum
+	err = global.GVA_DB.Table("visit_daily AS v").
+		Select("COALESCE(SUM(v.view), 0) AS view, COALESCE(SUM(v.follow), 0) AS follow, COALESCE(SUM(v.shared), 0) AS shared, COALESCE(SUM(v.click), 0) AS click").
+		Joins("JOIN house_resources AS h ON h.id = v.resource_id").
+		Where("h.phone = ? AND h.deleted_at IS NULL AND v.date >= ? AND v.date < ?", phone, start, end).
+		Scan(&visits).Error
+	if err != nil {
 		return
 	}
+	summary.View = visits.View
+	summary.Follow = visits.Follow
+	summary.Shared = visits.Shared
+	summary.Click = visits.Click
+
 	var rewardCount int64
-	_ = global.GVA_DB.Model(&house.RewardApplication{}).Where("resource_id IN ?", resourceIDs).Count(&rewardCount).Error
+	err = global.GVA_DB.Model(&house.RewardApplication{}).
+		Joins("JOIN house_resources AS h ON h.id = house_reward_applications.resource_id").
+		Where("h.phone = ? AND h.deleted_at IS NULL AND house_reward_applications.created_at >= ? AND house_reward_applications.created_at < ?", phone, start, end).
+		Count(&rewardCount).Error
+	if err != nil {
+		return
+	}
 	summary.RewardApply = int(rewardCount)
 	return
 }

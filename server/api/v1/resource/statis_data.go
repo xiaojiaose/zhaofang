@@ -52,13 +52,13 @@ func (s *StatisDataApi) View(c *gin.Context) {
 		re.Follow += data.Follow
 		re.Shared += data.Shared
 	}
-	rewardCount, _ := RewardService.CountByDate(start, end, req.Phone)
+	rewardCount, _ := RewardService.CountByDate(start, end, "")
 	re.RewardApply = int(rewardCount)
 	payload := gin.H{
 		"summary": re,
 	}
 	if req.Phone != "" {
-		phoneSummary, _ := RewardService.BuildPhoneSummary(req.Phone)
+		phoneSummary, _ := RewardService.BuildPhoneSummary(req.Phone, start, end)
 		payload["phoneSummary"] = phoneSummary
 	}
 	response.OkWithData(payload, c)
