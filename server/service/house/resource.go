@@ -347,9 +347,12 @@ func (service *ResourceService) GetPage(xiaoquId, userId uint, appStatus string,
 	}
 
 	if Other.UpdatedAtLast.IsZero() == false && Other.UpdatedAtStart.IsZero() == false {
-		db = db.Where("updated_last_at > ? and updated_last_at < ?", Other.UpdatedAtStart, Other.UpdatedAtLast)
+		db = db.Where("updated_last_at >= ? and updated_last_at < ?", Other.UpdatedAtStart, Other.UpdatedAtLast)
 	}
 
+	if Other.Status != "" {
+		db = db.Where("status = ?", Other.Status)
+	}
 	err = db.Count(&total).Error
 
 	if err != nil {

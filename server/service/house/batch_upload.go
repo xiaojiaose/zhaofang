@@ -172,7 +172,7 @@ func (service *ResourceService) BatchUpload(userID uint, header *multipart.FileH
 				entity.Click = 0
 			} else {
 				entity = house.Resource{
-					Attachments: findHistoricalAttachments(userID, xq.ID, buildingID, unitID, houseID),
+					//Attachments: findHistoricalAttachments(userID, xq.ID, buildingID, unitID, houseID),
 				}
 			}
 			// 新建记录时，定位字段以本次 Excel + 小区/楼盘字典数据为准。

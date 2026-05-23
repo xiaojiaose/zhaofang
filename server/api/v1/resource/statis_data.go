@@ -154,7 +154,7 @@ func (s *StatisDataApi) VisitRecord(c *gin.Context) {
 			Date: data.Date,
 		}
 		if u, ok := userMap[data.UserId]; ok {
-			r.WxNo = u.WxNo
+			r.WxNo = u.NickName
 			r.Phone = u.Phone
 		}
 		re = append(re, r)

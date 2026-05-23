@@ -1993,6 +1993,15 @@ definitions:
       phone:
         description: 手机号
         type: string
+      status:
+        description: 房源状态：待出租、已下架
+        type: string
+      updatedAtLast:
+        description: 最后编辑时间结束
+        type: string
+      updatedAtStart:
+        description: 最后编辑时间开始
+        type: string
       xiaoquId:
         description: 小区ID
         type: integer

@@ -139,7 +139,12 @@ func (h *HouseResourceApi) List(c *gin.Context) {
 	//	}
 	//}
 
-	list, total, err = ResourceService.GetPage(pageInfo.XiaoquId, uId, pageInfo.ApprovalStatus, "", pageInfo.PageInfo, pageInfo.OrderKey, pageInfo.Desc, request.SearchOther{Phone: pageInfo.Phone})
+	list, total, err = ResourceService.GetPage(pageInfo.XiaoquId, uId, pageInfo.ApprovalStatus, "", pageInfo.PageInfo, pageInfo.OrderKey, pageInfo.Desc, request.SearchOther{
+		Phone:  pageInfo.Phone,
+		Status: pageInfo.Status,
+		UpdatedAtStart: pageInfo.UpdatedAtStart,
+		UpdatedAtLast:  pageInfo.UpdatedAtLast,
+	})
 	if err != nil {
 		global.GVA_LOG.Error("获取失败!", zap.Error(err))
 		response.FailWithMessage("获取失败", c)

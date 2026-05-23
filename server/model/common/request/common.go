@@ -110,11 +110,14 @@ type MySearchResource struct {
 
 type SearchNameResource struct {
 	PageInfo
-	XiaoquId       uint   `json:"xiaoquId"`       // 小区ID
-	OrderKey       string `json:"orderKey"`       // 排序字段
-	Desc           bool   `json:"desc"`           // 排序方式
-	Phone          string `json:"phone"`          // 手机号
-	ApprovalStatus string `json:"approvalStatus"` // 审批状态
+	XiaoquId       uint      `json:"xiaoquId"`       // 小区ID
+	OrderKey       string    `json:"orderKey"`       // 排序字段
+	Desc           bool      `json:"desc"`           // 排序方式
+	Phone          string    `json:"phone"`          // 手机号
+	ApprovalStatus string    `json:"approvalStatus"` // 审批状态
+	Status         string    `json:"status"`         // 房源状态：待出租、已下架
+	UpdatedAtStart time.Time `json:"updatedAtStart"` // 最后编辑时间开始
+	UpdatedAtLast  time.Time `json:"updatedAtLast"`  // 最后编辑时间结束
 }
 
 type RentType struct {
@@ -139,14 +142,15 @@ type SearchHouseResource struct {
 }
 
 type SearchOther struct {
-	Phone          string    `json:"phone"`          // 手机号
-	HasPic         string    `json:"hasPic"`         // 是否有图片
-	UpdatedAtLast  time.Time `json:"updatedAtLast"`  // 开始时间
-	UpdatedAtStart time.Time `json:"updatedAtStart"` // 结束时间
-	RentType       string    `json:"rentType"`       // 出租类型
-	IsTeamHouse    string    `json:"isTeamHouse"`    // 是否团队房源
-	HouseType      string    `json:"houseType"`      // 房屋类型
-	HasCommission  string    `json:"hasCommission"`  // 是否有返佣
+	Phone         string    `json:"phone"`          // 手机号
+	HasPic        string    `json:"hasPic"`         // 是否有图片
+	UpdatedAtStart time.Time `json:"updatedAtStart"` // 开始时间
+	UpdatedAtLast  time.Time `json:"updatedAtLast"`  // 结束时间
+	RentType      string    `json:"rentType"`       // 出租类型
+	IsTeamHouse   string    `json:"isTeamHouse"`    // 是否团队房源
+	HouseType     string    `json:"houseType"`      // 房屋类型
+	HasCommission string    `json:"hasCommission"`  // 是否有返佣
+	Status        string    `json:"status"`         // 房源状态：待出租、已下架
 }
 
 type HouseStateReq struct {
