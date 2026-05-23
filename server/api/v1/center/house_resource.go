@@ -668,6 +668,7 @@ func (h *HouseResourceApi) Edit(c *gin.Context) {
 	origin.RentType = req.RentType
 	origin.Remarks = req.Remarks
 	origin.RoomCode = req.RoomCode
+	origin.Phone = req.Phone
 
 	err = ResourceService.CreateOrUpdate(origin)
 	if err != nil {
