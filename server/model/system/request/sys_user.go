@@ -8,18 +8,18 @@ import (
 // Register User register structure
 type Register struct {
 	Username               string `json:"userName" example:"用户名"` // 用户名
-	Password               string `json:"passWord" example:"密码"`   // 密码
-	NickName               string `json:"nickName" example:"昵称"`   // 昵称
+	Password               string `json:"passWord" example:"密码"`  // 密码
+	NickName               string `json:"nickName" example:"昵称"`  // 昵称
 	WxNickName             string `json:"wxNickName" example:"微信昵称"`
-	HeaderImg              string `json:"headerImg" example:"头像链接"`                              // 头像
+	HeaderImg              string `json:"headerImg" example:"头像链接"`                                // 头像
 	AuthorityId            uint   `json:"authorityId" swaggertype:"string" example:"int 角色id"`     // 角色ID
-	Enable                 int    `json:"enable" swaggertype:"string" example:"int 是否启用"`        // 是否启用
+	Enable                 int    `json:"enable" swaggertype:"string" example:"int 是否启用"`          // 是否启用
 	AuthorityIds           []uint `json:"authorityIds" swaggertype:"string" example:"[]uint 角色id"` // 角色ID列表
-	Phone                  string `json:"phone" example:"电话号码"`                                  // 手机号
-	Email                  string `json:"email" example:"电子邮箱"`                                  // 邮箱
-	IsPublish              bool   `json:"isPublish"`                                                 // 上架权限 true有 false没有
-	IsFindHouseSupermarket bool   `json:"isFindHouseSupermarket"`                                    // 找房超市标识
-	PublishQuotaTotal      int    `json:"publishQuotaTotal"`                                         // 可上架总数
+	Phone                  string `json:"phone" example:"电话号码"`                                    // 手机号
+	Email                  string `json:"email" example:"电子邮箱"`                                    // 邮箱
+	IsPublish              bool   `json:"isPublish"`                                               // 上架权限 true有 false没有
+	IsFindHouseSupermarket bool   `json:"isFindHouseSupermarket"`                                  // 找房超市标识
+	PublishQuotaTotal      int    `json:"publishQuotaTotal"`                                       // 可上架总数
 
 	ContactViewQuotaTotal int `json:"contactViewQuotaTotal"` // 可查看联系方式次数
 }
@@ -64,18 +64,18 @@ type SetUserAuthorities struct {
 }
 
 type ChangeUserInfo struct {
-	ID                     uint                  `gorm:"primarykey"`                                                                               // 主键ID
-	NickName               string                `json:"nickName" gorm:"default:系统用户;comment:用户昵称"`                                        // 用户昵称
-	Phone                  string                `json:"phone"  gorm:"comment:用户手机号"`                                                         // 用户手机号
-	AuthorityIds           []uint                `json:"authorityIds" gorm:"-"`                                                                    // 角色ID
+	ID                     uint                  `gorm:"primarykey"`                                                                           // 主键ID
+	NickName               string                `json:"nickName" gorm:"default:系统用户;comment:用户昵称"`                                            // 用户昵称
+	Phone                  string                `json:"phone"  gorm:"comment:用户手机号"`                                                          // 用户手机号
+	AuthorityIds           []uint                `json:"authorityIds" gorm:"-"`                                                                // 角色ID
 	Email                  string                `json:"email"  gorm:"comment:用户邮箱"`                                                           // 用户邮箱
 	HeaderImg              string                `json:"headerImg" gorm:"default:https://qmplusimg.henrongyi.top/gva_header.jpg;comment:用户头像"` // 用户头像
-	WxNickName             string                `json:"wxNickName" gorm:"comment:用户微信昵称"`                                                   // 微信昵称
-	WxNo                   string                `json:"wxNo" gorm:"comment:用户微信号"`                                                           // 微信号
-	IsPublish              bool                  `json:"isPublish" form:"isPublish"`                                                               // 上架权限 true有 false没有 nil不改
-	IsFindHouseSupermarket bool                  `json:"isFindHouseSupermarket"`                                                                   // 找房超市标识
-	PublishQuotaTotal      int                   `json:"publishQuotaTotal"`                                                                        // 可上架总数
-	ContactViewQuotaTotal  int                   `json:"contactViewQuotaTotal"`                                                                    // 可查看联系方式次数
+	WxNickName             string                `json:"wxNickName" gorm:"comment:用户微信昵称"`                                                     // 微信昵称
+	WxNo                   string                `json:"wxNo" gorm:"comment:用户微信号"`                                                            // 微信号
+	IsPublish              bool                  `json:"isPublish" form:"isPublish"`                                                           // 上架权限 true有 false没有 nil不改
+	IsFindHouseSupermarket bool                  `json:"isFindHouseSupermarket"`                                                               // 找房超市标识
+	PublishQuotaTotal      int                   `json:"publishQuotaTotal"`                                                                    // 可上架总数
+	ContactViewQuotaTotal  int                   `json:"contactViewQuotaTotal"`                                                                // 可查看联系方式次数
 	Enable                 int                   `json:"enable" gorm:"comment:冻结用户"`                                                           //冻结用户
 	Authorities            []system.SysAuthority `json:"-" gorm:"many2many:sys_user_authority;"`
 }
