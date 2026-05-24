@@ -13021,6 +13021,10 @@ const docTemplate = `{
                     "description": "用户名",
                     "type": "string",
                     "example": "用户名"
+                },
+                "wxNickName": {
+                    "type": "string",
+                    "example": "微信昵称"
                 }
             }
         },

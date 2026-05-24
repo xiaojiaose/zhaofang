@@ -234,6 +234,7 @@ func (b *BaseApi) Register(c *gin.Context) {
 	user := &system.SysUser{
 		Username:               r.Username,
 		NickName:               r.NickName,
+		WxNickName:             r.WxNickName,
 		Password:               r.Password,
 		HeaderImg:              r.HeaderImg,
 		AuthorityId:            r.AuthorityId,
