@@ -123,8 +123,8 @@ func (service *ResourceService) CreateOrUpdate(resource *house.Resource) (err er
 	if resource.Status == "" {
 		resource.Status = "待出租"
 	}
-	if resource.Status == "待出租" {
-		// 只有真正要上架时才校验额度，草稿/下架状态允许先保存。
+	// 只有新建房源（ID==0）且要上架时才校验额度，编辑已有房源不校验。
+	if resource.ID == 0 && resource.Status == "待出租" {
 		if err = service.ensurePublishQuota(resource.Owner, resource.ID); err != nil {
 			return err
 		}
