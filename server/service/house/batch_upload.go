@@ -170,6 +170,7 @@ func (service *ResourceService) BatchUpload(userID uint, header *multipart.FileH
 				entity.View = 0
 				entity.Shared = 0
 				entity.Click = 0
+				entity.Attachments = make(common.AttachmentMap)
 			} else {
 				entity = house.Resource{
 					//Attachments: findHistoricalAttachments(userID, xq.ID, buildingID, unitID, houseID),
