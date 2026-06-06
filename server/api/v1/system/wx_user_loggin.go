@@ -43,54 +43,60 @@ func (wx *WxUserApi) GetWxMobile(c *gin.Context) {
 	global.GVA_LOG.Warn("wxMobileLogin2", zap.String("req", fmt.Sprintf("%+v", req)))
 
 	memoryCache := cache.NewMemory()
-	// 1. 获取access_token
-	accessToken, err := GetAccessToken(global.GVA_CONFIG.System.AppID, global.GVA_CONFIG.System.AppSecret)
-	if err != nil {
-		global.GVA_LOG.Warn("wxMobileLogin3", zap.String("err", err.Error()))
 
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "failed to get access token"})
-		return
-	}
-
-	// 2. 调用微信手机号接口
-	phoneInfo, err := GetPhoneNumber(accessToken, req.MobileCode)
-	if err != nil {
-		global.GVA_LOG.Warn("wxMobileLogin4", zap.String("err", err.Error()))
-		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
-		return
-	}
-	global.GVA_LOG.Warn("wxMobileLogin4 5", zap.String("phoneInfo", phoneInfo))
-
-	// 3. 初始化微信小程序配置
+	// 1. 初始化微信小程序配置
 	wc := wechat.NewWechat()
 	cfg := &miniConfig.Config{
 		AppID:     global.GVA_CONFIG.System.AppID,
 		AppSecret: global.GVA_CONFIG.System.AppSecret,
 		Cache:     memoryCache,
 	}
-	var authResult auth.ResCode2Session
-	var userInfo systemReq.UserInfo
-
 	mini := wc.GetMiniProgram(cfg)
-	// 3. 用 前端传来的code 获取 openid 和 session_key
-	authResult, err = mini.GetAuth().Code2Session(req.OpenidCode)
+
+	// 2. 用 前端传来的code 获取 openid 和 session_key（免费）
+	authResult, err := mini.GetAuth().Code2Session(req.OpenidCode)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
 	global.GVA_LOG.Warn("根据code获取openid", zap.String("openid", authResult.OpenID))
 
-	// 4. 解密用户资料
+	// 3. 解密用户资料（本地解密，免费）
+	var userInfo systemReq.UserInfo
 	if err = utils.DecryptWXData(authResult.SessionKey, req.EncryptedData, req.Iv, &userInfo); err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
 	global.GVA_LOG.Warn("根据code获取openid", zap.String("userInfo", fmt.Sprintf("%+v", userInfo)))
 
-	h, err := findUser(authResult.OpenID, phoneInfo, &userInfo, c)
-	if err != nil {
-		return
+	// 4. 优先用 openid 查老用户，命中则跳过计费的手机号接口
+	var h *system.SysUser
+	if existed := userService.FindUserByOpenid(authResult.OpenID); existed != nil {
+		updateUserInfoIfChanged(existed, &userInfo)
+		h = existed
+	} else {
+		// 5. 新用户才走 access_token + getuserphonenumber（按次计费）
+		accessToken, tokenErr := GetAccessToken(global.GVA_CONFIG.System.AppID, global.GVA_CONFIG.System.AppSecret)
+		if tokenErr != nil {
+			global.GVA_LOG.Warn("wxMobileLogin3", zap.String("err", tokenErr.Error()))
+			c.JSON(http.StatusInternalServerError, gin.H{"error": "failed to get access token"})
+			return
+		}
+		phoneInfo, phoneErr := GetPhoneNumber(accessToken, req.MobileCode)
+		if phoneErr != nil {
+			global.GVA_LOG.Warn("wxMobileLogin4", zap.String("err", phoneErr.Error()))
+			c.JSON(http.StatusInternalServerError, gin.H{"error": phoneErr.Error()})
+			return
+		}
+		global.GVA_LOG.Warn("wxMobileLogin4 5", zap.String("phoneInfo", phoneInfo))
+
+		found, fErr := findUser(authResult.OpenID, phoneInfo, &userInfo, c)
+		if fErr != nil {
+			return
+		}
+		h = found
 	}
+
 	if h.Enable == 2 {
 		response.NoAuth("您的帐户已冻结", c)
 		utils.ClearToken(c)
@@ -100,6 +106,25 @@ func (wx *WxUserApi) GetWxMobile(c *gin.Context) {
 	wx.TokenNext(c, h)
 	return
 
+}
+
+// updateUserInfoIfChanged 仅在 openid 命中老用户时, 按需更新头像/昵称
+func updateUserInfoIfChanged(h *system.SysUser, userInfo *systemReq.UserInfo) {
+	if userInfo == nil {
+		return
+	}
+	updated := false
+	if userInfo.AvatarURL != "" && h.HeaderImg != userInfo.AvatarURL {
+		h.HeaderImg = userInfo.AvatarURL
+		updated = true
+	}
+	if userInfo.NickName != "" && h.WxNickName != userInfo.NickName {
+		h.WxNickName = userInfo.NickName
+		updated = true
+	}
+	if updated {
+		_ = userService.SetUserInfo(*h)
+	}
 }
 
 // WxLogin
