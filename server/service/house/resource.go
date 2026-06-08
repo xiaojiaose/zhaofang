@@ -364,8 +364,8 @@ func (service *ResourceService) GetPage(xiaoquId, userId uint, appStatus string,
 			if desc {
 				OrderStr = order + " desc"
 			}
-
-			err = db.Order(OrderStr).Find(&apiList).Error
+			// 追加 id 作为次级排序键，避免主排序值重复时分页顺序不稳定导致翻页结果重复/漏数据。
+			err = db.Order(OrderStr).Order("id desc").Find(&apiList).Error
 		} else {
 			err = db.Order("id desc").Find(&apiList).Error
 		}
@@ -462,8 +462,8 @@ func (service *ResourceService) GetApprovalPage(xiaoquId, userId uint, appStatus
 			if desc {
 				OrderStr = order + " desc"
 			}
-
-			err = db.Order(OrderStr).Find(&apiList).Error
+			// 追加 id 作为次级排序键，避免主排序值重复时分页顺序不稳定导致翻页结果重复/漏数据。
+			err = db.Order(OrderStr).Order("id desc").Find(&apiList).Error
 		} else {
 			err = db.Order("id desc").Find(&apiList).Error
 		}
