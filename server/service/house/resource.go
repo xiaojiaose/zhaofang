@@ -18,10 +18,11 @@ type ResourceService struct{}
 
 func (service *ResourceService) FilterOptions() (list map[string]map[string]string, err error) {
 	list = make(map[string]map[string]string)
-	//list["rentType"] = map[string]string{"1": "整租", "2": "分整租", "3": "合租", "4": "房东房源"}
-	list["rentType"] = map[string]string{"1": "整租", "2": "分整租", "3": "合租"}
-	list["houseType"] = map[string]string{"1": "1居", "2": "2居", "3": "3居", "4": "4居+", "5": "开间", "6": "主卧", "7": "次卧", "8": "暗间"}
-	list["feature"] = map[string]string{"1": "可短租", "2": "包物业", "3": "南北通透", "4": "全南项", "5": "协助对接房东", "6": "可带看分佣"}
+
+	list["rentType"] = map[string]string{"1": "整租", "2": "分整租", "3": "合租", "4": "房东房源"}
+	list["houseType"] = map[string]string{"1": "1居", "2": "2居", "3": "3居", "4": "4居+", "5": "开间", "6": "主卧", "7": "次卧", "8": "暗间", "9": "房东房源"}
+
+	list["feature"] = map[string]string{"1": "可短租", "2": "包物业", "3": "南北通透", "4": "全南项"}
 	list["price"] = map[string]string{"1": "500以下", "2": "500-1000元", "3": "1000-1500元", "4": "1500-2000元", "5": "2000-2500元", "6": "2500-3000元", "7": "3000元以上"}
 
 	return
@@ -32,23 +33,23 @@ func (service *ResourceService) FilterOptions1() (list []request.RentType, err e
 		request.RentType{
 			Name:      "整租",
 			HouseType: []string{"1居", "2居", "3居", "4居+", "开间"}, // 可短租，有电梯，可注册办公，密码看房、包物业
-			Feature:   []string{"可短租", "包物业", "有电梯", "密码看房", "可办公注册", "协助对接房东", "可带看分佣"},
+			Feature:   []string{"可短租", "包物业", "有电梯", "密码看房", "可办公注册"},
 		},
 		request.RentType{
 			Name:      "分整租",
 			HouseType: []string{"1居", "2居", "3居", "4居+"}, // 可短租，有电梯、有原卫、有阳台，有燃气，朝南
-			Feature:   []string{"带阳台", "有电梯", "有原卫", "朝南", "有燃气", "可短租", "协助对接房东", "可带看分佣"},
+			Feature:   []string{"带阳台", "有电梯", "有原卫", "朝南", "有燃气", "可短租"},
 		},
 		request.RentType{
 			Name:      "合租",
 			HouseType: []string{"2居", "3居", "4居+"}, // 可短租、有电梯，有独卫，有阳台，可做饭、纯女生
-			Feature:   []string{"带阳台", "可短租", "有电梯", "有独卫", "可做饭", "纯女生", "协助对接房东", "可带看分佣"},
+			Feature:   []string{"带阳台", "可短租", "有电梯", "有独卫", "可做饭", "纯女生"},
 		},
-		//request.RentType{
-		//	Name:      "房东房源",
-		//	HouseType: []string{"1居", "2居", "3居", "4居+", "开间"}, // 可短租，有电梯，可注册办公，密码看房、包物业
-		//	Feature:   []string{"可短租", "包物业", "有电梯", "密码看房", "可办公注册", "协助对接房东", "可带看分佣"},
-		//},
+		request.RentType{
+			Name:      "房东房源",
+			HouseType: []string{"1居", "2居", "3居", "4居+", "开间"}, // 可短租，有电梯，可注册办公，密码看房、包物业
+			Feature:   []string{"可短租", "包物业", "有电梯", "密码看房", "可办公注册"},
+		},
 	)
 
 	return
