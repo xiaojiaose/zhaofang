@@ -6032,14 +6032,14 @@ paths:
       - application/json
       responses:
         "200":
-          description: '结果 {''mobile'': ''13222222222''}'
+          description: '结果 {''mobile'': ''13222222222'', ''contactViewQuotaTotal'':
+            9}'
           schema:
             allOf:
             - $ref: '#/definitions/response.Response'
             - properties:
                 data:
-                  additionalProperties:
-                    type: string
+                  additionalProperties: true
                   type: object
               type: object
       summary: '[变更] 获取房源手机号（房东房源扣查看次数）'

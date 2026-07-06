@@ -4318,7 +4318,7 @@ const docTemplate = `{
                 ],
                 "responses": {
                     "200": {
-                        "description": "结果 {'mobile': '13222222222'}",
+                        "description": "结果 {'mobile': '13222222222', 'contactViewQuotaTotal': 9}",
                         "schema": {
                             "allOf": [
                                 {
@@ -4329,9 +4329,7 @@ const docTemplate = `{
                                     "properties": {
                                         "data": {
                                             "type": "object",
-                                            "additionalProperties": {
-                                                "type": "string"
-                                            }
+                                            "additionalProperties": true
                                         }
                                     }
                                 }

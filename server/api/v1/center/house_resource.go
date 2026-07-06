@@ -21,14 +21,14 @@ type HouseResourceApi struct {
 
 var houseType = map[string]string{
 	"房东房源": "房东房源",
-	"1居":   "1居",
-	"2居":   "2居",
-	"3居":   "3居",
-	"4居+":  "4居+",
-	"开间":   "开间",
-	"主卧":   "主卧",
-	"次卧":   "次卧",
-	"暗间":   "暗间",
+	"1居":      "1居",
+	"2居":      "2居",
+	"3居":      "3居",
+	"4居+":     "4居+",
+	"开间":     "开间",
+	"主卧":     "主卧",
+	"次卧":     "次卧",
+	"暗间":     "暗间",
 }
 
 // View
@@ -154,8 +154,10 @@ func (h *HouseResourceApi) GetMobile(c *gin.Context) {
 			response.FailWithMessage(err.Error(), c)
 			return
 		}
-		// 返回扣减后的剩余查看次数，前端用于刷新用户额度展示。
-		data["contactViewQuotaTotal"] = contactViewQuotaTotal
+		if utils.GetUserID(c) != info.Owner {
+			// 返回扣减后的剩余查看次数，前端用于刷新用户额度展示。
+			data["contactViewQuotaTotal"] = contactViewQuotaTotal
+		}
 	}
 
 	err = ResourceService.FollowViewClickAdd(uint(req.ID), "click")
@@ -239,9 +241,18 @@ func (h *HouseResourceApi) ListByXiaoquAgg(c *gin.Context) {
 			condition.Nots[0].Terms = append(condition.Nots[0].Terms, searchx.Term{Field: "house_type", Value: v})
 		}
 	}
-
-	if len(req.RentType) > 0 {
-		condition.Terms = append(condition.Terms, searchx.Term{Field: "rent_type", Value: req.RentType + "*"})
+	// 临时需求：搜索整租 要求 房东房源也返回
+	if rentType := strings.TrimSpace(req.RentType); rentType != "" {
+		if rentType == "整租" {
+			// 当前出租类型只有：整租、分整租、合租、房东房源。
+			// 前台选“整租”时，业务上要同时包含“房东房源”，所以排除另外两类即可保持一次 Zinc 查询。
+			condition.Nots[0].Terms = append(condition.Nots[0].Terms,
+				searchx.Term{Field: "rent_type", Value: "分整租*"},
+				searchx.Term{Field: "rent_type", Value: "合租*"},
+			)
+		} else {
+			condition.Terms = append(condition.Terms, searchx.Term{Field: "rent_type", Value: rentType + "*"})
+		}
 	}
 	if !userHasTeamPermission(utils.GetUserID(c)) {
 		// 普通用户即使前端手工构造参数，也不能看到团队房源，这里做后端兜底过滤。
@@ -382,6 +393,20 @@ func (h *HouseResourceApi) ListByXiaoquAggList(c *gin.Context) {
 	if len(req.RentType) > 0 {
 		condition.Terms = append(condition.Terms, searchx.Term{Field: "rent_type", Value: req.RentType + "*"})
 	}
+	// 临时需求：搜索整租 要求 房东房源也返回
+	if rentType := strings.TrimSpace(req.RentType); rentType != "" {
+		if rentType == "整租" {
+			// 当前出租类型只有：整租、分整租、合租、房东房源。
+			// 前台选“整租”时，业务上要同时包含“房东房源”，所以排除另外两类即可保持一次 Zinc 查询。
+			condition.Nots[0].Terms = append(condition.Nots[0].Terms,
+				searchx.Term{Field: "rent_type", Value: "分整租*"},
+				searchx.Term{Field: "rent_type", Value: "合租*"},
+			)
+		} else {
+			condition.Terms = append(condition.Terms, searchx.Term{Field: "rent_type", Value: rentType + "*"})
+		}
+	}
+
 	if !userHasTeamPermission(utils.GetUserID(c)) {
 		// 聚合接口和列表接口都需要做同样的权限兜底，避免两边数据口径不一致。
 		condition.Terms = append(condition.Terms, searchx.Term{Field: "is_team_house", Value: "0"})
