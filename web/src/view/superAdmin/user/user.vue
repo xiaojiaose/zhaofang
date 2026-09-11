@@ -207,7 +207,7 @@
         ref="userForm"
         :rules="rules"
         :model="userInfo"
-        label-width="80px"
+        label-width="150px"
       >
         <el-form-item
           v-if="dialogFlag === 'add'"
@@ -259,18 +259,21 @@
             :inactive-value="2"
           />
         </el-form-item>
-        <el-form-item label="头像" label-width="80px">
+        <el-form-item label="头像" label-width="150px">
           <SelectImage v-model="userInfo.headerImg" />
         </el-form-item>
         <el-form-item label="找房超市">
           <el-switch v-model="userInfo.isFindHouseSupermarket" />
         </el-form-item>
-        <el-form-item label="上架额度">
+        <el-form-item label="上架和录入房源权限" prop="isPublish">
+          <el-switch v-model="userInfo.isPublish" />
+        </el-form-item>
+        <el-form-item label="上架额度" v-if="userInfo.isPublish === true">
           <el-input-number v-model="userInfo.publishQuotaTotal" :min="0" />
         </el-form-item>
-        <el-form-item label="联系次数">
+        <!-- <el-form-item label="联系次数">
           <el-input-number v-model="userInfo.contactViewQuotaTotal" :min="0" />
-        </el-form-item>
+        </el-form-item> -->
       </el-form>
     </el-drawer>
   </div>
@@ -544,7 +547,8 @@
     userForm.value.validate(async (valid) => {
       if (valid) {
         const req = {
-          ...userInfo.value
+          ...userInfo.value,
+          publishQuotaTotal: userInfo.value.isPublish ? userInfo.value.publishQuotaTotal : 0
         }
         if (dialogFlag.value === 'add') {
           const res = await register(req)
@@ -613,7 +617,7 @@
 
   const openEdit = (row) => {
     dialogFlag.value = 'edit'
-    userInfo.value = JSON.parse(JSON.stringify(row))
+    userInfo.value = JSON.parse(JSON.stringify({...row, isPublish: row.publishQuotaTotal > 0}))
     addUserDialog.value = true
   }
 
