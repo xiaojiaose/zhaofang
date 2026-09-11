@@ -8,6 +8,7 @@ import (
 	response2 "github.com/flipped-aurora/gin-vue-admin/server/model/house/response"
 	"github.com/flipped-aurora/gin-vue-admin/server/model/system"
 	"gorm.io/gorm"
+	"gorm.io/gorm/clause"
 	"strings"
 	"time"
 )
@@ -36,20 +37,22 @@ func (service *ContactQuotaService) GrantByPhone(operatorID uint, req request.Co
 	}).Error
 }
 
-func (service *ContactQuotaService) Consume(userID, resourceID uint, remark string) error {
+func (service *ContactQuotaService) Consume(userID, resourceID uint, remark string) (int, error) {
 	// 房东房源查看联系方式时按“查看一次扣一次”处理，
 	// 同时记录消耗流水，方便后台追踪剩余次数和使用次数。
-	return global.GVA_DB.Transaction(func(tx *gorm.DB) error {
+	var user system.SysUser
+	err := global.GVA_DB.Transaction(func(tx *gorm.DB) error {
 		var resource house.Resource
 		if err := tx.Where("id = ?", resourceID).First(&resource).Error; err != nil {
 			return err
 		}
 		// 业务约定：自己查看自己发布的房东房源不扣次数，也不生成查看记录。
 		if resource.Owner == userID {
-			return nil
+			return tx.Select("contact_view_quota_total").Where("id = ?", userID).First(&user).Error
 		}
-		var user system.SysUser
-		if err := tx.Where("id = ?", userID).First(&user).Error; err != nil {
+
+		// 锁住当前用户行，避免并发查看时多次读到同一个剩余额度。
+		if err := tx.Clauses(clause.Locking{Strength: "UPDATE"}).Where("id = ?", userID).First(&user).Error; err != nil {
 			return err
 		}
 		if user.ContactViewQuotaTotal <= 0 {
@@ -74,6 +77,7 @@ func (service *ContactQuotaService) Consume(userID, resourceID uint, remark stri
 		}
 		return service.createLandlordContactViewRecord(tx, userID, resourceID)
 	})
+	return user.ContactViewQuotaTotal, err
 }
 
 func (service *ContactQuotaService) GetPage(req request.ContactQuotaSearch) (list []house.ContactQuotaLog, total int64, err error) {

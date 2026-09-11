@@ -20,15 +20,15 @@ type HouseResourceApi struct {
 }
 
 var houseType = map[string]string{
-	//"房东房源": "房东房源",
-	"1居":  "1居",
-	"2居":  "2居",
-	"3居":  "3居",
-	"4居+": "4居+",
-	"开间": "开间",
-	"主卧": "主卧",
-	"次卧": "次卧",
-	"暗间": "暗间",
+	"房东房源": "房东房源",
+	"1居":      "1居",
+	"2居":      "2居",
+	"3居":      "3居",
+	"4居+":     "4居+",
+	"开间":     "开间",
+	"主卧":     "主卧",
+	"次卧":     "次卧",
+	"暗间":     "暗间",
 }
 
 // View
@@ -63,10 +63,10 @@ func (h *HouseResourceApi) View(c *gin.Context) {
 		Latitude:  xq.Latitude,
 		Longitude: xq.Longitude,
 	}
-	if info.HouseType == "房东房源" {
-		// 房东房源详情页不展示门牌号，避免把地址暴露得过细。
-		r.DoorNo = ""
-	}
+	//if info.HouseType == "房东房源" {
+	//	// 房东房源详情页不展示门牌号，避免把地址暴露得过细。
+	//	r.DoorNo = ""
+	//}
 
 	flist, err := FavoriteService.GetByUserIdRIds(utils.GetUserID(c), []uint{uint(req.ID)})
 	if err != nil {
@@ -123,7 +123,7 @@ func (h *HouseResourceApi) States(c *gin.Context) {
 // @Description [变更接口] 房东房源查看联系方式前，会先校验并扣减当前登录用户的可用查看次数。
 // @Produce  application/json
 // @Param    data  query    string  true  "id"
-// @Success  200   {object}  response.Response{data=map[string]string}  "结果 {'mobile': '13222222222'}"
+// @Success  200   {object}  response.Response{data=map[string]interface{}}  "结果 {'mobile': '13222222222', 'contactViewQuotaTotal': 9}"
 // @Router   /center/house/mobile [get]
 func (h *HouseResourceApi) GetMobile(c *gin.Context) {
 	var req request.GetById
@@ -145,13 +145,18 @@ func (h *HouseResourceApi) GetMobile(c *gin.Context) {
 		}
 		info.Phone = u.Phone
 	}
+	data := map[string]interface{}{"mobile": info.Phone}
 	if isLandlordResource(*info) {
 		// 房东房源联系方式需要消耗当前登录用户的可用查看次数，
 		// 扣减成功后会自动生成一条“联系方式查看记录”（默认待审核）供后台展示。
-		err = ContactQuotaService.Consume(utils.GetUserID(c), uint(req.ID), "查看房东房源联系方式")
+		contactViewQuotaTotal, err := ContactQuotaService.Consume(utils.GetUserID(c), uint(req.ID), "查看房东房源联系方式")
 		if err != nil {
 			response.FailWithMessage(err.Error(), c)
 			return
+		}
+		if utils.GetUserID(c) != info.Owner {
+			// 返回扣减后的剩余查看次数，前端用于刷新用户额度展示。
+			data["contactViewQuotaTotal"] = contactViewQuotaTotal
 		}
 	}
 
@@ -160,7 +165,7 @@ func (h *HouseResourceApi) GetMobile(c *gin.Context) {
 		global.GVA_LOG.Error("view add failed !", zap.Error(err))
 	}
 	StatisService.InsertRecord(uint(req.ID), "click", utils.GetUserID(c))
-	response.OkWithDetailed(map[string]string{"mobile": info.Phone}, "获取成功", c)
+	response.OkWithDetailed(data, "获取成功", c)
 }
 
 func isLandlordResource(resource house.Resource) bool {
@@ -236,9 +241,18 @@ func (h *HouseResourceApi) ListByXiaoquAgg(c *gin.Context) {
 			condition.Nots[0].Terms = append(condition.Nots[0].Terms, searchx.Term{Field: "house_type", Value: v})
 		}
 	}
-
-	if len(req.RentType) > 0 {
-		condition.Terms = append(condition.Terms, searchx.Term{Field: "rent_type", Value: req.RentType + "*"})
+	// 临时需求：搜索整租 要求 房东房源也返回
+	if rentType := strings.TrimSpace(req.RentType); rentType != "" {
+		if rentType == "整租" {
+			// 当前出租类型只有：整租、分整租、合租、房东房源。
+			// 前台选“整租”时，业务上要同时包含“房东房源”，所以排除另外两类即可保持一次 Zinc 查询。
+			condition.Nots[0].Terms = append(condition.Nots[0].Terms,
+				searchx.Term{Field: "rent_type", Value: "分整租*"},
+				searchx.Term{Field: "rent_type", Value: "合租*"},
+			)
+		} else {
+			condition.Terms = append(condition.Terms, searchx.Term{Field: "rent_type", Value: rentType + "*"})
+		}
 	}
 	if !userHasTeamPermission(utils.GetUserID(c)) {
 		// 普通用户即使前端手工构造参数，也不能看到团队房源，这里做后端兜底过滤。
@@ -379,6 +393,20 @@ func (h *HouseResourceApi) ListByXiaoquAggList(c *gin.Context) {
 	if len(req.RentType) > 0 {
 		condition.Terms = append(condition.Terms, searchx.Term{Field: "rent_type", Value: req.RentType + "*"})
 	}
+	// 临时需求：搜索整租 要求 房东房源也返回
+	if rentType := strings.TrimSpace(req.RentType); rentType != "" {
+		if rentType == "整租" {
+			// 当前出租类型只有：整租、分整租、合租、房东房源。
+			// 前台选“整租”时，业务上要同时包含“房东房源”，所以排除另外两类即可保持一次 Zinc 查询。
+			condition.Nots[0].Terms = append(condition.Nots[0].Terms,
+				searchx.Term{Field: "rent_type", Value: "分整租*"},
+				searchx.Term{Field: "rent_type", Value: "合租*"},
+			)
+		} else {
+			condition.Terms = append(condition.Terms, searchx.Term{Field: "rent_type", Value: rentType + "*"})
+		}
+	}
+
 	if !userHasTeamPermission(utils.GetUserID(c)) {
 		// 聚合接口和列表接口都需要做同样的权限兜底，避免两边数据口径不一致。
 		condition.Terms = append(condition.Terms, searchx.Term{Field: "is_team_house", Value: "0"})
@@ -793,10 +821,9 @@ func (h *HouseResourceApi) FilterOptions(c *gin.Context) {
 	}
 
 	response.OkWithDetailed(map[string]interface{}{
-		"houseType": options,
-		"price":     map[string]string{"1": "500以下", "2": "500-1000元", "3": "1000-1500元", "4": "1500-2000元", "5": "2000-2500元", "6": "2500-3000元", "7": "3000元以上"},
-		//"houseSource":      map[string]string{"2": "有返佣", "3": "房东房源", "4": "团队房源"},
-		"houseSource":      map[string]string{"2": "有返佣", "4": "团队房源"},
+		"houseType":        options,
+		"price":            map[string]string{"1": "500以下", "2": "500-1000元", "3": "1000-1500元", "4": "1500-2000元", "5": "2000-2500元", "6": "2500-3000元", "7": "3000元以上"},
+		"houseSource":      map[string]string{"2": "有返佣", "3": "房东房源", "4": "团队房源"},
 		"canViewTeamHouse": userHasTeamPermission(utils.GetUserID(c)),
 	}, "获取成功", c)
 
@@ -817,14 +844,14 @@ func (h *HouseResourceApi) FilterTypeOptions(c *gin.Context) {
 	}
 
 	re := map[string]interface{}{
-		"houseType": options,
-		"price":     map[string]string{"1": "500以下", "2": "500-1000元", "3": "1000-1500元", "4": "1500-2000元", "5": "2000-2500元", "6": "2500-3000元", "7": "3000元以上"},
-		//"houseSource": map[string]string{"2": "有返佣", "3": "房东房源"},
-		"houseSource": map[string]string{"2": "有返佣"},
+		"houseType":   options,
+		"price":       map[string]string{"1": "500以下", "2": "500-1000元", "3": "1000-1500元", "4": "1500-2000元", "5": "2000-2500元", "6": "2500-3000元", "7": "3000元以上"},
+		"houseSource": map[string]string{"2": "有返佣", "3": "房东房源"},
+		//"houseSource": map[string]string{"2": "有返佣"},
 	}
 	if userHasTeamPermission(utils.GetUserID(c)) {
-		//re["houseSource"] = map[string]string{"2": "有返佣", "3": "房东房源", "4": "团队房源"}
-		re["houseSource"] = map[string]string{"2": "有返佣", "4": "团队房源"}
+		re["houseSource"] = map[string]string{"2": "有返佣", "3": "房东房源", "4": "团队房源"}
+		//re["houseSource"] = map[string]string{"2": "有返佣", "4": "团队房源"}
 	}
 	response.OkWithDetailed(re, "获取成功", c)
 
