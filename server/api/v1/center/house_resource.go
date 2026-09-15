@@ -21,14 +21,14 @@ type HouseResourceApi struct {
 
 var houseType = map[string]string{
 	"房东房源": "房东房源",
-	"1居":      "1居",
-	"2居":      "2居",
-	"3居":      "3居",
-	"4居+":     "4居+",
-	"开间":     "开间",
-	"主卧":     "主卧",
-	"次卧":     "次卧",
-	"暗间":     "暗间",
+	"1居":   "1居",
+	"2居":   "2居",
+	"3居":   "3居",
+	"4居+":  "4居+",
+	"开间":   "开间",
+	"主卧":   "主卧",
+	"次卧":   "次卧",
+	"暗间":   "暗间",
 }
 
 // View
@@ -390,9 +390,6 @@ func (h *HouseResourceApi) ListByXiaoquAggList(c *gin.Context) {
 		}
 	}
 
-	if len(req.RentType) > 0 {
-		condition.Terms = append(condition.Terms, searchx.Term{Field: "rent_type", Value: req.RentType + "*"})
-	}
 	// 临时需求：搜索整租 要求 房东房源也返回
 	if rentType := strings.TrimSpace(req.RentType); rentType != "" {
 		if rentType == "整租" {
