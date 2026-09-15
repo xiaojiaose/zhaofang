@@ -56,7 +56,7 @@
         <el-table-column align="left" label="房源信息" min-width="300">
           <template #default="scope">
             <el-image
-              :src="scope.row.attachments?.house[0]?.url"
+              :src="scope.row.attachments?.house?.[0]?.url"
               fit="cover"
               style="width: 250px; height: 150px"
             >
@@ -169,7 +169,7 @@
           sortable
         >
           <template #default="scope">
-            {{ dayjs(scope.row.created_at).format("YYYY-MM-DD HH:mm:ss") }}
+            {{ dayjs(scope.row.CreatedAt).format("YYYY-MM-DD HH:mm:ss") }}
           </template>
         </el-table-column>
       </el-table>
@@ -223,12 +223,13 @@
           <br />
           <el-text class="mx-1" type="info">户室信息将不在用户端展示具体信息</el-text>
         </el-form-item>
-        <!-- <el-form-item label="房间号" prop="house_id" v-if="form.rent_type === '合租'">
+        <el-form-item label="房间号" prop="room_code" v-if="form.rent_type !== '整租' && form.rent_type !== '房东房源'">
           <el-select
-            v-model="form.house_id"
+            v-model="form.room_code"
             class="m-2"
             placeholder="请选择房间号"
             style="width: 240px"
+            disabled
           >
             <el-option
               v-for="item in [1,2,3,4,5,6,7,8,9,10]"
@@ -238,22 +239,13 @@
             />
           </el-select>
           <el-text class="mx-1" type="info">注：自进门右手起，逆时针数，不区分空间功能，第一间为1号，房间有门即算。</el-text>
-        </el-form-item> -->
-        <el-form-item label="户型" prop="house_type" v-if="form.rent_type !== '合租'">
+        </el-form-item>
+        <el-form-item label="户型" prop="house_type">
           <el-radio-group v-model="form.house_type" disabled>
             <el-radio
               v-for="item in houseTypeOptions[form.rent_type]"
               :key="item.value"
               :label="item.label"
-            />
-          </el-radio-group>
-        </el-form-item>
-        <el-form-item label="户型" prop="house_type" v-else>
-          <el-radio-group v-model="form.house_type" disabled>
-            <el-radio
-              v-for="item in ['主卧', '次卧', '案间']"
-              :key="item"
-              :label="item"
             />
           </el-radio-group>
         </el-form-item>

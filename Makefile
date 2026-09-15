@@ -70,6 +70,10 @@ images: build build-image-web build-image-server
 doc:
 	@cd server && swag init
 
+#安装 Swagger 文档生成工具
+install:
+	@go install github.com/swaggo/swag/cmd/swag@latest
+
 #插件快捷打包： make plugin PLUGIN="这里是插件文件夹名称,默认为email"
 plugin:
 	if [ -d ".plugin" ];then rm -rf .plugin ; else echo "OK!"; fi && mkdir -p .plugin/${PLUGIN}/{server/plugin,web/plugin} \
